@@ -1,0 +1,41 @@
+    <div class="reset-container">
+      <h2>RESTABLECER CONTRASEÑA</h2>
+      <form id="resetForm">
+        <div class="input-group">
+          <input
+            type="password"
+            id="password"
+            placeholder="Nueva contraseña"
+            required
+          />
+          <i
+            class="fa-solid fa-eye eye-icon"
+            onclick="togglePassword('password', this)"
+          ></i>
+        </div>
+
+        <div class="input-group">
+          <input
+            type="password"
+            id="confirmPassword"
+            placeholder="Confirmar contraseña"
+            required
+          />
+          <i
+            class="fa-solid fa-eye eye-icon"
+            onclick="togglePassword('confirmPassword', this)"
+          ></i>
+        </div>
+
+        <p>
+          La contraseña debe tener al menos doce caracteres. Para hacerla más
+          segura, utiliza letras mayúsculas y minúsculas, números y símbolos
+          como: !, ", ?, $, %, ^, &.
+        </p>
+
+        <div class="error" id="errorMsg">⚠️ Las contraseñas no coinciden.</div>
+        <div class="success" id="successMsg">✅ Contraseña actualizada.</div>
+
+        <button type="submit">Guardar</button>
+      </form>
+    </div>  

@@ -1,0 +1,37 @@
+    <div class="registro-container">
+        <h2>REGÍSTRATE</h2>
+        <form id="registroForm">
+            <label>Tipo De Documento</label>
+
+        <select id="TipoDeDocumento" required>
+          <option value="ciudadano">Escoge Una Opción</option>
+          <option value="ciudadano">Cedula De Ciudadania</option>
+          <option value="agente">Tarjeta De Identidad</option>
+          <option value="administrador">Pasaporte</option>
+        </select>
+        <label for="">Numero De Documento</label>
+        <input type="text" id="documento" required />
+            <label for="nombre">Nombre completo</label>
+            <input type="text" id="nombre" required>
+
+            <label for="correo">Correo electrónico</label>
+            <input type="email" id="correo" required>
+
+            <label for="contrasena">Contraseña</label>
+            <input type="password" id="contrasena" required>
+
+            <label for="rol">Rol</label>
+            <select id="rol" required>
+                <option value="">Selecciona un rol</option>
+                <option value="ciudadano">Ciudadano</option>
+                <option value="agente">Agente de Tránsito</option>
+                <option value="administrador">Administrador</option>
+            </select>
+
+            <button type="submit">Crear cuenta</button>
+        </form>
+
+        <div class="login-link">
+            ¿Ya tienes una cuenta? <a href="login.html">Inicia sesión</a>
+        </div>
+    </div>

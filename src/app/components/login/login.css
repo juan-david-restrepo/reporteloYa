@@ -1,16 +1,4 @@
-    * {
-      box-sizing: border-box;
-      font-family: 'Poppins', sans-serif;
-    }
-
-    body {
-      margin: 0;
-      background: #f0f2f5;
-      display: flex;
-      height: 100vh;
-    }
-
-    .container {
+   .container {
       margin: auto;
       display: flex;
       width: 800px;
