@@ -1,7 +1,7 @@
 <body>
     <div class="content-wrapper">
     <div class="navbar">
-        <div class="logo"><img src="assets/images/Gemini_Generated_Image_lwmq2ylwmq2ylwmq.webp"alt="logo"></div>
+        <div class="logo"><a routerLink="/"><img src="assets/images/Logo3.png"alt="logo"></a></div>
  <div class="menu-and-logo">
     <div class="menu-buttons-group">
         <div class="menu-item-container">
@@ -65,27 +65,35 @@
 </div>
 
         <div class="buttons">
-            <a routerLink="/login" class="button button-login" target="_self">Acceso</a>
-            <a routerLink="" class="button button-login" target="_blank">Contacto</a>
-            <a routerLink="" class="button button-signup" target="_blank">Inscribirse</a>
-            <button id="sidebarToggle" class="toggle-btn"><i class="fas fa-bars"></i></button>
-        </div>
-    <!-- <nav class="sidebar">
-        <button title="Salir"  id="closeSidebar" class="close-btn"><i class="fas fa-times"></i></button>
-        <div class="container">
-                <img src="assets/reportelo.png" alt="Avatar 1" class="avatar">
-                <button>
-                    <a routerLink="perfil.html"><i  class='bx bx-pencil'></i>   Editar </a>
-                </button>              
-            <ul class="menu-list">
-                <li><i class="fas fa-home"></i> Inicio</li>
-                <li><i class="fas fa-user"></i> Perfil</li>
-                <li><i class="fas fa-cog"></i> Configuración</li>
-                <li><i class="fas fa-envelope"></i> Mensajes</li>
-                <li><i class="fas fa-sign-out-alt"></i> Salir</li>
-            </ul>
-                <p>&copy; 2025 Reportelo Ya.</p>
-        </div>
-    </nav>
-    <div id="overlay" class="overlay"></div>
-    </div> -->
+  <a routerLink="/login" class="button button-login" target="_self">Acceso</a>
+  <a routerLink="" class="button button-login" target="_blank">Contacto</a>
+  <a routerLink="" class="button button-signup" target="_blank">Inscribirse</a>
+
+  <button id="sidebarToggle" class="toggle-btn" (click)="toggleSidebar()">
+    <i class="fas fa-bars"></i>
+  </button>
+</div>
+
+<nav class="sidebar" [class.active]="isSidebarOpen">
+  <button title="Cerrar" id="closeSidebar" class="close-btn" (click)="toggleSidebar()">
+    <i class="fas fa-times"></i>
+  </button>
+
+  <div class="container">
+                <img [src]="currentAvatar" alt="Avatar 1" class="avatar">
+                <button class="edicion" (click)="isModalOpen = true">
+                    <i class='bx bx-pencil'></i> Editar
+                </button>                 
+                  <app-avatar-modal [(isOpen)]="isModalOpen"(avatarSelected)="onAvatarSelected($event)"></app-avatar-modal>
+    <ul class="menu-list">
+      <li><i class="fas fa-home"></i> Inicio</li>
+      <li><i class="fas fa-user"></i> Perfil</li>
+      <li><i class="fas fa-cog"></i> Configuración</li>
+      <li><i class="fas fa-envelope"></i> Mensajes</li>
+      <li><i class="fas fa-sign-out-alt"></i> Salir</li>
+    </ul>
+
+    <p>&copy; 2025 Reportelo Ya.</p>
+  </div>
+</nav>
+<div id="overlay" class="overlay" [class.active]="isSidebarOpen" (click)="closeSidebar()"></div>

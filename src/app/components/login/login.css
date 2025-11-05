@@ -85,3 +85,7 @@
     .register-link a:hover {
       text-decoration: underline;
     }
+
+    .logo{
+      border-radius: 50px;
+    }

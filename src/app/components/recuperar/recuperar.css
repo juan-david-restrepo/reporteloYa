@@ -23,6 +23,7 @@
 
       .input-group {
         position: relative;
+        width: 100%;
       }
 
       input {

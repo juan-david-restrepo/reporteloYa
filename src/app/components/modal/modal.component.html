@@ -1,0 +1,27 @@
+<div class="modal-backdrop" *ngIf="isOpen" (click)="closeModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <button class="close-btn" (click)="closeModal()">&times;</button>
+    <h2>Cambiar foto de perfil</h2>
+
+    <div class="current-avatar">
+      <p>Avatar actual:</p>
+      <img [src]="selectedAvatar" alt="Avatar actual" class="avatar-lg">
+    </div>
+
+    <div class="avatar-list">
+      <p>Selecciona un nuevo avatar:</p>
+      <div class="avatars">
+        <img *ngFor="let avatar of avatars"
+             [src]="avatar"
+             [class.selected]="avatar === selectedAvatar"
+             (click)="selectAvatar(avatar)"
+             alt="Avatar">
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn cancel" (click)="closeModal()">Cancelar</button>
+      <button class="btn save" (click)="saveAvatar()">Guardar</button>
+    </div>
+  </div>
+</div>

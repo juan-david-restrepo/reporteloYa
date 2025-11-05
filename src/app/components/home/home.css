@@ -7,7 +7,7 @@
       linear-gradient(rgba(60, 60, 60, 0.4), rgba(60, 60, 60, 0.4)),
       url('/assets/images/effefq(1).png') no-repeat center center/cover;
     color: white;
-    height: 750px;
+    height: 100vh;
     position: relative;
     width: 100%;
     text-align: center;
