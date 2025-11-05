@@ -5,6 +5,7 @@
             padding: 40px;
             width: 100%;
             max-width: 400px;
+            height: 80%;
         }
 
         #registroForm {
@@ -65,4 +66,12 @@
 
         .login-link a:hover {
             text-decoration: underline;
+        }
+
+        .contenedor{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+
         }

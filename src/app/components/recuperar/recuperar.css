@@ -1,3 +1,11 @@
+      .container{
+        display: flex;
+        justify-content: center;
+        height: 100vh;
+        align-items: center;
+
+      }
+      
       .reset-container {
         background-color: #fff;
         padding: 30px;
@@ -71,4 +79,15 @@
         font-size: 14px;
         display: none;
         margin-bottom: 10px;
+      }
+
+      input{
+        width: 100%;
+      }
+
+      #resetForm{
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        width: 100%;
       }

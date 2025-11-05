@@ -1,35 +1,39 @@
-  <div class="container">
-    <div class="left">
-      <h1>REPÓRTELO YA!</h1>
-      <p>Accede a tu cuenta</p>
+  <div class="container-todo">
+    <div class="container-login">
+      <div class="left">
+        <h1>REPÓRTELO YA!</h1>
+        <p>Accede a tu cuenta</p>
 
-      <form id="formLogin">
-        <label for="rol">Tipo de usuario</label>
-        <select id="rol" required>
-          <option value="">Selecciona tu rol</option>
-          <option value="ciudadano">Ciudadano</option>
-          <option value="agente">Agente de Tránsito</option>
-          <option value="administrador">Administrador</option>
-        </select>
+        <form id="formLogin">
+          <label for="rol">Tipo de usuario</label>
+          <select id="rol" required>
+            <option value="">Selecciona tu rol</option>
+            <option value="ciudadano">Ciudadano</option>
+            <option value="agente">Agente de Tránsito</option>
+            <option value="administrador">Administrador</option>
+          </select>
 
-        <label for="emailLogin">Correo electrónico</label>
-        <input type="email" id="emailLogin" placeholder="correo@ejemplo.com" required />
+          <label for="emailLogin">Correo electrónico</label>
+          <input type="email" id="emailLogin" placeholder="correo@ejemplo.com" required />
 
-        <label for="passwordLogin">Contraseña</label>
-        <input type="password" id="passwordLogin" placeholder="" required />
+          <label for="passwordLogin">Contraseña</label>
+          <input type="password" id="passwordLogin" placeholder="" required />
 
-        <a routerLink="/recuperar">¿Olvidaste tu Contraseña?</a>
+          <a routerLink="/recuperar">¿Olvidaste tu Contraseña?</a>
 
-        <button type="submit">Iniciar Sesión</button>
-      </form>
+          <button type="submit">Iniciar Sesión</button>
+        </form>
 
-      <div class="register-link">
-        ¿Aún no tienes cuenta? <a routerLink="/registro">Regístrate aquí</a>
+        <div class="register-link">
+          ¿Aún no tienes cuenta? <a routerLink="/registro">Regístrate aquí</a>
+        </div>
+      </div>
+
+      <div class="right">
+        <img src="assets/images/Gemini_Generated_Image_lwmq2ylwmq2ylwmq.webp" alt="Logo Repórtelo Ya" />
       </div>
     </div>
-
-    <div class="right">
-      <img src="assets/images/Gemini_Generated_Image_lwmq2ylwmq2ylwmq.webp" alt="Logo Repórtelo Ya" />
-    </div>
   </div>
+  
+
 
