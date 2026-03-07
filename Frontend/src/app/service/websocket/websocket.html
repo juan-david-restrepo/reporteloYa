@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>WebSocket Test STOMP</title>
+  <style>
+    #messages {
+      border: 1px solid #ccc;
+      padding: 10px;
+      height: 300px;
+      overflow-y: auto;
+      font-family: Arial, sans-serif;
+    }
+    button {
+      margin-bottom: 10px;
+      padding: 5px 10px;
+      font-size: 16px;
+    }
+    p {
+      margin: 2px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>WebSocket STOMP Test</h1>
+  <button id="sendReport">Enviar Reporte de Prueba</button>
+  <div id="messages"></div>
+
+  <!-- STOMP.js -->
+  <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.1.0/bundles/stomp.umd.min.js"></script>
+  <script>
+    const messagesDiv = document.getElementById('messages');
+
+    // Cambia esto si tu backend es HTTPS
+    const WS_URL = 'wss://localhost:8080/ws';
+
+    // Función para mostrar mensajes en el div
+    function addMessage(text) {
+      const p = document.createElement('p');
+      p.textContent = text;
+      messagesDiv.appendChild(p);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    // Crear cliente STOMP
+    const client = new StompJs.Client({
+      brokerURL: WS_URL,
+      reconnectDelay: 5000, // reconexión automática
+      debug: (str) => console.log('[STOMP]', str),
+    });
+
+    client.onConnect = () => {
+      console.log('✅ Conectado al WebSocket');
+      addMessage('✅ Conectado al WebSocket');
+
+      // Suscribirse a mensajes de admins
+      client.subscribe('/topic/admins', (message) => {
+        const report = JSON.parse(message.body);
+        addMessage(`📢 Admin: ${report.description} (ID: ${report.id})`);
+      });
+
+      // Suscribirse a mensajes privados de agentes (simulamos agentId=2)
+      client.subscribe('/user/queue/reports', (message) => {
+        const report = JSON.parse(message.body);
+        addMessage(`🔒 Agente: ${report.description} (ID: ${report.id})`);
+      });
+    };
+
+    client.onStompError = (frame) => {
+      console.error('❌ STOMP error:', frame.body);
+      addMessage(`❌ STOMP error: ${frame.body}`);
+    };
+
+    client.onWebSocketError = (evt) => {
+      console.error('❌ WebSocket error:', evt);
+      addMessage('❌ WebSocket error, revisa backend o CORS');
+    };
+
+    client.activate();
+
+    // Botón para enviar reporte de prueba
+    document.getElementById('sendReport').addEventListener('click', () => {
+      const report = {
+        id: Date.now(),
+        description: 'Reporte de prueba desde navegador',
+        agentId: 2
+      };
+
+      client.publish({
+        destination: '/app/reports',
+        body: JSON.stringify(report)
+      });
+
+      addMessage(`✉️ Enviado: ${report.description}`);
+    });
+  </script>
+</body>
+</html>

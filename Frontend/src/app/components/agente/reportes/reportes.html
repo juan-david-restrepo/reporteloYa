@@ -1,0 +1,396 @@
+  <!-- ========================= -->
+  <!-- LISTA DE REPORTES -->
+  <!-- ========================= -->
+
+  <div class="toast-alerta" *ngIf="mensajeAlerta">
+    {{ mensajeAlerta }}
+  </div>
+
+  <div *ngIf="!reporteSeleccionado" @fadeInOut>
+    <div class="h2-filtros">
+      <h2>Reportes</h2>
+
+      <div class="filtros">
+        <button
+          class="btn-filtro"
+          (click)="cambiarFiltro('TODOS')"
+          [ngClass]="{ activo: filtroActivo === 'TODOS' }"
+        >
+          Todos
+        </button>
+
+        <button
+          class="btn-filtro"
+          (click)="cambiarFiltro('BAJA')"
+          [ngClass]="{ activo: filtroActivo === 'BAJA' }"
+        >
+          Baja
+        </button>
+
+        <button
+          class="btn-filtro"
+          (click)="cambiarFiltro('MEDIA')"
+          [ngClass]="{ activo: filtroActivo === 'MEDIA' }"
+        >
+          Media
+        </button>
+
+        <button
+          class="btn-filtro"
+          (click)="cambiarFiltro('ALTA')"
+          [ngClass]="{ activo: filtroActivo === 'ALTA' }"
+        >
+          Alta
+        </button>
+      </div>
+    </div>
+
+    <div
+      class="card reporte-list"
+      *ngFor="let r of reportesFiltrados"
+      (click)="seleccionar(r)"
+    >
+      <div class="informacion-card">
+        <b>{{ r.tipoInfraccion }}</b>
+        <p>{{ r.descripcion | slice: 0 : 60 }}...</p>
+
+        <div  class="prioridad-estado">
+          <span class="tag prioridad" [ngClass]="getClasePrioridad(r.etiqueta)">
+            {{ r.etiqueta }}
+          </span>
+
+          <span
+            class="tag estado"
+            [ngClass]="{
+              'tag-pendiente': r.estado === EstadoReporte.PENDIENTE,
+              'tag-proceso': r.estado === EstadoReporte.EN_PROCESO,
+              'tag-rechazado': r.estado === EstadoReporte.RECHAZADO,
+              'tag-finalizado': r.estado === EstadoReporte.FINALIZADO,
+            }"
+          >
+            {{
+              r.estado === EstadoReporte.PENDIENTE
+                ? "PENDIENTE"
+                : r.estado === EstadoReporte.EN_PROCESO
+                  ? "EN PROCESO"
+                  : r.estado === EstadoReporte.RECHAZADO
+                    ? "RECHAZADO"
+                    : r.estado === EstadoReporte.FINALIZADO
+                      ? "FINALIZADO"
+                      : ""
+            }}
+          </span>
+        </div>
+
+
+      </div>
+      <div class="hora-fecha">
+        <i class="fa-solid fa-clock"></i>
+        <p>{{ r.horaIncidente | slice:0:5 }}</p>
+        <p class="guion">-</p>
+        <p>{{r.fechaIncidente | date: "dd/MM/yyyy"}}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================= -->
+  <!-- DETALLE REPORTE -->
+  <!-- ========================= -->
+
+  <div *ngIf="reporteSeleccionado as r" class="detalle-reporte-full" @fadeInOut>
+    <button class="btn-volver" (click)="volverClick()">
+      <i class="fa-solid fa-arrow-left"></i>
+      Volver
+    </button>
+
+    <div class="detalle-container">
+      <!-- Imagen -->
+      <div class="detalle-foto">
+        <img
+          class="evidencia"
+          [src]="r.foto"
+          (click)="abrirZoom(r.foto)"
+          alt="Evidencia del reporte"
+        />
+      </div>
+
+      <!-- Información -->
+      <div class="detalle-info">
+        <div class="detalle-header">
+          <h2>{{ r.tipoInfraccion }}</h2>
+
+          <div>
+            <span class="tag prioridad" [ngClass]="getClasePrioridad(r.etiqueta)">
+              {{ r.etiqueta }}
+            </span>
+
+            <span
+              class="tag estado"
+              [ngClass]="{
+                'tag-pendiente': r.estado === EstadoReporte.PENDIENTE,
+                'tag-proceso': r.estado === EstadoReporte.EN_PROCESO,
+                'tag-rechazado': r.estado === EstadoReporte.RECHAZADO,
+                'tag-finalizado': r.estado === EstadoReporte.FINALIZADO,
+              }"
+            >
+              {{
+                r.estado === EstadoReporte.PENDIENTE
+                  ? "PENDIENTE"
+                  : r.estado === EstadoReporte.EN_PROCESO
+                    ? "EN PROCESO"
+                    : r.estado === EstadoReporte.RECHAZADO
+                      ? "RECHAZADO"
+                      : r.estado === EstadoReporte.FINALIZADO
+                        ? "FINALIZADO"
+                        : ""
+              }}
+            </span>
+          </div>
+        </div>
+
+        <div class="detalle-datos">
+          <div class="dato">
+            <i class="fa-solid fa-location-dot"></i>
+            <div class="label-datos">
+              <span class="info-label">Fecha</span>
+              {{ r.fechaIncidente | date: "dd/MM/yyyy" }}
+            </div>
+          </div>
+
+          <div class="dato">
+            <i class="fa-solid fa-clock"></i>
+            <div class="label-datos">
+              <span class="info-label">Hora</span>
+              {{ r.horaIncidente | slice:0:5 }}
+            </div>
+          </div>
+
+          <div class="dato" *ngIf="r.acompanado">
+            <i class="fa-solid fa-user-group"></i>
+            <div class="label-datos">
+              <span class="info-label">Acompañado:</span>
+              {{ r.placaCompanero }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Fechas -->
+
+        <div *ngIf="r.estado === EstadoReporte.EN_PROCESO">
+          <p class="fecha-info">
+            <i class="fa-solid fa-stopwatch"></i>
+            <span class="info-label">Iniciado:</span>
+            {{
+              r.fechaAceptado
+                ? (r.fechaAceptado | date: "dd/MM/yyyy - HH:mm")
+                : ""
+            }}
+          </p>
+        </div>
+
+        <div *ngIf="r.estado === EstadoReporte.FINALIZADO">
+          <p class="fecha-info">
+            <i class="fa-solid fa-clock"></i>
+            <span class="info-label">Inicio:</span>
+            {{
+              r.fechaAceptado
+                ? (r.fechaAceptado | date: "dd/MM/yyyy - HH:mm")
+                : ""
+            }}
+          </p>
+
+          <p class="fecha-info">
+            <i class="fa-solid fa-check"></i>
+            <span class="info-label">Finalizado:</span>
+            {{
+              r.fechaFinalizado
+                ? (r.fechaFinalizado | date: "dd/MM/yyyy - HH:mm")
+                : ""
+            }}
+          </p>
+
+          <p class="fecha-info">
+            <i class="fa-solid fa-hourglass-half"></i>
+            <span class="info-label">Duración:</span>
+            {{ getDuracion(r) }}
+          </p>
+        </div>
+
+        <div *ngIf="r.estado === EstadoReporte.RECHAZADO">
+          <p class="fecha-info">
+            Rechazado:
+            {{
+              r.fechaRechazado
+                ? (r.fechaRechazado | date: "dd/MM/yyyy - HH:mm")
+                : ""
+            }}
+          </p>
+        </div>
+
+        <!-- Descripción -->
+        <div class="desc-wrapper">
+          <h4 class="descripcion">Descripción</h4>
+          <div class="desc-box">
+            {{ r.descripcion }}
+          </div>
+        </div>
+
+        <!-- Acciones -->
+
+        <div class="acciones" *ngIf="r.estado === EstadoReporte.PENDIENTE">
+          <button
+            class="btn-ok"
+            [disabled]="hayEnProceso"
+            (click)="aceptarClick(r)"
+          >
+            Aceptar
+          </button>
+
+          <button
+            class="btn-no"
+            [disabled]="hayEnProceso"
+            (click)="rechazarClick(r)"
+          >
+            Rechazar
+          </button>
+        </div>
+
+        <div class="en-proceso" *ngIf="r.estado === EstadoReporte.EN_PROCESO">
+          <button class="btn-finalizar" (click)="abrirModalFinalizar()">
+            Finalizar Operativo
+          </button>
+        </div>
+
+        <div class="estado-final" *ngIf="r.estado === EstadoReporte.FINALIZADO">
+          <button class="btn-resumen" (click)="abrirModalResumen()">
+            Ver resumen del operativo
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mapa -->
+    <div class="detalle-mapa">
+      <iframe *ngIf="mapaUrl" [src]="mapaUrl" loading="lazy"></iframe>
+    </div>
+  </div>
+  <!-- ========================= -->
+  <!-- MODALES -->
+  <!-- ========================= -->
+
+  <div class="modal-backdrop" *ngIf="mostrarModal">
+    <div class="modal-box">
+      <h2>Resumen del operativo</h2>
+
+      <textarea
+        class="tex-area"
+        [(ngModel)]="resumenTexto"
+        placeholder="Describe lo ocurrido..."
+      >
+      </textarea>
+
+      <div class="modal-actions">
+        <button class="btn-no" (click)="mostrarModal = false">Cancelar</button>
+
+        <button
+          class="btn-ok"
+          [disabled]="!resumenTexto || resumenTexto.trim().length < 10"
+          (click)="confirmarFinalizar()"
+        >
+          Confirmar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" *ngIf="mostrarModalResumen">
+    <div class="modal-box">
+      <h2>Resumen del operativo</h2>
+
+      <div class="resumen-lectura">
+        {{ reporteSeleccionado?.resumenOperativo }}
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-ok" (click)="mostrarModalResumen = false">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="zoom-backdrop" *ngIf="mostrarImagenZoom" (click)="cerrarZoom()">
+    <img
+      class="zoom-img"
+      [src]="imagenZoomUrl"
+      [style.transform]="'scale(' + zoomScale + ')'"
+      (wheel)="zoomConRueda($event)"
+      (click)="$event.stopPropagation()"
+    />
+  </div>
+
+  <!-- MODAL ACEPTAR REPORTE -->
+  <div class="modal-backdrop" *ngIf="mostrarModalAceptar">
+    <div class="modal-box">
+      <h2>¿Cómo deseas atender el reporte?</h2>
+
+      <!-- OPCIONES SOLO / ACOMPAÑADO -->
+      <div class="opciones">
+        <label>
+          <input
+            type="radio"
+            name="modo"
+            value="solo"
+            [(ngModel)]="modoAceptacion"
+          />
+          <span>
+            <i class="fa-solid fa-user"></i>
+            Ir solo
+          </span>
+        </label>
+
+        <label>
+          <input
+            type="radio"
+            name="modo"
+            value="acompanado"
+            [(ngModel)]="modoAceptacion"
+          />
+          <span>
+            <i class="fa-solid fa-user-group"></i>
+            Ir acompañado
+          </span>
+        </label>
+      </div>
+
+      <!-- SECCIÓN BUSCAR COMPAÑERO -->
+      <div *ngIf="modoAceptacion === 'acompanado'" class="busqueda-companero">
+        <input
+          type="text"
+          placeholder="Ingrese la placa del compañero"
+          [(ngModel)]="placaBusqueda"
+        />
+
+        <button class="btn-ok" (click)="buscarCompanero()">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          Buscar agente
+        </button>
+
+        <!-- RESULTADO ENCONTRADO -->
+        <div *ngIf="companeroEncontrado" class="companero-card">
+          <i class="fa-solid fa-user-check"></i>
+          <div class="nombre-small">
+            <strong>{{ companeroEncontrado.nombre }}</strong>
+            <small>Placa: {{ companeroEncontrado.placa }}</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTONES FINALES -->
+      <div class="modal-actions">
+        <button class="btn-no" (click)="cerrarModalAceptar()">Cancelar</button>
+
+        <button class="btn-ok" (click)="confirmarAceptar()">Confirmar</button>
+      </div>
+    </div>
+  </div>

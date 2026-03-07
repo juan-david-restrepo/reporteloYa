@@ -1,0 +1,190 @@
+/* =====================
+   CONTENEDOR GENERAL
+===================== */
+.padre {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 30px;
+  padding-top: 100px;
+}
+
+/* =====================
+   CARD SOPORTE
+===================== */
+.soporte-container {
+  width: 100%;
+  max-width: 820px;
+  background: #ffffff;
+  border-radius: 22px;
+  padding: 50px 55px;
+  box-shadow: 0 40px 90px rgba(0, 0, 0, 0.35);
+  font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+  animation: entrada 0.6s ease;
+}
+
+/* =====================
+   HEADER
+===================== */
+.soporte-header {
+  display: flex;
+  gap: 25px;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.icono-soporte {
+  width: 70px;
+  height: 70px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #281dfe, #222485);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 30px;
+  box-shadow: 0 15px 35px rgba(78, 68, 252, 0.45);
+}
+
+.soporte-header h2 {
+  font-size: 32px;
+  font-weight: 800;
+  color: #020617;
+  margin-bottom: 6px;
+}
+
+.descripcion {
+  font-size: 15px;
+  color: #475569;
+  max-width: 520px;
+  line-height: 1.6;
+}
+
+/* =====================
+   GRID
+===================== */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+/* =====================
+   CAMPOS
+===================== */
+.campo {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 26px;
+}
+
+label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #020617;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+label i {
+  color: #281dfe;
+}
+
+/* =====================
+   INPUTS
+===================== */
+input,
+select,
+textarea {
+  padding: 16px 18px;
+  font-size: 14px;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #020617;
+  transition: all 0.25s ease;
+  outline: none;
+}
+
+textarea::placeholder {
+  color: #94a3b8;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  background: #ffffff;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.18);
+}
+
+/* =====================
+   BOTÓN
+===================== */
+.acciones {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 35px;
+}
+
+.btn-enviar {
+  padding: 16px 34px;
+  border-radius: 16px;
+  border: none;
+  font-size: 15px;
+  font-weight: 600;
+  color: #ffffff;
+  background: linear-gradient(135deg, #4f46e5, #6366f1);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 18px 45px rgba(79, 70, 229, 0.45);
+  transition: all 0.3s ease;
+}
+
+.btn-enviar:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 28px 65px rgba(79, 70, 229, 0.6);
+}
+
+.btn-enviar:disabled {
+  background: #c7d2fe;
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* =====================
+   ANIMACIÓN
+===================== */
+@keyframes entrada {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =====================
+   RESPONSIVE
+===================== */
+@media (max-width: 768px) {
+  .soporte-container {
+    padding: 35px;
+  }
+
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .acciones {
+    justify-content: center;
+  }
+}

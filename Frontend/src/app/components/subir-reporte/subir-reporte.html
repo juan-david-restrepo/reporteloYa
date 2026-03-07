@@ -1,0 +1,113 @@
+<app-nav></app-nav>
+
+<div class="padre">
+  <div class="contenedor-form">
+    <form (ngSubmit)="enviarReporte()" #reporteForm="ngForm">
+      <h2><i class="fas fa-bullhorn"></i> Reportar Infracción</h2>
+
+      <div class="form-grid">
+        <div class="columna-izq">
+          <div class="seccion">
+            <label>Tipo de incidente *</label>
+            <div class="grid-incidentes">
+              <div *ngFor="let incidente of incidentes" class="card-incidente"
+                [class.selected]="tipoSeleccionado === incidente.nombre" (click)="seleccionarIncidente(incidente)">
+                {{ incidente.nombre }}
+              </div>
+            </div>
+            <div *ngIf="mostrarCampoOtros" class="campo-otros mt-2">
+              <input type="text" name="detalleOtro" [(ngModel)]="detalleOtroIncidente" placeholder="Especifica el tipo" required />
+            </div>
+          </div>
+
+          <div class="seccion">
+            <label>Descripción *</label>
+            <textarea name="descripcion" [(ngModel)]="descripcion" maxlength="300" required
+              placeholder="Describe lo sucedido..." class="textarea-compacto"></textarea>
+            <small class="contador-texto">{{ descripcion?.length || 0 }}/300</small>
+          </div>
+        </div>
+
+        <div class="columna-der">
+          <div class="seccion fila-doble">
+            <div class="input-group">
+              <label>Fecha *</label>
+              <input type="date" name="fecha" [(ngModel)]="fecha" required />
+            </div>
+            <div class="input-group">
+              <label>Hora *</label>
+              <input type="time" name="hora" [(ngModel)]="hora" required />
+            </div>
+          </div>
+
+          <div class="seccion" *ngIf="requierePlacaActual || placaOpcional">
+            <label>Placa del vehículo <span *ngIf="requierePlacaActual">*</span></label>
+            <input type="text" name="placa" [(ngModel)]="placa" placeholder="Ej: ABC123" maxlength="6" />
+          </div>
+
+          <div class="seccion">
+            <label>Evidencia (Imágenes/Videos)</label>
+            <div class="upload-container">
+              <input type="file" id="file-upload" multiple (change)="onFileChange($event)" class="input-hidden" />
+              <label for="file-upload" class="upload-dropzone">
+                <i class="fas fa-cloud-arrow-up upload-icon"></i>
+                <span class="upload-text">Seleccionar archivos</span>
+                <span class="upload-hint">o arrastrar y soltar aquí</span>
+              </label>
+            </div>
+
+            <div class="preview-container" *ngIf="fileList.length > 0">
+        <div class="preview-item" *ngFor="let file of fileList; let i = index">
+    
+    <button type="button" class="remove-btn" (click)="removeFile(i)">
+        <i class="fas fa-times"></i>
+    </button>
+
+    <!-- IMAGEN -->
+    <img 
+        *ngIf="file.type.startsWith('image')" 
+        [src]="previewUrls[i]" 
+        (click)="abrirModal(file)" 
+        class="img-clickable" 
+    />
+
+    <!-- VIDEO -->
+    <video 
+        *ngIf="file.type.startsWith('video')" 
+        [src]="previewUrls[i]" 
+        controls>
+    </video>
+
+</div>
+            </div>
+          </div>
+
+          <div class="seccion ubicacion-seccion">
+            <div class="ubicacion-header">
+               <button type="button" class="btn-secundario" (click)="obtenerUbicacion()">
+                 <i class="fas fa-location-dot"></i> Obtener ubicación
+               </button>
+               <p class="texto-direccion" *ngIf="direccion">{{ direccion }}</p>
+            </div>
+            <div id="map" class="mapa-compacto"></div>
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-enviar" [disabled]="!formularioValido() || isSubmitting">
+        <i class="fas fa-paper-plane"></i>
+        <span> {{ isSubmitting ? 'Enviando...' : 'Enviar Reporte Oficial' }}</span>
+      </button>
+    </form>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="imagenSeleccionada" (click)="cerrarModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <button class="close-modal" (click)="cerrarModal()" title="Cerrar">
+      <i class="fas fa-times"></i>
+    </button>
+    
+    <img [src]="urlImagenModal" alt="Evidencia ampliada">
+  </div>
+</div>

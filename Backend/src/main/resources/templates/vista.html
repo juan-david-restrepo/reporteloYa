@@ -1,0 +1,15 @@
+String cuerpoHtml = """
+<html>
+  <body style="font-family:Arial;text-align:center;color:#333;">
+    <h2 style="color:#4CAF50;">🔐 Recuperación de contraseña</h2>
+    <p>Hola, hemos recibido una solicitud para restablecer tu contraseña en <b>RepórteloYa</b>.</p>
+    <p>Para continuar, haz clic en el siguiente botón:</p>
+    <a href="%s" style="display:inline-block;padding:12px 20px;background-color:#4CAF50;color:white;text-decoration:none;border-radius:6px;">
+      Restablecer Contraseña
+    </a>
+    <p style="margin-top:20px;">Si no solicitaste este cambio, ignora este correo.</p>
+    <hr/>
+    <small>© 2025 RepórteloYa. Todos los derechos reservados.</small>
+  </body>
+</html>
+""".formatted(enlace);

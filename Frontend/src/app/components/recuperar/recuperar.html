@@ -1,0 +1,37 @@
+<app-nav></app-nav>
+
+<div class="container">
+  <div class="reset-container">
+    <h2>RECUPERAR CONTRASEÑA</h2>
+
+    <p>
+      Ingresa el correo electrónico asociado a tu cuenta. Te enviaremos un
+      enlace para que puedas restablecer tu contraseña.
+    </p>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+      <div class="input-group">
+        <input
+          type="email"
+          formControlName="email"
+          placeholder="Ingresa tu correo electrónico"
+        />
+        <i class="fa-solid fa-envelope"></i>
+      </div>
+
+      <button 
+        type="submit" 
+        class="btn-tercero"
+        [disabled]="form.invalid || loading"
+      >
+        {{ loading ? 'Enviando...' : 'Enviar enlace' }}
+      </button>
+
+      <a routerLink="/login">
+        <i class="bx bx-arrow-back"></i> <span>Volver a login</span>
+      </a>
+
+    </form>
+  </div>
+</div>

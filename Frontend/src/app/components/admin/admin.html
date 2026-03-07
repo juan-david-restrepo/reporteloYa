@@ -1,0 +1,143 @@
+<div class="admin-layout">
+  <button class="mobile-menu-btn" (click)="menuAbierto = !menuAbierto">☰</button>
+  <div class="sidebar-overlay" *ngIf="menuAbierto" (click)="menuAbierto = false"></div>
+  <app-sidebar-admin [class.active]="menuAbierto"></app-sidebar-admin>
+
+  <main class="main-content">
+
+
+    <div class="header">
+      <h2>Dashboard General</h2>
+    </div>
+
+
+
+
+
+
+    <div class="charts-grid container-fluid mt-4">
+      <div class="card shadow-sm border-0 chart-card">
+        <div class="card-body">
+          <h4 class="card-title mb-4 clickable text-primary fw-bold" (click)="abrirModalBarras()">
+            <i class="bi bi-bar-chart-fill me-2"></i>Distribución de Infracciones
+          </h4>
+          <div class="canvas-container" style="position: relative; height:250px; width:100%;">
+            <canvas id="barChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class="table-section">
+      <div class="table-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h3>Infracciones Recientes</h3>
+        <select (change)="aplicarFiltro($event)" style="padding:8px; border-radius:8px; border:1px solid #e2e8f0;">
+          <option value="">Todos los estados</option>
+          <option value="PENDIENTE">PENDIENTE</option>
+          <option value="EN PROCESO">EN PROCESO</option>
+          <option value="FINALIZADO">FINALIZADO</option>
+          <option value="RECHAZADO">RECHAZADO</option>
+        </select>
+      </div>
+
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Fecha</th>
+              <th>Tipo</th>
+              <th>Agente</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let inf of infraccionesAMostrar" (click)="abrirDetalleInfraccion(inf)" class="clickable-row">
+              <td><strong>{{ inf.id }}</strong></td>
+              <td>{{ inf.fecha }}</td>
+              <td>{{ inf.tipo }}</td>
+              <td>{{ inf.agente }}</td>
+              <td>
+                <span class="status" [ngClass]="getClaseEstado(inf.estado)">{{ inf.estado }}</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="modal-overlay" *ngIf="modalAbierto" (click)="cerrarModal()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h5>{{ tituloModal }}</h5>
+      <button class="btn-close-circle" (click)="cerrarModal()"></button>
+    </div>
+    <div class="modal-body">
+      <div *ngIf="tipoModalActivo === 'barras'">
+        <table class="modal-table">
+          <thead>
+            <tr>
+              <th>Tipo</th>
+              <th>Descripción</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of itemsFiltrados">
+              <td>{{ item.ref }}</td>
+              <td>{{ item.descripcion }}</td>
+              <td><strong>{{ item.cantidad }}</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div *ngIf="tipoModalActivo === 'infraccion' && infraccionSeleccionada" class="detalle-infraccion-container">
+        <div class="detalle-grid">
+          <div class="detalle-item"><label>Referencia</label><p>{{ infraccionSeleccionada.ref }}</p></div>
+          <div class="detalle-item"><label>Tipo</label><p>{{ infraccionSeleccionada.tipo }}</p></div>
+          <div class="detalle-item"><label>Agente</label><p>{{ infraccionSeleccionada.agente }}</p></div>
+          <div class="detalle-item"><label>Estado</label>
+            <p><span class="status-badge" [ngClass]="getClaseEstado(infraccionSeleccionada.estado)">{{ infraccionSeleccionada.estado }}</span></p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer-centered">
+      <button class="btn-action-blue" (click)="cerrarModal()">Cerrar</button>
+    </div>
+  </div>
+</div>

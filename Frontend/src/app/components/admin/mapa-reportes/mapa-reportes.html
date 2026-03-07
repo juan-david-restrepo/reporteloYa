@@ -1,0 +1,101 @@
+<div class="admin-container">
+
+  <button class="mobile-menu-btn" (click)="menuAbierto = !menuAbierto">☰</button>
+
+  <div class="sidebar-overlay" *ngIf="menuAbierto" (click)="menuAbierto = false"></div>
+
+  <app-sidebar-admin [class.active]="menuAbierto"></app-sidebar-admin>
+
+  <div class="admin-content">
+
+    <div class="admin-header">
+      <div>
+        <h1>Centro de Control Vial</h1>
+        <p>Monitoreo y gestión de reportes ciudadanos</p>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+
+      <div class="stat-card pendiente">
+        <h3>Pendientes</h3>
+        <span>{{ pendientes }}</span>
+      </div>
+
+      <div class="stat-card proceso">
+        <h3>En Proceso</h3>
+        <span>{{ enProceso }}</span>
+      </div>
+
+      <div class="stat-card resuelto">
+        <h3>Resueltos</h3>
+        <span>{{ resueltos }}</span>
+      </div>
+
+      <div class="stat-card total">
+        <h3>Total Hoy</h3>
+        <span>{{ pendientes + enProceso + resueltos }}</span>
+      </div>
+
+    </div>
+
+    <div class="map-card">
+      <div class="map-header">
+        <h2>Mapa de Reportes</h2>
+        <span>Vista Satelital Activa</span>
+      </div>
+
+      <div id="map"></div>
+    </div>
+
+  </div>
+
+  <div class="detalle-overlay" *ngIf="mostrarDetalle">
+
+    <div class="detalle-panel">
+
+      <div class="detalle-header">
+        <h2>Detalle del Reporte</h2>
+        <button class="cerrar-btn" (click)="cerrarDetalle()">✕</button>
+      </div>
+
+      <div class="detalle-body" *ngIf="reporteSeleccionado">
+
+        <p><strong>Tipo:</strong> {{ reporteSeleccionado.tipo }}</p>
+
+        <p>
+          <strong>Descripción:</strong><br>
+          {{ reporteSeleccionado.descripcion }}
+        </p>
+
+        <p>
+          <strong>Estado:</strong>
+          <span [ngClass]="reporteSeleccionado.estado">
+            {{ reporteSeleccionado.estado }}
+          </span>
+        </p>
+
+        <p>
+          <strong>Fecha:</strong>
+          {{ reporteSeleccionado.fecha | date:'short' }}
+        </p>
+
+        <p *ngIf="reporteSeleccionado.agente">
+          <strong>Asignado a:</strong> {{ reporteSeleccionado.agente }}
+        </p>
+
+        <p *ngIf="reporteSeleccionado.direccion">
+          <strong>Dirección:</strong> {{ reporteSeleccionado.direccion }}
+        </p>
+
+        <button class="btn-ir" (click)="navegarADetalle(reporteSeleccionado.id)">
+          Ir al módulo completo
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

@@ -1,0 +1,57 @@
+<app-nav></app-nav>
+<div class="contenedor">
+  <div class="registro-wrapper">
+    <div class="registro-info">
+      <img src="assets/images/LogoNuevo2.png" alt="Registro" />
+      <h2>¡Bienvenido a Reportelo Ya!</h2>
+      <p>Ayúdanos a mejorar tu ciudad reportando infracciones de tránsito.</p>
+    </div>
+    <div class="registro-container">
+      <h2>REGÍSTRATE</h2>
+
+      <form [formGroup]="registroForm" (ngSubmit)="onSubmit()">
+
+  <div class="input-group">
+    <i class="fa-solid fa-id-card"></i>
+    <select formControlName="tipoDocumento" required>
+      <option value="">Escoge Una Opción</option>
+      <option value="CC">Cédula De Ciudadanía</option>
+      <option value="PASAPORTE">Pasaporte</option>
+    </select>
+  </div>
+
+  <div class="input-group">
+    <i class="fa-solid fa-hashtag"></i>
+    <input type="text" formControlName="numeroDocumento" placeholder="Número de documento" required />
+  </div>
+
+  <div class="input-group">
+    <i class="fa-solid fa-user"></i>
+    <input type="text" formControlName="nombre" placeholder="Nombre completo" required />
+  </div>
+
+  <div class="input-group">
+    <i class="fa-solid fa-envelope"></i>
+    <input type="email" formControlName="correo" placeholder="correo@ejemplo.com" required />
+  </div>
+
+  <div class="input-group">
+    <i class="fa-solid fa-lock"></i>
+    <input type="password" formControlName="contrasena" placeholder="********" required />
+  </div>
+
+  <button type="submit" class="btn-secundary">
+    Crear cuenta
+  </button>
+
+</form>
+
+
+
+
+      <div class="login-link">
+        ¿Ya tienes una cuenta? <a routerLink="/login">Iniciar sesión</a>
+      </div>
+    </div>
+  </div>
+</div>

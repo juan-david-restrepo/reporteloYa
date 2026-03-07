@@ -1,0 +1,146 @@
+<div
+  class="app-container"
+  [class.dark]="config.modoNoche"
+  [class.cb]="config.daltonismo"
+>
+  <app-sidebar-agente
+    class="sidebar-wrapper"
+    [class.mobile-open]="sidebarAbierto"
+    [vistaActual]="vistaActual"
+    (vistaChange)="cambiarVista($event); cerrarSidebar()"
+    (logout)="cerrarSesion()"
+  >
+  </app-sidebar-agente>
+
+  <div
+  class="overlay"
+  *ngIf="sidebarAbierto"
+  (click)="cerrarSidebar()"
+  ></div>
+
+  <main class="main-content" [style.font-size.px]="config.fontSize">
+    <header class="top-header">
+
+      <button class="hamburger" (click)="toggleSidebar()">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+
+      <div class="header-title">
+        <h1>{{ vistaActual | titlecase }}</h1>
+      </div>
+
+      <div class="notif-estado">
+        <div class="estado-wrapper">
+          <span class="estado-label">Estado</span>
+
+          <div
+            class="estado-card"
+            [class.libre]="estadoAgente === 'LIBRE'"
+            [class.ocupado]="estadoAgente === 'OCUPADO'"
+            [class.off]="estadoAgente === 'FUERA_SERVICIO'"
+          >
+            <i
+              class="fa-solid"
+              [ngClass]="{
+                'fa-circle-check': estadoAgente === 'LIBRE',
+                'fa-circle-pause': estadoAgente === 'OCUPADO',
+                'fa-circle-xmark': estadoAgente === 'FUERA_SERVICIO',
+              }"
+            >
+            </i>
+
+            <span class="estado-text">
+              {{
+                estadoAgente === "FUERA_SERVICIO"
+                  ? "Fuera de servicio"
+                  : estadoAgente === "OCUPADO"
+                    ? "Ocupado"
+                    : "Disponible"
+              }}
+            </span>
+          </div>
+        </div>
+
+        <div class="notif-wrapper">
+          <div
+            class="notif-icon"
+            (click)="toggleNotificaciones()"
+            [class.ring]="notificaciones.length > 0"
+          >
+            <i class="fa-solid fa-bell"></i>
+
+            <span class="notif-count" *ngIf="notificaciones.length > 0">
+              {{ notificaciones.length }}
+            </span>
+          </div>
+
+          <div class="notif-dropdown" *ngIf="mostrarNotificaciones">
+            <div
+              class="notif-item"
+              *ngFor="let n of notificaciones"
+              (click)="abrirNotif(n)"
+            >
+              <strong>{{ n.tipo }}</strong>
+              <p>{{ n.texto }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <hr />
+
+    <!-- VISTAS -->
+    <app-dashboard
+      *ngIf="vistaActual === 'dashboard'"
+      [estadoAgente]="estadoAgente"
+    >
+    </app-dashboard>
+
+    <app-reportes
+      *ngIf="vistaActual === 'reportes'"
+      [reportes]="reportesEntrantes"
+      [hayEnProceso]="hayEnProceso"
+      [reporteInicial]="reporteDesdeHistorial"
+      [modoLectura]="reporteDesdeHistorial !== null"
+      [origen]="origenDetalle"
+      (volver)="volverDesdeDetalle($event)"
+      (aceptar)="aceptarReporte($event)"
+      (rechazar)="rechazarReporte($event)"
+      (finalizar)="finalizarReporte($event)"
+    >
+    </app-reportes>
+
+    <app-historial
+      *ngIf="vistaActual === 'historial'"
+      [historial]="historialReportes"
+      (verDetalle)="verDetalleHist($event)"
+    >
+    </app-historial>
+
+    <app-tareas
+      *ngIf="vistaActual === 'tareas'"
+      [tareas]="tareasAdmin"
+      (comenzar)="comenzarTarea($event)"
+      (finalizar)="finalizarTarea($event)"
+    >
+    </app-tareas>
+
+    <app-perfil-agente
+      *ngIf="vistaActual === 'perfil'"
+      [agente]="perfilAgente"
+      [estadoAgente]="estadoAgente"
+      (estadoChange)="toggleServicio($event)"
+    >
+    </app-perfil-agente>
+
+    <app-configuracion
+      *ngIf="vistaActual === 'configuracion'"
+      [(config)]="config"
+      (configChange)="updateConfig($event)"
+    >
+    </app-configuracion>
+
+    
+  </main>
+</div>

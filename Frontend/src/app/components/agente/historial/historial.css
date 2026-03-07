@@ -1,0 +1,107 @@
+/* =========================
+   HISTORIAL
+========================= */
+
+.filtro-h2{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;   /* 👈 clave */
+  gap: 12px;
+}
+
+.filtros{
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  margin: 0px 0px 17px 0;
+}
+
+.btn-filtro {
+  padding: 8px 16px;
+  border-radius: 10px;
+  border: none;
+  background: #e2e8f0;
+  color: #1e293b;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all .25s ease;
+}
+
+.btn-filtro:hover {
+  background: #cbd5e1;
+  transform: translateY(-2px);
+}
+
+.btn-filtro.activo {
+  background: linear-gradient(135deg,#3b82f6,#2563eb);
+  color: white;
+  box-shadow: 0 6px 18px rgba(37,99,235,.4);
+}
+
+.historial-card {
+  cursor: pointer;
+  padding: 20px;
+  border-radius: 18px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.4);
+  background: var(--card);
+  margin-bottom: 20px;
+}
+
+.historial-card:hover {
+  transform: translateX(6px);
+}
+
+.hist-dir {
+  color: #64748b;
+  font-size: 14px;
+  word-break: break-word;
+}
+
+@media (max-width: 600px) {
+
+  /* Header vertical */
+  .filtro-h2 {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  /* Botones ocupan todo el ancho */
+  .filtros {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .btn-filtro {
+    flex: 1 1 30%;
+    text-align: center;
+  }
+
+  /* Cards más compactas */
+  .historial-card {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .historial-card b {
+    font-size: 15px;
+  }
+
+  .hist-dir {
+    font-size: 13px;
+  }
+
+}
+
+@media (min-width: 601px) and (max-width: 900px) {
+
+  .filtros {
+    flex-wrap: wrap;
+  }
+
+  .btn-filtro {
+    flex: 1 1 auto;
+  }
+
+}

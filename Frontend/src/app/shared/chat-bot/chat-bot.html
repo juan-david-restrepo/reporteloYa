@@ -1,0 +1,21 @@
+<div class="chatbot-toggle" *ngIf="!mostrarChat" (click)="toggleChat()">
+  💬
+</div>
+
+<div class="chatbot-box" *ngIf="mostrarChat">
+  <div class="chat-header">
+    <span>Robotransit</span>
+    <button (click)="toggleChat()">✖</button>
+  </div>
+
+  <div id="chatMessages" class="chat-messages">
+    <div *ngFor="let msg of mensajes" [ngClass]="msg.tipo">{{ msg.texto }}</div>
+    <div *ngIf="cargando" class="loader">Cargando...</div>
+  </div>
+
+  <div class="chat-input">
+    <input [(ngModel)]="textoUsuario"
+           (keydown.enter)="enviarMensaje()"
+           placeholder="Escribe tu mensaje..." />
+  </div>
+</div>

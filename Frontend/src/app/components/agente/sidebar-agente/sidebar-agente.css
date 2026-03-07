@@ -1,0 +1,108 @@
+/* =========================
+   SIDEBAR AGENTE
+========================= */
+
+.sidebar {
+  width: 260px;
+  background: #1e293b;
+  color: white;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+
+.logo-box {
+  display: flex;
+  align-items: center;
+}
+
+.logo-text {
+  font-size: 18px;
+}
+
+.logo-img {
+  width: 90px;
+  height: 90px;
+}
+
+/* MENU */
+
+.menu button {
+  width: 100%;
+  padding: 12px;
+  margin: 5px 0;
+  background: none;
+  border: none;
+  color: #cbd5e1;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: 0.2s;
+}
+
+.menu button:hover,
+.menu button.active {
+  background: #3498db;
+  color: white;
+}
+
+
+.menu button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
+}
+
+.menu button i {
+  width: 20px;
+  text-align: center;
+  transition: transform 0.25s, color 0.25s;
+}
+
+/* Hover */
+.menu button:hover i {
+  transform: translateX(4px) scale(1.1);
+  color: #ffffff;
+}
+
+.logout-btn i{
+  color: rgb(175, 9, 9);
+}
+
+.logout-btn:hover i {
+  transform: translateX(4px) scale(1.1);
+  color: rgb(255, 0, 0);
+}
+
+
+/* Activo */
+.menu button.active i {
+  color: #ffffff;
+  transform: scale(1.15);
+}
+
+.menu button.active {
+  box-shadow: inset 4px 0 0 #60a5fa;
+}
+
+.menu button.active i {
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 900px) {
+  .sidebar {
+    width: 260px;
+    height: 100vh;
+  }
+}

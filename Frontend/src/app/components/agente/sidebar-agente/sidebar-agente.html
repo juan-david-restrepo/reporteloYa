@@ -1,0 +1,61 @@
+<aside class="sidebar">
+  <div class="logo-box">
+    <img src="assets/images/logoNuevo.png" class="logo-img" />
+    <span class="logo-text">ReporteloYa</span>
+  </div>
+
+  <nav class="menu">
+    <button
+      (click)="cambiar('dashboard')"
+      [class.active]="vistaActual === 'dashboard'"
+    >
+      <i class="fa-solid fa-chart-line"></i>
+      Dashboard
+    </button>
+
+    <button
+      (click)="cambiar('reportes')"
+      [class.active]="vistaActual === 'reportes'"
+    >
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      Reportes
+    </button>
+
+    <button
+      (click)="cambiar('tareas')"
+      [class.active]="vistaActual === 'tareas'"
+    >
+      <i class="fa-solid fa-envelope"></i>
+      Tareas
+    </button>
+
+    <button
+      (click)="cambiar('historial')"
+      [class.active]="vistaActual === 'historial'"
+    >
+      <i class="fa-solid fa-clock-rotate-left"></i>
+      Historial
+    </button>
+
+    <button
+      (click)="cambiar('perfil')"
+      [class.active]="vistaActual === 'perfil'"
+    >
+      <i class="fa-solid fa-user"></i>
+      Perfil
+    </button>
+
+    <button
+      (click)="cambiar('configuracion')"
+      [class.active]="vistaActual === 'configuracion'"
+    >
+      <i class="fa-solid fa-gear"></i>
+      Ajustes
+    </button>
+
+    <button class="logout-btn" (click)="logout.emit()">
+      <i class="fa-solid fa-right-from-bracket"></i>
+      Cerrar sesión
+    </button>
+  </nav>
+</aside>

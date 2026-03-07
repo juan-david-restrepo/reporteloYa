@@ -1,0 +1,154 @@
+<body>
+    <div class="content-wrapper">
+        <div class="navbar">
+            <div class="logo"><a routerLink="/"><img src="assets/images/LogoNuevo2.png" alt="logo"></a></div>
+
+            <div class="menu-and-logo">
+                <div class="menu-buttons-group">
+
+                    <a routerLink="/" class="menu-item-home"  routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+                        <i class="fa-solid fa-house"></i> Inicio
+                    </a>
+
+                    <!-- REPORTES -->
+                    <div class="menu-item-container" routerLinkActive="active">
+                        <a class="menu-item" (click)="$event.preventDefault()">
+                            Reportes <i class='bx bx-chevron-down'></i>
+                        </a>
+                        <div class="dropdown">
+                            <div class="dropdown-section">
+                                <a routerLink="/subir-reporte">Subir Evidencia</a>
+                                <p>Fotomultas y reportes ciudadanos</p>
+                                <p>Video de infracción</p>
+                            </div>
+                            <div class="dropdown-section">
+                                <h4>Mis Reportes</h4>
+                                <p>Ver historial de reportes enviados</p>
+                                <p>Estado del reporte</p>
+                                <p>Editar o eliminar reporte</p>
+                            </div>
+                            <div class="dropdown-section">
+                                <h4>Reportes Públicos</h4>
+                                <p>Mapa de infracciones reportadas</p>
+                                <p>Estadísticas por zona</p>
+                                <p>Alertas comunitarias</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- EDUCACIÓN VIAL -->
+                    <div class="menu-item-container" routerLinkActive="active">
+                        <a class="menu-item" (click)="$event.preventDefault()">
+                            Educación Vial <i class='bx bx-chevron-down'></i>
+                        </a>
+                        <div class="dropdown">
+                            <div class="dropdown-section">
+                                <a routerLink="/senales">Señales de Tránsito</a>
+                                <p>Significado y ejemplos comunes</p>
+                            </div>
+                            <div class="dropdown-section">
+                                <a routerLink="/normas">Ver normas de tránsito</a>
+                                <p>Guía rápida para conductores y peatones</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SERVICIOS -->
+                    <div class="menu-item-container" routerLinkActive="active">
+                        <a class="menu-item" (click)="$event.preventDefault()">
+                            Servicios <i class='bx bx-chevron-down'></i>
+                        </a>
+                        <div class="dropdown">
+                            <div class="dropdown-section">
+                                <h4>Consulta de Comparendos</h4>
+                                <p>Consulta en línea por placa o cédula</p>
+                            </div>
+                            <div class="dropdown-section">
+                                <h4>Puntos de Atención</h4>
+                                <p>Direcciones y horarios de atención</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- LINKS NORMALES -->
+                    <a class="menu-item" routerLinkActive="active" (click)="$event.preventDefault()">Estadísticas</a>
+                    <a class="menu-item" routerLinkActive="active" (click)="$event.preventDefault()">Noticias</a>
+                    <a routerLink="/soporte" class="menu-item" routerLinkActive="active">Soporte</a>
+
+                </div>
+            </div>
+
+
+            <div class="buttons">
+
+                <!-- ❌ Ocultar cuando esté logueado -->
+                <a *ngIf="!isLoggedIn" routerLink="/login" class="button button-login"><i class='bx  bx-user'></i> Iniciar sesion</a>
+                <a *ngIf="!isLoggedIn" routerLink="/registro" class="button button-signup">Registrarme</a>
+
+                <!-- ✔ Mostrar cuando esté logueado -->
+                <button
+                    id="sidebarToggle"
+                    class="toggle-btn"
+                    (click)="toggleSidebar()"
+                    *ngIf="isLoggedIn"
+                    title="Cuenta"
+                >
+                    <i><img  [src]="currentAvatar" alt="Avatar 1" class="avatarnav"></i>
+                </button>
+
+            </div>
+
+            <nav class="sidebar" [class.active]="isSidebarOpen">
+  <button title="Cerrar" id="closeSidebar" class="close-btn" (click)="toggleSidebar()">
+      <i class="bx bx-x"></i>
+  </button>
+
+  <div class="container">
+      <img [src]="currentAvatar" alt="Avatar 1" class="avatar">
+      <button class="edicion" (click)="isModalOpen = true">
+          <i class='bx bx-pencil'></i>  Avatar
+      </button>
+      <app-avatar-modal [(isOpen)]="isModalOpen"
+          (avatarSelected)="onAvatarSelected($event)"></app-avatar-modal>
+
+      <ul class="menu-list">
+          <li>
+              <a routerLink="/home" class="menu-item">
+                  <i class="bx bx-home-alt-2"></i>
+                  <span>Inicio</span>
+              </a>
+          </li>
+          <li>
+              <a routerLink="/perfil" class="menu-item">
+                  <i class="bx bx-user-circle"></i>
+                  <span>Perfil</span>
+              </a>
+          </li>
+          <li>
+              <a routerLink="/configuracion" class="menu-item">
+                  <i class="bx bx-cog"></i>
+                  <span>Configuración</span>
+              </a>
+          </li>
+          <li>
+              <a routerLink="/mensajes" class="menu-item">
+                  <i class="fas fa-bell"></i>
+                  <span>Notificaciones</span>
+              </a>
+          </li>
+          <li class="menu-item logout" (click)="logout()">
+              <i class="bx bx-log-out"></i>
+              <span>Salir</span>
+          </li>
+      </ul>
+
+      <p class="sidebar-footer">&copy; {{ currentYear }} Reportelo Ya.</p>
+  </div>
+</nav>
+
+    </div>
+</div>
+
+
+<div id="overlay" class="overlay" [class.active]="isSidebarOpen" (click)="closeSidebar()"></div>
+

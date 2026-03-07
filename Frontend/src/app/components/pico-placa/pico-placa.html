@@ -1,0 +1,62 @@
+<app-nav></app-nav>
+<div class="pico-placa-container">
+      
+    <header class="header">
+        <h1>Pico y Placa Armenia Quindío</h1>
+        <p>Restricción para vehículos particulares y motocicletas.</p>
+    </header>
+
+    <hr class="separator">
+
+    <section class="restriccion-hoy-section">
+        <h2 class="section-title">Hoy es {{ diaActual }}</h2>
+        
+        <div class="tarjeta-hoy">
+            <p class="placa-label">Terminación de Placa:</p>
+
+            <div class="numero-container">
+                <p class="restriccion-numero"
+                   [ngClass]="{'rojo': restriccionHoy?.restriccion !== 'No aplica', 
+                              'verde': restriccionHoy?.restriccion === 'No aplica'}">
+
+                    <span *ngIf="restriccionHoy?.restriccion !== 'No aplica'; else noAplica">
+                        {{ restriccionHoy?.restriccion }}
+                    </span>
+                    <ng-template #noAplica>
+                        {{ restriccionHoy?.restriccion }}
+                    </ng-template>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <hr class="separator">
+
+    <section class="restricciones-semanales">
+        <h3 class="section-title">Restricción Semanal Completa</h3>
+        
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Día de la Semana</th>
+                        <th>Placas Restringidas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let dia of restricciones" 
+                        [ngClass]="{'dia-actual': dia.diaSemana === diaActual}">
+                        <td class="dia">{{ dia.diaSemana }}</td>
+                        <td class="placa">{{ dia.restriccion }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <footer class="footer">
+        Datos de restricción sujetos a cambios por decretos municipales.
+    </footer>
+</div>
+
+<app-footer></app-footer>

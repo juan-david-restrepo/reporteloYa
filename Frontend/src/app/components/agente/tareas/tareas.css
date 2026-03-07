@@ -1,0 +1,668 @@
+/* =========================
+   TAREAS
+========================= */
+
+.tareas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(280px,1fr));
+  gap: 20px;
+}
+
+.tarea-card {
+  background: var(--card);
+  padding: 20px;
+  border-radius: 18px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.4);
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  align-items: start;
+  justify-content: space-between;
+}
+
+.info-card{
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.hora{
+  display: flex;
+  flex-direction: row;
+  gap: 7px;
+  align-items: center;
+}
+
+.preview-msg {
+  color: #64748b;
+}
+
+.tarea-detalle {
+  max-width: 700px;
+}
+
+.mensaje-completo {
+  background: #f1f5f9;
+  padding: 15px;
+  border-radius: 12px;
+  color: black;
+  border-color: #3498db;
+  border-width: 2px;
+  border-style: solid;
+}
+
+.estado.ok {
+  background:#dcfce7;
+  color:#166534;
+  padding:4px 10px;
+  border-radius:8px;
+}
+
+h3 {
+  margin: 0;
+  color: #1e293b;
+}
+
+.preview-msg {
+  margin: 0;
+  color: #64748b;
+}
+
+.btnTareas{
+  background-color: #5fe671;
+  color: rgb(48, 47, 47);
+  border-radius: 12px;
+  width: 140px;
+  border: none;
+  height: 35px; 
+  margin-top: 10px;
+  font-size: 14px;  
+  box-shadow: 0 4px 12px rgba(0,0,0,.2);
+  cursor: pointer;
+}
+/*----------------------------------------*/
+
+/* =========================
+   DETALLE MODERNO
+========================= */
+
+.tarea-detalle{
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+.detalle-card{
+  width: 100%;
+  max-width: 800px;
+  background:white;
+  border:3px solid #cbd5e1;
+  border-radius:20px;
+  box-shadow:0 15px 40px rgba(0,0,0,.18);
+  padding:40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-top: 80px;
+}
+
+/* Header */
+.detalle-header {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.detalle-header h2 {
+  margin: 0;
+}
+
+/* Badge estado */
+.estado-badge {
+  background: linear-gradient(45deg,#3498db,#2563eb);
+  color: white;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* Grid info */
+.detalle-info{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  
+}
+
+.info-box {
+  background: #f8fafc;
+  padding: 12px 16px;
+  border-radius: 12px;
+  color: #334155;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  box-shadow: none;
+  border: 1px solid #e2e8f0;
+}
+
+.info-actual{
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
+
+.info-label {
+  display: block;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.info-value {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+/* Caja orden admin */
+.orden-box {
+  margin-top: 18px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.orden-header {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2563eb;
+  margin-bottom: 8px;
+}
+
+/* Mensaje estilo orden */
+.mensaje-admin {
+  background: linear-gradient(180deg,#f1f5f9,#e2e8f0);
+  border-left: 5px solid #3498db;
+  font-size: 15px;
+  line-height: 1.5;
+  width: 100%;
+}
+
+/* Boton accion */
+.btn-accion {
+  width: 100%;
+  height: 42px;
+  font-weight: 600;
+  margin-top: 18px;
+  cursor: pointer;
+}
+
+/*---------------------------------------*/
+
+/* =========================
+   CONTENEDOR FORMULARIO
+========================= */
+
+.padre {
+  display: flex;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+  
+}
+
+.btn-volver {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  background: linear-gradient(135deg, #4785e7, #55b3f1);
+  color: white;
+
+  padding: 10px 18px;
+  border-radius: 14px;
+  border: none;
+
+  font-weight: 600;
+  cursor: pointer;
+
+  box-shadow: 0 6px 18px rgba(59,130,246,.45);
+  transition: transform .2s, box-shadow .2s;
+
+  margin-bottom: 25px;
+}
+
+.btn-volver:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(59,130,246,.55);
+}
+
+
+
+.detalle-header h2{
+  color: #494a4d;
+}
+
+/* =========================
+   CENTRAR CONTENIDO INTERNO
+========================= */
+
+.detalle-header,
+.orden-box,
+.btn-accion {
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* =========================
+   MENSAJE FORMULARIO LARGO
+========================= */
+
+.mensaje-completo {
+  max-height: 250px;
+  overflow-y: auto;
+  width: 100%;
+}
+
+/* Scroll bonito */
+.mensaje-completo::-webkit-scrollbar {
+  width: 6px;
+}
+
+.mensaje-completo::-webkit-scrollbar-thumb {
+  background: #3498db;
+  border-radius: 10px;
+}
+
+/* =========================
+   ESTADOS DINÁMICOS
+========================= */
+
+.estado {
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-block;
+  margin-top: 10px;
+  width: 110px;
+}
+
+.estado.pendiente {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.estado.proceso {
+  background: #dbeafe;
+  color: #1e3a8a;
+}
+
+.estado.ok {
+  background: #dcfce7;
+  color: #166534; 
+}
+/*-----------------------------*/
+
+.estado-badge.pendiente {
+  background: linear-gradient(45deg,#f59e0b,#d97706);
+}
+
+.estado-badge.proceso {
+  background: linear-gradient(45deg,#3b82f6,#2563eb);
+}
+
+.estado-badge.ok {
+  background: linear-gradient(45deg,#22c55e,#16a34a);
+}
+
+/*------------------------*/
+
+.filtros {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  gap: 12px;
+  margin: 0 0 25px 0;
+}
+
+.filtros button {
+  padding: 8px 18px;
+  border-radius: 12px;
+  border: none;
+  background: #e2e8f0;
+  color: #1e293b;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600; /* 🔥 más fuerte */
+  transition: all .25s ease;
+}
+
+.filtros button:hover {
+  background: #cbd5e1;
+  transform: translateY(-2px);
+}
+
+.filtros button.activo {
+  background: linear-gradient(135deg,#3b82f6,#2563eb);
+  color: white;
+  box-shadow: 0 6px 18px rgba(37,99,235,.4);
+}
+
+/* =========================
+   ARREGLAR FILTROS
+========================= */
+.tareas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+/* Nuevo contenedor grid solo para tarjetas */
+.tarea-card {
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+/*----------------------------------*/
+
+.btn-finalizar {
+  width: 100%;
+  height: 42px;
+  margin-top: 18px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+
+  background: linear-gradient(45deg,#ef4444,#dc2626);
+  color: white;
+
+  transition: all .2s ease;
+  box-shadow: 0 6px 18px rgba(239,68,68,.4);
+}
+
+.btn-finalizar:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(239,68,68,.5);
+}
+
+/*------------------------*/
+
+/* =========================
+   HISTORIAL FINALIZADA
+========================= */
+
+.historial-box {
+  margin-top: 25px;
+  padding: 20px;
+  border-radius: 16px;
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+}
+
+.resumen-box {
+  margin-top: 15px;
+}
+
+.resumen-box p {
+  background: white;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  color: #374151;
+}
+
+/*------------------------------*/
+
+/* =========================
+   MODAL
+========================= */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal-box {
+  background: white;
+  padding: 30px;
+  border-radius: 20px;
+  width: 400px;
+  max-width: 90%;
+  box-shadow: 0 20px 40px rgba(0,0,0,.3);
+  animation: fadeIn .25s ease;
+}
+
+.modal-box h2 {
+  margin-bottom: 15px;
+  color: #1e293b;
+}
+
+.modal-box textarea {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid #cbd5e1;
+  padding: 12px;
+  font-size: 14px;
+  resize: none;
+  transition: border .2s;
+}
+
+.modal-box textarea:focus {
+  outline: none;
+  border: 1px solid #2563eb;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.btn-no {
+  background: #e2e8f0;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.btn-ok {
+  background: linear-gradient(45deg,#22c55e,#16a34a);
+  color: white;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-ok:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+/*--------------------------------------------*/
+
+.btn-resumen {
+  background: linear-gradient(135deg,#2563eb,#1d4ed8);
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all .2s ease;
+}
+
+.btn-resumen:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(37,99,235,.3);
+}
+
+/*-------------------------*/
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/*----------------------------*/
+
+/* Animación suave cuando cambia estado */
+.detalle-card {
+  transition: all .3s ease;
+}
+
+.tarea-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(0,0,0,.15);
+} 
+
+/* Transición estado badge */
+.estado-badge {
+  transition: all .3s ease;
+}
+
+/* Historial animado */
+.historial-box {
+  animation: fadeSlide .3s ease;
+}
+
+.info-actual,
+.info-tarea {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.info-box {
+  flex: 1 1 250px;   /* 👈 ancho mínimo elegante */
+  min-width: 0;      /* 👈 evita desbordes internos */
+}
+
+@keyframes fadeSlide {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.detalle-card.finalizada {
+  border: 3px solid #22c55e;
+  box-shadow: 0 20px 45px rgba(34,197,94,.25);
+}
+
+.estado-final{
+  margin-left: 20px;
+}
+
+
+@media (max-width: 480px) {
+
+  /* ===== FILTROS ===== */
+  .filtros {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .filtros button {
+    width: 100%;
+  }
+
+  /* ===== TARJETAS ===== */
+  .tareas-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tarea-card {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .tarea-card h3 {
+    font-size: 18px;
+  }
+
+  /* ===== DETALLE ===== */
+  .detalle-card {
+    padding: 16px;
+    margin-top: 10px;
+  }
+
+  .detalle-header h2 {
+    font-size: 18px;
+  }
+
+  .estado-badge {
+    font-size: 12px;
+    padding: 5px 12px;
+  }
+
+  /* ===== BOTONES ===== */
+  .btn-accion,
+  .btn-finalizar {
+    height: 44px;
+    font-size: 14px;
+  }
+
+  /* ===== MODAL ===== */
+  .modal-box {
+    width: 95%;
+    padding: 20px;
+  }
+
+}
+
+@media (min-width: 481px) and (max-width: 900px) {
+
+  .tareas-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .detalle-card {
+    padding: 28px;
+  }
+
+  .info-actual,
+  .info-tarea {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .info-box {
+    flex: 1 1 45%;
+  }
+
+}
+
+
+@media (min-width: 1200px) {
+
+  .tareas-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .detalle-card {
+    max-width: 900px;
+  }
+
+}

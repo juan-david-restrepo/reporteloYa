@@ -1,0 +1,223 @@
+<!-- ============================= -->
+<!-- LISTA DE TAREAS -->
+<!-- ============================= -->
+
+  <!-- FILTROS -->
+  <div class="filtros"  *ngIf="!tareaSeleccionada">
+    <button 
+      (click)="filtro = 'PENDIENTES'"
+      [ngClass]="{ activo: filtro === 'PENDIENTES' }">
+      Pendientes
+    </button>
+
+    <button 
+      (click)="filtro = 'HECHAS'"
+      [ngClass]="{ activo: filtro === 'HECHAS' }">
+      Hechas
+    </button>
+
+    <button 
+      (click)="filtro = 'TODAS'"
+      [ngClass]="{ activo: filtro === 'TODAS' }">
+      Todas
+    </button>
+  </div>
+
+<div *ngIf="!tareaSeleccionada" class="tareas-grid">
+
+
+  <!-- TARJETAS -->
+  <div class="tarea-card" *ngFor="let t of tareasFiltradas" (click)="abrir(t)">
+
+    <div class="info-card">
+      <h3>{{ t.titulo }}</h3>
+
+      <p class="preview-msg">{{ t.descripcion | slice: 0 : 60 }}...</p>
+
+      <!-- ESTADO DINÁMICO -->
+      <span
+        class="estado"
+        [ngClass]="{
+          pendiente: t.estado === 'PENDIENTE',
+          proceso: t.estado === 'EN_PROCESO',
+          ok: t.estado === 'FINALIZADA',
+        }"
+      >
+        {{ t.estado }}
+      </span>
+    </div>
+    <div class="hora">
+      <i class="fa-solid fa-clock"></i>
+      <span>{{ t.hora }}</span>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================= -->
+<!-- DETALLE DE TAREA -->
+<!-- ============================= -->
+
+  <button class="btn-volver" *ngIf="tareaSeleccionada" (click)="cerrar()">← Volver</button>
+
+<div *ngIf="tareaSeleccionada" class="padre">
+  <!-- VOLVER -->
+
+
+  <div
+    class="card detalle-card"
+    [ngClass]="{ finalizada: tareaSeleccionada.estado === 'FINALIZADA' }"
+  >
+    <!-- HEADER -->
+    <div class="detalle-header">
+      <h2>{{ tareaSeleccionada.titulo }}</h2>
+
+      <span
+        class="estado-badge"
+        [ngClass]="{
+          pendiente: tareaSeleccionada.estado === 'PENDIENTE',
+          proceso: tareaSeleccionada.estado === 'EN_PROCESO',
+          ok: tareaSeleccionada.estado === 'FINALIZADA',
+        }"
+      >
+        {{ tareaSeleccionada.estado }}
+      </span>
+    </div>
+
+    <!-- INFO GENERAL -->
+    <div class="detalle-info">
+      <div class="info-actual">
+        <div class="info-box">
+          <span class="info-label">Admin</span>
+          <span class="info-value">{{ tareaSeleccionada.admin }}</span>
+        </div>
+
+        <div class="info-box">
+          <span class="info-label">Fecha</span>
+          <span class="info-value">{{ tareaSeleccionada.fecha }}</span>
+        </div>
+
+        <div class="info-box">
+          <span class="info-label">Hora</span>
+          <span class="info-value">{{ tareaSeleccionada.hora }}</span>
+        </div>
+
+        <div class="info-box">
+          <span class="info-label">Prioridad</span>
+          <span class="info-value">{{ tareaSeleccionada.prioridad }}</span>
+        </div>
+      </div>
+
+      <div class="info-tarea" *ngIf="tareaSeleccionada.estado === 'FINALIZADA'">
+        <div class="info-box">
+          <span class="info-label">Inicio</span>
+          <span class="info-value">
+            {{ tareaSeleccionada.fechaInicio | date: "short" }}
+          </span>
+        </div>
+
+        <div class="info-box">
+          <span class="info-label">Fin</span>
+          <span class="info-value">
+            {{ tareaSeleccionada.fechaFin | date: "short" }}
+          </span>
+        </div>
+
+        <div class="info-box">
+          <span class="info-label">Duración</span>
+          <span class="info-value">
+            {{ getDuracion(tareaSeleccionada) }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MENSAJE TIPO ORDEN -->
+    <div class="orden-box">
+      <div class="orden-header">Instrucción del administrador</div>
+
+      <div class="mensaje-completo mensaje-admin">
+        {{ tareaSeleccionada.descripcion }}
+      </div>
+    </div>
+
+    <!-- HISTORIAL SI ESTÁ FINALIZADA -->
+    <!-- BOTÓN VER RESUMEN -->
+    <div *ngIf="tareaSeleccionada.estado === 'FINALIZADA'" class="estado-final">
+      <h4>Resumen de la tarea</h4>
+      <button class="btn-resumen" (click)="abrirModalResumen()">
+        Ver resumen de la tarea
+      </button>
+    </div>
+
+    <!-- ============================= -->
+    <!-- MODAL VER RESUMEN -->
+    <!-- ============================= -->
+
+    <div class="modal-backdrop" *ngIf="mostrarModalResumen">
+      <div class="modal-box">
+        <h2>Resumen de la tarea</h2>
+
+        <div class="resumen-lectura">
+          {{ tareaSeleccionada?.resumen }}
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn-ok" (click)="mostrarModalResumen = false">
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTONES SEGÚN ESTADO -->
+
+    <!-- PENDIENTE -->
+    <button
+      *ngIf="tareaSeleccionada.estado === 'PENDIENTE'"
+      class="btnTareas btn-accion"
+      (click)="comenzarClick(tareaSeleccionada); $event.stopPropagation()"
+    >
+      Comenzar tarea
+    </button>
+
+    <!-- EN PROCESO -->
+    <button
+      [hidden]="tareaSeleccionada.estado !== 'EN_PROCESO'"
+      class="btn-finalizar"
+      (click)="abrirModalFinalizar(); $event.stopPropagation()"
+    >
+      Finalizar tarea
+    </button>
+  </div>
+</div>
+
+<!-- ============================= -->
+<!-- MODAL FINALIZAR TAREA -->
+<!-- ============================= -->
+
+<div class="modal-backdrop" *ngIf="mostrarModal">
+  <div class="modal-box">
+    <h2>Resumen de la tarea</h2>
+
+    <textarea
+      [(ngModel)]="resumenTexto"
+      placeholder="Describe cómo se desarrolló la tarea..."
+      rows="5"
+    >
+    </textarea>
+
+    <div class="modal-actions">
+      <button class="btn-no" (click)="mostrarModal = false">Cancelar</button>
+
+      <button
+        class="btn-ok"
+        [disabled]="!resumenTexto || resumenTexto.trim().length < 10"
+        (click)="confirmarFinalizar()"
+      >
+        Confirmar
+      </button>
+    </div>
+  </div>
+</div>

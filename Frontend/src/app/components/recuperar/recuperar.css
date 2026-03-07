@@ -1,0 +1,125 @@
+/* CONTENEDOR GENERAL */
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f5f6fa; /* opcional, para ver contraste */
+}
+
+/* FORMULARIO */
+.reset-container {
+  background-color: #fff;
+  padding: 30px 25px;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 380px;
+  box-sizing: border-box;
+}
+
+/* TÍTULO */
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #007BFF;
+}
+
+/* INPUT CON ÍCONO */
+.input-group {
+  position: relative;
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px 12px 12px 40px;  /* espacio derecho para el ícono */
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+/* ÍCONO DENTRO DEL INPUT */
+.input-group i {
+  position: absolute;  /* importante para mantenerlo dentro del input */
+  left: 12px;          /* ícono a la izquierda */
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  color: #888;
+  pointer-events: none; /* permite click en el input */
+}
+
+/* BOTÓN */
+.btn-tercero {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(-45deg, #3c46cc, #94ddff, #5897f7, #2d9dbe);
+  background-size: 400% 400%;
+  animation: gradientFade 6s ease infinite;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  margin-top: 7px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+@keyframes gradientFade {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* MENSAJES */
+p {
+  text-align: center;
+  font-size: 14px;
+  padding-bottom: 15px;
+}
+
+.error, .success {
+  font-size: 14px;
+  display: none;
+  margin-bottom: 10px;
+}
+
+.error { color: red; }
+.success { color: rgb(60, 83, 216); }
+
+/* FORMULARIO FLEX */
+#resetForm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+/* ENLACES */
+a {
+  display: flex;            /* flex para icono + texto */
+  justify-content: center;  /* centrado horizontal */
+  align-items: center;      /* centrado vertical */
+  margin: 15px 0;
+  text-decoration: none;
+  color: #007BFF;
+  width: 100%;
+  margin-top: 28px;
+}
+
+a:hover span {
+  text-decoration: underline;
+}
+
+a i {
+  margin-right: 6px; /* espacio entre icono y texto */
+  font-size: 18px;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}

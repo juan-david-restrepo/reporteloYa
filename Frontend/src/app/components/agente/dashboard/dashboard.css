@@ -1,0 +1,301 @@
+/* =========================
+   DASHBOARD
+========================= */
+
+.chart-card {
+  background: var(--card, #ffffff);
+  padding: 25px;
+  border-radius: 20px;
+  color: var(--text);
+  font-size: 1em;
+}
+
+
+
+.chart-header,
+.chart-calendar,
+.chart-filtros {
+  color: var(--text);
+}
+
+/* ---------- HEADER ---------- */
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+/* ---------- FECHAS ---------- */
+.chart-calendar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  background: var(--bg);
+  background-color: none;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.chart-calendar input {
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+}
+
+.chart-calendar button {
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: none;
+  background: #3b82f6;
+  color: white;
+  cursor: pointer;
+}
+
+/* ---------- FILTROS ---------- */
+.chart-filtros {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.chart-filtros button {
+  padding: 8px 18px;
+  border-radius: 12px;
+  border: none;
+  background: #e2e8f0;
+  color: #1e293b;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all .25s ease;
+}
+
+.chart-filtros button:hover {
+  background: #cbd5e1;
+  transform: translateY(-2px);
+}
+
+.chart-filtros button.active {
+  background: linear-gradient(135deg,#3b82f6,#2563eb);
+  color: white;
+  box-shadow: 0 6px 18px rgba(37,99,235,.4);
+}
+
+/* ---------- TARJETAS ---------- */
+.dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px;
+}
+
+.dash-card {
+  background: linear-gradient(135deg,#3b82f6,#1d4ed8);
+  color: white;
+  padding: 20px;
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.1);
+  transition: transform .2s ease;
+}
+
+.dash-card:hover {
+  transform: translateY(-5px);
+}
+
+.dash-card span {
+  font-size: 13px;
+  opacity: .85;
+}
+
+.dash-card h2 {
+  margin-top: 8px;
+  font-size: 28px;
+  font-size: 1.8em;
+}
+
+.icono-titulo{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+
+
+/* ---------- GRAFICA ---------- */
+.chart-container {
+  height: 420px;
+  position: relative;
+}
+
+
+/* ================= BOTONES TIPO GRAFICA ================= */
+
+.botones-grafica {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.botones-grafica button {
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: 1px solid #d0d5dd;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.botones-grafica button:hover {
+  background: #f0f4ff;
+}
+
+.botones-grafica button.activo {
+  background: #2563eb;
+  color: white;
+  border: none;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+/* ================= ACTIVIDAD ================= */
+
+.actividad-card {
+  margin-top: 40px;
+  background: white;
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+}
+
+.actividad-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.actividad-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #1e293b;
+}
+
+h4{
+  color: #1e293b;
+}
+
+.contador {
+  background: #eef2ff;
+  color: #4338ca;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.actividad-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.actividad-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 12px;
+  border-radius: 10px;
+  transition: background 0.2s ease;
+  cursor: pointer;
+}
+
+.actividad-item:hover {
+  background: #f9fafb;
+}
+
+.actividad-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 14px;
+}
+
+.actividad-icon.success {
+  background: #22c55e;
+}
+
+.actividad-icon.pending {
+  background: #f59e0b;
+}
+
+.actividad-info h4 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.actividad-info p {
+  margin: 2px 0 0 0;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+
+
+/* =========================
+   RESPONSIVE DASHBOARD
+========================= */
+
+@media (max-width: 900px) {
+
+  .chart-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+  }
+
+  .chart-calendar {
+    flex-wrap: wrap; /* 🔥 clave */
+    gap: 8px;
+  }
+
+  .chart-calendar input,
+  .chart-calendar button {
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .chart-filtros {
+    justify-content: flex-start;
+    flex-wrap: wrap; /* 🔥 clave */
+  }
+
+  .chart-filtros button {
+    flex: 1;
+    min-width: 100px;
+  }
+
+}
+
+
+@media (max-width: 600px) {
+
+  .dashboard-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .dash-card {
+    padding: 18px;
+  }
+
+  .dash-card h2 {
+    font-size: 1.6em;
+  }
+
+}

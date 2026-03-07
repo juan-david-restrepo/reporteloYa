@@ -1,0 +1,119 @@
+<div class="parking-app" [class.sidebar-open]="sidebarOpen">
+
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sidebar" [class.closed]="!sidebarOpen">
+
+    <!-- HEADER -->
+    <header class="sidebar-header">
+
+      <a routerLink="/" class="back-btn" title="Regresar">
+        <i class="fa-solid fa-arrow-left"></i>
+      </a>
+
+      <div class="sidebar-brand">
+        <img src="assets/images/LogoNuevo2.png" alt="Repórtelo Ya">
+        <h2>Repórtelo Ya</h2>
+      </div>
+
+      <button class="menu-btn" (click)="toggleSidebar()" title="Mostrar/Ocultar menú">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+
+    </header>
+
+    <!-- CONTENIDO -->
+    <section class="sidebar-content">
+
+      <button
+        class="btn-primary"
+        [disabled]="isLoading || searchCompleted"
+        (click)="obtenerUbicacion()"
+      >
+
+        <ng-container *ngIf="!isLoading && !searchCompleted">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <span>Buscar parqueaderos</span>
+        </ng-container>
+
+        <ng-container *ngIf="isLoading">
+          <span class="spinner"></span>
+        </ng-container>
+
+        <ng-container *ngIf="searchCompleted">
+          <i class="fa-solid fa-check"></i>
+          <span>Parqueaderos encontrados</span>
+        </ng-container>
+
+      </button>
+
+      <div class="sidebar-list">
+        <h3>Parqueaderos cercanos</h3>
+
+        <ul class="parking-list">
+          <li *ngIf="parkingData.length === 0" class="empty">Presiona buscar para comenzar</li>
+          <li 
+            *ngFor="let p of parkingData"
+            class="parking-card"
+            [class.active]="selectedParking === p"
+            (click)="trazarRuta(p)"
+          >
+
+            <div class="parking-title">
+              <i class="fa-solid fa-square-parking"></i>
+              {{ p.name }}
+            </div>
+
+            <div class="parking-info">
+              <span>
+                <i class="fa-solid fa-road"></i>
+                {{ p.address }}
+              </span>
+
+              <span>
+                <i class="fa-solid fa-location-dot"></i>
+                {{ p.coordinates }}
+              </span>
+
+              <span>
+                <i class="fa-solid fa-route"></i>
+                {{ p.distanceKm }} km
+              </span>
+
+              <span>
+                <i class="fa-solid fa-clock"></i>
+                {{ p.durationMin }} min aprox
+              </span>
+            </div>
+
+          </li>
+        </ul>
+      </div>
+
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="sidebar-footer">
+      © {{ currentYear }} Repórtelo Ya
+    </footer>
+
+  </aside>
+
+  <!-- ================= MAPA ================= -->
+  <main class="map-container">
+    <div id="map"></div>
+
+    <div class="map-info">
+      Bienvenido {{ user.name }} {{ user.lastname }}, Listo para buscar Parqueaderos
+    </div>
+  </main>
+
+  <div class="route-panel" *ngIf="routeInstructions.length > 0">
+  <h4>Indicaciones</h4>
+  <ul>
+    <li *ngFor="let step of routeInstructions">
+      {{ step }}
+    </li>
+  </ul>
+</div>
+
+</div>

@@ -1,0 +1,48 @@
+<div class="admin-layout">
+  <app-sidebar-admin></app-sidebar-admin>
+
+  <div class="main-content">
+    <div class="config-container">
+      <div class="config-card">
+        <h2 class="config-section-title">Configuración de Accesibilidad</h2>
+
+        <div class="config-option">
+          <div class="option-info">
+            <label>Modo Oscuro</label>
+            <span>Cambia la interfaz a colores oscuros para descansar la vista.</span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" [checked]="isDarkActive" (change)="toggleDarkMode($event)" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="config-option">
+          <div class="option-info">
+            <label>Modo Daltonismo</label>
+            <span>Ajusta los colores para mejorar la distinción de alertas.</span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" [checked]="isColorBlindActive" (change)="toggleColorBlindMode($event)" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="config-option">
+          <div class="option-info">
+            <label for="fontSize">Tamaño de Fuente</label>
+            <span>Ajusta el tamaño del texto en todo el panel administrativo.</span>
+          </div>
+          <div class="config-select-wrapper">
+            <select id="fontSize" class="config-select" [value]="currentFontSize" (change)="changeFontSize($event)">
+              <option value="small">Pequeño</option>
+              <option value="normal">Normal</option>
+              <option value="large">Grande</option>
+            </select>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

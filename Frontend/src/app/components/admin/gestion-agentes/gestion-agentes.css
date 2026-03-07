@@ -1,0 +1,1011 @@
+/* ===============================
+   CONTENEDOR GENERAL
+================================ */
+.admin-container {
+  display: flex;
+  height: 100vh;
+  background: #f1f5f9;
+  overflow: hidden;
+  /* 👈 evita scroll del body */
+
+}
+
+/* ===============================
+   CONTENIDO PRINCIPAL
+================================ */
+
+.admin-content {
+  flex: 1;
+  padding: 40px;
+  background: #f1f5f9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: auto;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Limita el ancho del contenido sin tocar HTML */
+.admin-content>* {
+  width: 100%;
+  max-width: 1100px;
+}
+
+/* Espaciado entre secciones / cards */
+.admin-content .card {
+  margin-bottom: 36px;
+}
+
+
+/* ===============================
+   TÍTULO PRINCIPAL
+================================ */
+
+.titulo {
+  font-size: 28px;
+  font-weight: 800;
+  color: #0b1c2d;
+  margin-bottom: 30px;
+}
+
+/* ===============================
+   TARJETAS GENERALES
+================================ */
+
+.card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 26px;
+  margin-bottom: 30px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+  
+}
+
+.card h2 {
+  font-size: 20px;
+  font-weight: 800;
+  color: #0b1c2d;
+  margin-bottom: 20px;
+}
+
+/* ===============================
+   BUSCADOR
+================================ */
+
+.buscador label {
+  font-weight: 700;
+  color: #0f172a;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.busqueda {
+  display: flex;
+  gap: 14px;
+}
+
+.busqueda input {
+  flex: 1;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  font-size: 14px;
+}
+
+.busqueda input:focus {
+  outline: none;
+  border-color: #1e3a8a;
+}
+
+.busqueda button {
+  background: #0b1c2d;
+  color: white;
+  border: none;
+  padding: 12px 22px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.busqueda button:hover {
+  background: #1e3a8a;
+}
+
+/* ===============================
+   MENSAJES
+================================ */
+
+.error {
+  color: #dc2626;
+  margin-top: 10px;
+  font-weight: 600;
+}
+
+.cargando {
+  margin-top: 10px;
+  color: #475569;
+  font-style: italic;
+}
+
+.mensaje-ok {
+  margin-top: 10px;
+  color: #166534;
+  font-weight: 700;
+}
+
+/* ===============================
+   ESTADO INICIAL (PANTALLA NO VACÍA)
+================================ */
+
+.estado-inicial {
+  text-align: center;
+  padding: 70px 40px;
+  color: #475569;
+}
+
+.estado-inicial h2 {
+  font-size: 22px;
+  margin-bottom: 14px;
+  color: #0b1c2d;
+}
+
+.estado-inicial p {
+  font-size: 15px;
+  max-width: 520px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+
+/* ===============================
+   INFORMACIÓN DEL AGENTE
+================================ */
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px;
+}
+
+.info-grid p {
+  background: #f8fafc;
+  padding: 14px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  color: #0f172a;
+  font-weight: 600;
+
+  /* CLAVE */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0;
+}
+
+/* ===============================
+   ESTADO AGENTE
+================================ */
+
+.estado {
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 6px 12px;
+  white-space: nowrap;
+}
+
+
+.estado.disponible {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.estado.ocupado {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.estado.ausente {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+/* ===============================
+   TABLAS GENERALES
+================================ */
+
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-top: 20px;
+  border-radius: 14px;
+  overflow: hidden;
+  font-size: 14px;
+}
+
+/* CABECERA */
+
+table thead {
+  background: linear-gradient(90deg, #0b1c2d, #1e293b);
+}
+
+table thead th {
+  padding: 14px 16px;
+  color: #ffffff;
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  text-align: left;
+}
+
+/* CUERPO */
+
+table tbody tr:nth-child(even) {
+  background: #f8fafc;
+}
+
+table tbody tr:hover {
+  background: #eef4ff;
+}
+
+table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #e5e7eb;
+  color: #0f172a;
+  vertical-align: middle;
+}
+
+/* ===============================
+   HISTORIAL DE REPORTES
+================================ */
+
+.tabla-reportes td:nth-child(1),
+.tabla-reportes td:nth-child(2) {
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.tabla-reportes td:nth-child(3),
+.tabla-reportes td:nth-child(5) {
+  max-width: 300px;
+  word-wrap: break-word;
+}
+
+/* ===============================
+   PRIORIDAD TAREAS
+================================ */
+
+.prioridad {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  min-width: 80px;
+  text-align: center;
+}
+
+.prioridad.baja {
+  background: #e0f2fe;
+  color: #075985;
+}
+
+.prioridad.media {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.prioridad.alta {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* ===============================
+   FORMULARIO ASIGNAR TAREA
+================================ */
+
+.card form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  align-items: end;
+}
+
+.card label {
+  display: block;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 6px;
+}
+
+.card input,
+.card select {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  font-size: 14px;
+}
+
+.card input:focus,
+.card select:focus {
+  outline: none;
+  border-color: #1e3a8a;
+}
+
+/* BOTÓN ASIGNAR */
+
+.btn-asignar {
+  background: linear-gradient(90deg, #0b1c2d, #1e3a8a);
+  color: white;
+  border: none;
+  padding: 12px 22px;
+  border-radius: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  margin-top: 10px;
+}
+
+.btn-asignar:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(30, 58, 138, 0.35);
+}
+
+/* ===============================
+   TEXTO VACÍO
+================================ */
+
+.card p {
+  font-size: 14px;
+  color: #475569;
+}
+
+/* ===============================
+   RESPONSIVE
+================================ */
+
+@media (max-width: 768px) {
+  .busqueda {
+    flex-direction: column;
+  }
+
+  table {
+    font-size: 13px;
+  }
+
+  .titulo {
+    font-size: 22px;
+  }
+
+  .tabla-tareas {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+/* ===============================
+   BOTÓN ELIMINAR TAREA
+================================ */
+
+.btn-eliminar {
+  background: #e53935;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.btn-eliminar:hover {
+  background: #e53935;
+  transform: translateY(-1px);
+}
+
+
+
+
+
+/* ================= MODAL OVERLAY ================= */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.15s ease;
+}
+
+/* ================= CAJA DEL MODAL ================= */
+.modal-box {
+  width: 360px;
+  max-width: 90%;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 26px 24px 22px;
+  text-align: center;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.25);
+  animation: scaleIn 0.18s ease;
+  font-family: inherit;
+}
+
+.modal-box h3 {
+  margin: 0 0 10px;
+  font-size: 20px;
+  font-weight: 600;
+  color: #222;
+}
+
+.modal-box p {
+  margin: 0 0 20px;
+  font-size: 14.5px;
+  color: #555;
+}
+
+/* ================= BOTONES ================= */
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.btn-cancelar,
+.btn-confirmar {
+  flex: 1;
+  border: none;
+  padding: 10px 0;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .18s ease;
+}
+
+/* cancelar */
+.btn-cancelar {
+  background: #eef0f3;
+  color: #333;
+}
+
+.btn-cancelar:hover {
+  background: #e0e3e7;
+  transform: translateY(-1px);
+}
+
+/* eliminar */
+.btn-confirmar {
+  background: #e53935;
+  color: white;
+  box-shadow: 0 6px 18px rgba(229, 57, 53, 0.35);
+}
+
+.btn-confirmar:hover {
+  background: #d32f2f;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(229, 57, 53, 0.45);
+}
+
+/* ================= ANIMACIONES ================= */
+@keyframes fadeIn {
+  from {
+    opacity: 0
+  }
+
+  to {
+    opacity: 1
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(.85);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ================= BLOQUEAR SCROLL ================= */
+.admin-container.modal-abierto {
+  height: 100vh;
+  overflow: hidden;
+}
+
+
+/* ================= TABLA TAREAS (ACTUALIZADO CON ESTADO) ================= */
+.tabla-tareas {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  /* Mantiene la tabla bajo control con 6 columnas */
+}
+
+/* encabezado */
+.tabla-tareas thead {
+  background: #0d2238;
+  color: white;
+}
+
+.tabla-tareas th {
+  padding: 12px 10px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* celdas */
+.tabla-tareas td {
+  padding: 12px 10px;
+  border-bottom: 1px solid #e5e7eb;
+  vertical-align: middle;
+  font-size: 14px;
+}
+
+/* ===== ANCHOS ESPECÍFICOS PARA 6 COLUMNAS ===== */
+.tabla-tareas th:nth-child(1),
+.tabla-tareas td:nth-child(1) {
+  width: 110px;
+}
+
+/* Fecha */
+.tabla-tareas th:nth-child(2),
+.tabla-tareas td:nth-child(2) {
+  width: 80px;
+}
+
+/* Hora */
+.tabla-tareas th:nth-child(3),
+.tabla-tareas td:nth-child(3) {
+  width: auto;
+}
+
+/* Descripción */
+.tabla-tareas th:nth-child(4),
+.tabla-tareas td:nth-child(4) {
+  width: 125px;
+}
+
+/* Estado (NUEVA) */
+.tabla-tareas th:nth-child(5),
+.tabla-tareas td:nth-child(5) {
+  width: 110px;
+}
+
+/* Prioridad */
+.tabla-tareas th:nth-child(6),
+.tabla-tareas td:nth-child(6) {
+  width: 100px;
+  text-align: center;
+}
+
+/* Acción */
+
+
+/* columna descripción limpia */
+.tabla-tareas td:nth-child(3) {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* contenedor interno */
+.descripcion-contenido {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* texto preview */
+.descripcion-texto {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+/* ===== BOTÓN VER MÁS ===== */
+.ver-mas {
+  background: transparent;
+  border: none;
+  color: #1e3a8a;
+  font-weight: 700;
+  font-size: 13px;
+  margin-left: 6px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 6px;
+  transition: all .18s ease;
+}
+
+/* hover */
+.ver-mas:hover {
+  background: rgba(30, 58, 138, 0.08);
+  text-decoration: underline;
+}
+
+/* click */
+.ver-mas:active {
+  transform: scale(.96);
+}
+
+/* focus accesible */
+.ver-mas:focus-visible {
+  outline: 2px solid #1e3a8a55;
+}
+
+/* contenedor full screen */
+.modal-descripcion {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  /* evita bloquear el backdrop */
+}
+
+/* caja */
+.modal-contenido {
+  pointer-events: auto;
+  width: 650px;
+  max-width: 92%;
+  max-height: 80vh;
+
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, .35);
+
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  animation: scaleIn 0.18s ease;
+}
+
+/* header */
+.modal-header {
+  padding: 18px 22px;
+  font-weight: 800;
+  font-size: 18px;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* body con scroll */
+.modal-body {
+  padding: 20px 22px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* 🔴 elimina scroll lateral */
+
+  max-height: 65vh;
+
+  line-height: 1.6;
+  color: #0f172a;
+
+  white-space: pre-wrap;
+  word-break: break-word;
+  /* 🔥 rompe palabras largas */
+  overflow-wrap: anywhere;
+  /* 🔥 fuerza salto aunque no haya espacios */
+}
+
+/* footer */
+.modal-footer {
+  padding: 14px 20px;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* botones */
+.cerrar {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.btn-cerrar {
+  background: #0b1c2d;
+  color: white;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.btn-cerrar:hover {
+  background: #1e3a8a;
+}
+
+/* ================= COLORES DE ESTADOS ACTUALIZADOS ================= */
+.badge-estado {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-weight: 800;
+  font-size: 10px;
+  color: #fff;
+  text-transform: uppercase;
+  display: inline-block;
+  min-width: 95px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Pendiente -> Amarillo */
+.bg-pendiente {
+  background-color: #ffb921e0 !important;
+  color: #f7f7f7 !important;
+}
+
+/* En Proceso -> Azul */
+.bg-proceso {
+  background-color: #3b82f6 !important;
+  color: #fff !important;
+}
+
+/* Finalizado -> Verde */
+.bg-finalizado {
+  background-color: #2ecc71 !important;
+  color: #fff !important;
+}
+
+/* Rechazado (por si lo usas) -> Rojo */
+.bg-rechazado {
+  background-color: #e63946 !important;
+  color: #fff !important;
+}
+
+
+
+
+/* =========================================
+   ESTILOS NUEVOS: HISTORIAL Y FILTROS
+   ========================================= */
+
+/* Cabecera del historial con botones a la derecha */
+.header-historial {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+/* Contenedor de los botones de filtro (Tabs) */
+.filtros-container {
+  display: flex;
+  background: #e2e8f0;
+  /* Color similar a tu bg-cancelar */
+  padding: 4px;
+  border-radius: 12px;
+  gap: 4px;
+}
+
+.filtros-container button {
+  border: none;
+  padding: 8px 16px;
+  border-radius: 9px;
+  cursor: pointer;
+  background: transparent;
+  color: #475569;
+  font-weight: 700;
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
+
+/* Botón de filtro seleccionado */
+.filtros-container button.activo {
+  background: #ffffff;
+  color: #0b1c2d;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.filtros-container button:hover:not(.activo) {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Subtítulos de secciones dentro del historial */
+.subtitulo-seccion {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e3a8a;
+  margin: 20px 0 10px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.subtitulo-seccion::before {
+  content: "";
+  display: inline-block;
+  width: 4px;
+  height: 16px;
+  background: #1e3a8a;
+  border-radius: 10px;
+}
+
+/* Línea divisoria elegante */
+.divisor {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 30px 0;
+}
+
+/* Estilo para las tablas dentro del historial (reutilizando tus clases) */
+.tabla-reportes {
+  margin-top: 10px;
+  border: 1px solid #e5e7eb;
+}
+
+/* Mensajes cuando no hay datos en el historial */
+.card p {
+  margin-top: 15px;
+  padding: 10px;
+  background: #f8fafc;
+  border-radius: 8px;
+  text-align: center;
+  font-style: italic;
+}
+
+
+/* =========================================
+   ESTILOS DE MENÚ MÓVIL (NUEVO)
+   ========================================= */
+.mobile-menu-btn {
+  left: 20px;
+  display: none;
+  position: absolute;
+  top: 7px;
+  /* right: 120px; */
+  z-index: 1001;
+  background: #0b1c2d;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
+/* =========================================
+   MEDIA QUERY: TABLETS Y MÓVILES
+   ========================================= */
+@media (max-width: 992px) {
+  .mobile-menu-btn {
+    display: block;
+  }
+
+  /* Escondemos el sidebar lateralmente */
+  app-sidebar-admin {
+    position: fixed;
+    left: -280px;
+    /* Ajusta según el ancho de tu sidebar */
+    top: 0;
+    height: 100vh;
+    z-index: 1000;
+    transition: left 0.3s ease;
+  }
+
+  app-sidebar-admin.active {
+    left: 0;
+  }
+
+  .admin-content {
+    padding: 60px 15px 20px 15px;
+    /* Espacio para el botón de arriba */
+  }
+}
+
+/* =========================================
+   MEDIA QUERY: MÓVILES PEQUEÑOS (HASTA 340px)
+   ========================================= */
+@media (max-width: 768px) {
+
+  /* Convertir tablas en formato lista/card */
+  table,
+  thead,
+  tbody,
+  th,
+  td,
+  tr {
+    display: block;
+  }
+
+  thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+
+  tr {
+    border: 1px solid #e5e7eb;
+    margin-bottom: 10px;
+    border-radius: 12px;
+    background: #fff;
+    padding: 10px;
+  }
+
+  td {
+    border: none;
+    position: relative;
+    padding-left: 50% !important;
+    text-align: right !important;
+    width: 100% !important;
+    white-space: normal !important;
+    text-overflow: clip !important;
+  }
+
+  /* Crear etiquetas dinámicas para las tablas */
+  td::before {
+    content: attr(data-label);
+    /* Necesitarás agregar data-label en el HTML o usar nth-child */
+    position: absolute;
+    left: 10px;
+    width: 45%;
+    padding-right: 10px;
+    white-space: nowrap;
+    text-align: left;
+    font-weight: bold;
+    color: #475569;
+  }
+
+  /* Ajustes específicos para que no se rompa a 340px */
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .titulo {
+    font-size: 18px;
+    text-align: center;
+  }
+
+  .header-historial {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .filtros-container {
+    width: 100%;
+    overflow-x: auto;
+    /* Permite scroll si los botones no caben */
+  }
+
+  .filtros-container button {
+    flex: 1;
+    padding: 8px 10px;
+    font-size: 11px;
+  }
+
+
+
+}

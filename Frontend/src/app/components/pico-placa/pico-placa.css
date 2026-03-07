@@ -1,0 +1,147 @@
+/* src/app/pico-placa/pico-placa.component.css */
+
+/* Contenedor Principal */
+.pico-placa-container {
+    max-width: 800px;
+    margin: 140px auto;
+    padding: 30px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(211, 208, 208, 0.1);
+    font-family: Arial, sans-serif;
+}
+
+/* Encabezado */
+.header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.header h1 {
+    font-size: 2.5em;
+    color: #004d99; /* Azul oscuro */
+    margin-bottom: 5px;
+}
+
+.header p {
+    color: #666;
+    font-style: italic;
+}
+
+/* Separador */
+.separator {
+    border: none;
+    border-top: 1px solid #ddd;
+    margin: 25px 0;
+}
+
+/* Títulos de Sección */
+.section-title {
+    font-size: 1.5em;
+    color: #333;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Tarjeta de Hoy */
+.tarjeta-hoy {
+    background-color: #ffffff;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    border: 2px solid #007bff;
+    transition: transform 0.3s ease;
+}
+
+.tarjeta-hoy:hover {
+    transform: translateY(-3px);
+}
+
+.placa-label {
+    text-align: center;
+    font-size: 1.1em;
+    color: #555;
+    margin-bottom: 15px;
+}
+
+.numero-container {
+    text-align: center;
+}
+
+.restriccion-numero {
+    display: inline-block;
+    font-size: 3.5rem; 
+    font-weight: bold;
+    padding: 10px 30px;
+    border-radius: 15px;
+    border: 5px solid;
+    letter-spacing: 0.1em;
+    min-width: 180px; /* Asegura un tamaño mínimo */
+}
+
+/* Clases dinámicas para [ngClass] */
+.restriccion-numero.rojo {
+    color: #000000; /* Rojo para restringido */
+    background-color: #eef139;
+    border-color: #cabd08;
+}
+
+.restriccion-numero.verde {
+    color: #27ae60; /* Verde para no aplica */
+    background-color: #e8fde8;
+    border-color: #27ae60;
+}
+
+/* Tabla Semanal */
+.restricciones-semanales {
+    margin-top: 30px;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden; /* Para las esquinas redondeadas */
+}
+
+thead th {
+    background-color: #007bff;
+    color: white;
+    padding: 15px;
+    text-align: left;
+    font-weight: 600;
+}
+
+tbody td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+}
+
+tbody tr:last-child td {
+    border-bottom: none;
+}
+
+tbody tr:hover {
+    background-color: #f0f8ff;
+}
+
+/* Resaltar fila del día actual */
+.dia-actual {
+    background-color: #ffebcd !important; /* Amarillo pálido */
+    font-weight: bold;
+    color: #333;
+}
+
+/* Footer */
+.footer {
+    text-align: center;
+    margin-top: 25px;
+    font-size: 0.9em;
+    color: #999;
+}

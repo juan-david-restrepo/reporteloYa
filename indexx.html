@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Carrusel Profesional</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: "Poppins", sans-serif; }
+
+    header {
+      width: 100%;
+      height: 450px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .carousel {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+
+    .carousel-track {
+      display: flex;
+      height: 100%;
+      transition: transform 0.6s ease;
+    }
+
+    .slide {
+      min-width: 100%;
+      height: 100%;
+      position: relative;
+    }
+
+    .slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: brightness(0.8);
+    }
+
+    .slide-info {
+      position: absolute;
+      bottom: 40px;
+      left: 50px;
+      color: white;
+      max-width: 400px;
+    }
+
+    .slide-info h2 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+
+    .slide-info p {
+      font-size: 1rem;
+      opacity: 0.9;
+    }
+
+    /* Botones laterales */
+    .arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0,0,0,0.4);
+      color: white;
+      border: none;
+      padding: 12px 18px;
+      cursor: pointer;
+      font-size: 20px;
+      border-radius: 50%;
+      transition: background 0.3s;
+    }
+
+    .arrow:hover {
+      background: rgba(0,0,0,0.7);
+    }
+
+    #prev { left: 10px; }
+    #next { right: 10px; }
+
+    /* Indicadores (bolitas) */
+    .indicators {
+      position: absolute;
+      bottom: 20px;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .indicators div {
+      width: 12px;
+      height: 12px;
+      background: rgba(255,255,255,0.5);
+      border-radius: 50%;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .indicators .active {
+      width: 14px;
+      height: 14px;
+      background: white;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="carousel">
+
+    <button id="prev" class="arrow">❮</button>
+    <button id="next" class="arrow">❯</button>
+
+    <div class="carousel-track" id="track">
+
+      <!-- SLIDE 1 -->
+      <div class="slide">
+        <img src="https://picsum.photos/id/1018/1920/1080" />
+        <div class="slide-info">
+          <h2>Reporta infracciones fácilmente</h2>
+          <p>Sube fotos y videos de forma segura y rápida.</p>
+        </div>
+      </div>
+
+      <!-- SLIDE 2 -->
+      <div class="slide">
+        <img src="https://picsum.photos/id/1005/1920/1080" />
+        <div class="slide-info">
+          <h2>Mejora la movilidad en tu ciudad</h2>
+          <p>Contribuye al orden y seguridad vial.</p>
+        </div>
+      </div>
+
+      <!-- SLIDE 3 -->
+      <div class="slide">
+        <img src="https://picsum.photos/id/1025/1920/1080" />
+        <div class="slide-info">
+          <h2>Apoya a tu comunidad</h2>
+          <p>Tu reporte ayuda a todos.</p>
+        </div>
+      </div>
+
+      <!-- SLIDE 4 -->
+      <div class="slide">
+        <img src="https://picsum.photos/id/1039/1920/1080" />
+        <div class="slide-info">
+          <h2>Rápido y eficiente</h2>
+          <p>La plataforma está optimizada para que no pierdas tiempo.</p>
+        </div>
+      </div>
+
+      <!-- SLIDE 5 -->
+      <div class="slide">
+        <img src="https://picsum.photos/id/1069/1920/1080" />
+        <div class="slide-info">
+          <h2>Protege tu zona</h2>
+          <p>Ayuda a reducir infracciones en tu barrio.</p>
+        </div>
+      </div>
+
+      <!-- SLIDE 6 -->
+      <div class="slide">
+        <img src="https://picsum.photos/id/1040/1920/1080" />
+        <div class="slide-info">
+          <h2>Participa activamente</h2>
+          <p>Tu aporte mejora la movilidad para todos.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="indicators" id="indicators"></div>
+
+  </div>
+</header>
+
+<script>
+  const track = document.getElementById('track');
+  const prev = document.getElementById('prev');
+  const next = document.getElementById('next');
+  const indicators = document.getElementById('indicators');
+
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let index = 0;
+
+  // Crear bolitas dinámicamente
+  for(let i=0; i<total; i++){
+    const dot = document.createElement('div');
+    if(i === 0) dot.classList.add('active');
+    dot.dataset.index = i;
+    indicators.appendChild(dot);
+
+    dot.addEventListener('click', () => moveToSlide(i));
+  }
+
+  function updateIndicators(){
+    document.querySelectorAll('.indicators div').forEach(dot => dot.classList.remove('active'));
+    document.querySelector(`.indicators div[data-index="${index}"]`).classList.add('active');
+  }
+
+  function moveToSlide(i){
+    index = i;
+    track.style.transform = `translateX(-${index * 100}%)`;
+    updateIndicators();
+  }
+
+  next.onclick = () => {
+    index = (index + 1) % total;
+    moveToSlide(index);
+  };
+
+  prev.onclick = () => {
+    index = (index - 1 + total) % total;
+    moveToSlide(index);
+  };
+</script>
+
+</bo

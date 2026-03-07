@@ -1,0 +1,128 @@
+<!-- Sección profesional para descargar APK -->
+<section class="download-app-section">
+  <div class="download-container">
+    <div class="download-text">
+      <h2>Descargar nuestra Aplicación Móvil</h2>
+      <p>
+        Instala nuestra app oficial para Android y gestiona todo directamente desde tu celular.
+        Rápida, segura y optimizada para ofrecerte la mejor experiencia.
+      </p>
+
+      <a href="https://tuweb.com/app/app-release.apk" class="download-btn" download>
+        <span class="icon">📥</span> Descargar App (.APK)
+      </a>
+
+      <p class="note">Compatible con Android 7.0 o superior</p>
+    </div>
+
+    <div class="phone-preview">
+      <div class="phone-frame">
+        <img src="assets/images/Gemini_Generated_Image_4spt2d4spt2d4spt.png" alt="Vista previa de la App" />
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .download-app-section {
+    width: 100%;
+    padding: 80px 20px;
+    background: linear-gradient(135deg, #0e0e0e, #1c1c1c);
+    display: flex;
+    justify-content: center;
+    color: #fff;
+    font-family: "Poppins", sans-serif;
+  }
+
+  .download-container {
+    max-width: 1300px;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 60px;
+  }
+
+  .download-text {
+    flex: 1 1 500px;
+  }
+
+  .download-text h2 {
+    font-size: 42px;
+    margin-bottom: 20px;
+    font-weight: 700;
+  }
+
+  .download-text p {
+    font-size: 18px;
+    line-height: 1.6;
+    margin-bottom: 25px;
+  }
+
+  .download-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 14px 26px;
+    background: #2ecc71;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 600;
+    border-radius: 12px;
+    text-decoration: none;
+    transition: 0.3s ease;
+    box-shadow: 0 6px 18px rgba(46, 204, 113, 0.4);
+  }
+
+  .download-btn:hover {
+    background: #27ae60;
+    box-shadow: 0 6px 20px rgba(46, 204, 113, 0.6);
+  }
+
+  .download-btn .icon {
+    margin-right: 10px;
+    font-size: 22px;
+  }
+
+  .note {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #bbb;
+  }
+
+  .phone-preview {
+    flex: 1 1 400px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .phone-frame {
+    width: 280px;
+    height: 550px;
+    background: #111;
+    border-radius: 40px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .phone-frame img {
+    width: 100%;
+    height: auto;
+    border-radius: 30px;
+  }
+
+  @media (max-width: 900px) {
+    .download-text h2 {
+      font-size: 32px;
+    }
+    .download-container {
+      flex-direction: column;
+      text-align: center;
+    }
+    .phone-preview {
+      order: -1;
+    }
+  }
+</style>

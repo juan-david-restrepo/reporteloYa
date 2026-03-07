@@ -1,0 +1,64 @@
+<app-nav></app-nav>
+
+<div class="padre">
+  <div class="soporte-container">
+
+    <div class="soporte-header">
+      <div class="icono-soporte">
+        <i class="fas fa-headset"></i>
+      </div>
+      <div>
+        <h2>Centro de Soporte</h2>
+        <p class="descripcion">
+          Nuestro equipo está listo para ayudarte. Completa el formulario y nos
+          pondremos en contacto contigo lo antes posible.
+        </p>
+      </div>
+    </div>
+
+    <form (submit)="enviarSoporte()" #formSoporte="ngForm">
+
+      <div class="grid-2">
+        <div class="campo">
+          <label><i class="fas fa-user"></i> Nombre completo</label>
+          <input type="text" name="nombre" ngModel required />
+        </div>
+
+        <div class="campo">
+          <label><i class="fas fa-envelope"></i> Correo electrónico</label>
+          <input type="email" name="correo" ngModel required />
+        </div>
+      </div>
+
+      <div class="campo">
+        <label><i class="fas fa-list"></i> Tipo de solicitud</label>
+        <select name="tipo" ngModel required>
+          <option value="" disabled selected>Selecciona una opción</option>
+          <option value="problema">🚨 Reportar un problema</option>
+          <option value="pregunta">❓ Hacer una consulta</option>
+          <option value="sugerencia">💡 Enviar una sugerencia</option>
+        </select>
+      </div>
+
+      <div class="campo">
+        <label><i class="fas fa-comment-dots"></i> Descripción</label>
+        <textarea
+          name="mensaje"
+          rows="5"
+          ngModel
+          required
+          placeholder="Explícanos el detalle de tu solicitud para poder ayudarte mejor..."
+        ></textarea>
+      </div>
+
+      <div class="acciones">
+        <button class="btn-enviar" [disabled]="formSoporte.invalid">
+          <i class="fas fa-paper-plane"></i> Enviar solicitud
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<app-footer></app-footer>

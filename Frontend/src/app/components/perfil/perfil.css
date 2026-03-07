@@ -1,0 +1,376 @@
+/* =========================================================
+   PERFIL - DISEÑO INSTITUCIONAL PROFESIONAL 100%
+========================================================= */
+
+.perfil-wrapper {
+    min-height: 100vh;
+    padding: 120px 80px;
+    background: linear-gradient(135deg, #f4f7fb, #e9eef5);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.perfil-card {
+    position: relative;
+    width: 100%;
+    max-width: 1200px;
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+.perfil-sidebar {
+    background: linear-gradient(180deg, #1e3a8a, #1e40af);
+    padding: 40px 30px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.avatar-section {
+    text-align: center;
+}
+
+.avatar-wrapper {
+    position: relative;
+    width: 130px;
+    height: 130px;
+    margin: 0 auto 20px;
+}
+
+.avatar-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid rgba(255,255,255,0.4);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.avatar-edit {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    background: white;
+    color: #1e3a8a;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.avatar-edit:hover {
+    transform: scale(1.1);
+}
+
+.avatar-edit input {
+    display: none;
+}
+
+.perfil-sidebar h3 {
+    margin: 10px 0 5px;
+    font-weight: 600;
+}
+
+.user-email {
+    font-size: 14px;
+    opacity: 0.85;
+}
+
+.stats-card {
+    margin-top: 40px;
+    background: rgba(255,255,255,0.1);
+    padding: 20px;
+    border-radius: 14px;
+    backdrop-filter: blur(4px);
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.stat-item i {
+    font-size: 22px;
+}
+
+.stat-item span {
+    font-size: 13px;
+    opacity: 0.8;
+}
+
+.stat-item strong {
+    font-size: 18px;
+}
+
+/* =========================================================
+   CONTENIDO
+========================================================= */
+
+.perfil-content {
+    padding: 50px 60px;
+    backdrop-filter: blur(2px);
+}
+
+.content-header h2 {
+    font-weight: 600;
+    margin-bottom: 40px;
+    color: #1f2937;
+}
+
+/* =========================================================
+   FORMULARIO
+========================================================= */
+
+.perfil-form {
+    width: 100%;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px 40px;
+}
+
+.form-grid p {
+    grid-column: 1 / -1;
+    margin-top: 30px;
+    font-weight: 600;
+    color: #1e3a8a;
+    border-bottom: 2px solid #e5e7eb;
+    padding-bottom: 8px;
+}
+
+.input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-group i {
+    position: absolute;
+    left: 12px;
+    color: #94a3b8;
+    font-size: 14px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px 12px 12px 40px;
+    border: none;
+    border-bottom: 2px solid #cbd5e1;
+    outline: none;
+    font-size: 14px;
+    background: transparent;
+    transition: 0.3s ease;
+}
+
+.input-group input:focus {
+    border-bottom: 2px solid #2563eb;
+}
+
+.input-group.full {
+    grid-column: 1 / -1;
+}
+
+/* =========================================================
+   BOTONES PREMIUM
+========================================================= */
+
+.form-actions {
+    margin-top: 70px;
+    display: flex;
+    gap: 25px;
+}
+
+/* BOTÓN GUARDAR */
+
+.btn-save {
+    position: relative;
+    padding: 16px 36px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #1e3a8a, #2563eb);
+    color: #ffffff;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow:
+        0 10px 25px rgba(37, 99, 235, 0.25),
+        0 4px 10px rgba(30, 58, 138, 0.2);
+}
+
+.btn-save::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(
+        120deg,
+        rgba(255,255,255,0),
+        rgba(255,255,255,0.35),
+        rgba(255,255,255,0)
+    );
+    transform: skewX(-25deg);
+    transition: 0.7s ease;
+}
+
+.btn-save:hover::before {
+    left: 130%;
+}
+
+.btn-save:hover {
+    transform: translateY(-3px);
+    box-shadow:
+        0 18px 40px rgba(37, 99, 235, 0.35),
+        0 8px 18px rgba(30, 58, 138, 0.3);
+}
+
+.btn-save:active {
+    transform: translateY(0);
+}
+
+/* BOTÓN LIMPIAR */
+
+.btn-reset {
+    position: relative;
+    padding: 16px 36px;
+    border-radius: 12px;
+    background: transparent;
+    border: 2px solid #cbd5e1;
+    color: #374151;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.35s ease;
+    overflow: hidden;
+}
+
+.btn-reset::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #1e3a8a, #2563eb);
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    z-index: -1;
+    border-radius: 10px;
+}
+
+.btn-reset:hover {
+    color: white;
+    border-color: transparent;
+}
+
+.btn-reset:hover::before {
+    opacity: 1;
+}
+
+.btn-reset:active {
+    transform: scale(0.97);
+}
+
+/* Botón interruptor tipo switch mejorado - corregido para Angular */
+.edit-toggle {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f0f0f3; /* Fondo suave estilo neumórfico */
+  border-radius: 30px;
+  padding: 6px 14px;
+  cursor: pointer;
+  user-select: none;
+  font-weight: 600;
+  font-family: 'Segoe UI', sans-serif;
+  box-shadow: 4px 4px 8px #d1d1d1, -4px -4px 8px #ffffff; /* efecto neumórfico */
+  transition: background 0.4s ease, box-shadow 0.4s ease;
+  z-index: 1001;
+}
+
+.edit-toggle:hover {
+  box-shadow: 2px 2px 6px #d1d1d1, -2px -2px 6px #ffffff;
+}
+
+/* Texto de etiqueta */
+.edit-toggle .label-text {
+  font-size: 14px;
+  color: #444;
+  transition: color 0.3s ease;
+}
+
+/* Caja del switch */
+.edit-toggle .switch {
+  width: 40px;
+  height: 22px;
+  background: #e0e0e0;
+  border-radius: 12px;
+  position: relative;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: inset 2px 2px 4px #d1d1d1, inset -2px -2px 4px #ffffff;
+}
+
+/* La bolita */
+.edit-toggle .switch::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.35s cubic-bezier(0.25, 1.5, 0.5, 1); /* rebote */
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+/* Estado activo aplicado directamente a .switch */
+.edit-toggle .switch.active {
+  background: #4caf50;
+  box-shadow: inset 2px 2px 4px #3a9033, inset -2px -2px 6px #66c466;
+}
+
+.edit-toggle .switch.active::before {
+  transform: translateX(18px);
+}
+
+/* Cambio de color del texto cuando está activo */
+.edit-toggle .switch.active ~ .label-text {
+  color: #4caf50;
+}
+
+.modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000;}
+.modal.show { display: flex; }
+.modal-content { background: white; color: black; padding: 20px; border-radius: 8px; width: 600px; max-height: 80%; overflow-y: auto; }
+.modal-body { display: flex; gap: 20px; }
+.avatar-section { flex: 1; }
+.avatar-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px; }
+.avatar-grid img { width: 80px; height: 80px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
+.avatar-grid img.selected { border-color: #1e3a8a; }
+.background-section { flex: 1; }
+.background-options { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+.color-swatch { width: 40px; height: 40px; border-radius: 5px; cursor: pointer; border: 2px solid white; transition: transform 0.2s; display: inline-block; margin: 3px; }
+.color-swatch:hover { transform: scale(1.1); }
+.animated { animation: colorShift 5s infinite alternate; }
+@keyframes colorShift { 0% { background-position:0% 50%; } 50% { background-position:100% 50%; } 100% { background-position:0% 50%; } }
+.pattern { background-size: 20px 20px; background-image: repeating-linear-gradient(45deg, #fff 0 5px, #000 5px 10px); }
+.modal-actions { margin-top: 15px; display: flex; justify-content: flex-end; gap: 10px; }

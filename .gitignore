@@ -1,0 +1,16 @@
+# ===== GENERAL =====
+.DS_Store
+Thumbs.db
+
+# ===== VS CODE =====
+.vscode/
+
+# ===== ENV FILES =====
+.env
+.env.*
+
+# ===== DOCKER =====
+docker-compose.override.yml
+
+# ===== CREDENTIALS =====
+google-credentials.json

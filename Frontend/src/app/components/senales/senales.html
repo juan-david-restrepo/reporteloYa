@@ -1,0 +1,29 @@
+<app-nav></app-nav>
+
+<div class="container" *ngIf="!loading && !error">
+  <div *ngFor="let tipo of tipos">
+    <h2>{{ tipo | uppercase }}</h2>
+
+    <div class="grid">
+      <div class="card" *ngFor="let s of getPorTipo(tipo)">
+        <img [src]="s.imagen" [alt]="s.nombre" *ngIf="s.imagen">
+        <h3>{{ s.nombre }}</h3>
+        <p>{{ s.descripcion }}</p>
+      </div>
+    </div>
+
+    <!-- Paginación -->
+    <div class="pagination" *ngIf="totalPages(tipo) > 1">
+      <button (click)="changePage(tipo, currentPage[tipo]-1)" [disabled]="currentPage[tipo]===0">&laquo;</button>
+      <button *ngFor="let page of [].constructor(totalPages(tipo)); let i = index"
+              (click)="changePage(tipo,i)"
+              [class.active]="i===currentPage[tipo]">{{i+1}}</button>
+      <button (click)="changePage(tipo, currentPage[tipo]+1)" [disabled]="currentPage[tipo]===totalPages(tipo)-1">&raquo;</button>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="loading">Cargando señales...</div>
+<div *ngIf="error">{{ error }}</div>
+
+<app-footer></app-footer>

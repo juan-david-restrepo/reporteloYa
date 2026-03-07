@@ -1,0 +1,84 @@
+/* Contenedor principal */
+.normas-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #1e293b;
+  line-height: 1.6;
+  margin-top: 50px;
+}
+
+/* Título Principal */
+.title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #0f172a;
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+/* Introducción */
+.intro {
+  font-size: 1.1rem;
+  margin-bottom: 30px;
+  padding: 15px 20px;
+  background: #eff6ff;
+  border-left: 5px solid #1e3a8a;
+  border-radius: 8px;
+}
+
+/* TARJETAS */
+.card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 25px;
+  margin-bottom: 25px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+
+.card h2 {
+  font-size: 1.5rem;
+  margin-bottom: 12px;
+  color: #1e3a8a;
+}
+
+/* Listas */
+.card ul {
+  margin-left: 20px;
+}
+
+.card li {
+  margin-bottom: 8px;
+  font-size: 1rem;
+}
+
+/* BOTÓN VOLVER */
+.volver-btn {
+  display: inline-block;
+  padding: 12px 22px;
+  background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+  color: white;
+  font-size: 1rem;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.2s ease;
+  box-shadow: 0 4px 10px rgba(30, 58, 138, 0.3);
+}
+
+.volver-btn:hover {
+  background: linear-gradient(135deg, #1e40af, #2563eb);
+  box-shadow: 0 6px 15px rgba(30, 58, 138, 0.4);
+  transform: translateY(-2px);
+}
+
+.volver-btn:active {
+  transform: scale(0.97);
+}

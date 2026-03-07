@@ -1,0 +1,72 @@
+<div class="profile-wrapper">
+
+  <!-- HEADER -->
+  <div class="profile-header">
+      <!-- SWITCH EN ESQUINA -->
+    <div class="perfil-switch">
+
+      <label class="switch">
+        <input type="checkbox"
+          [checked]="estadoAgente !== 'FUERA_SERVICIO'"
+          (change)="cambiarEstado($event)">
+        
+        <span class="slider"></span>
+      </label>
+
+      <span class="switch-label">
+        {{ estadoAgente === 'FUERA_SERVICIO'
+          ? 'Fuera de servicio'
+          : 'En servicio' }}
+      </span>
+
+    </div>
+
+    <div class="avatar-section">
+      <img [src]="agente?.foto" class="big-avatar">
+
+      <label class="upload-btn">
+        Cambiar foto
+        <input type="file" (change)="cambiarFoto($event)" hidden>
+      </label>
+    </div>
+
+    <div class="header-info">
+      <h2>{{agente?.nombre}}</h2>
+      <h3 class="ciudad">{{agente?.placa}}</h3>
+
+      <span class="estado-badge"
+        [class.libre]="estadoAgente === 'LIBRE'"
+        [class.ocupado]="estadoAgente === 'OCUPADO'"
+        [class.off]="estadoAgente === 'FUERA_SERVICIO'">
+         {{ estadoAgente === 'FUERA_SERVICIO'
+          ? 'Fuera de servicio'
+          : estadoAgente === 'OCUPADO'
+            ? 'Ocupado'
+            : 'Disponible' }}
+      </span>
+    </div>
+
+  </div>
+
+  <!-- INFORMACIÓN -->
+  <div class="info-grid">
+
+    <div class="card info-card">
+      <h3>Información Personal</h3>
+      <p><strong>Cédula:</strong> {{agente?.documento}}</p>
+      <p><strong>Placa:</strong> {{agente?.placa}}</p>
+      <p><strong>Telefono:</strong> {{agente?.telefono}}</p>
+      <p><strong>Correo:</strong> {{agente?.correo}}</p>
+    </div>
+
+    <div class="card extra-card">
+      <h3>Resumen Profesional</h3>
+      <p>✔ 4 años de servicio</p>
+      <p>✔ 125 reportes gestionados</p>
+      <p>✔ 98% efectividad</p>
+      <p>✔ Participación en 12 operativos</p>
+    </div>
+
+  </div>
+
+</div>

@@ -1,0 +1,52 @@
+<div class="filtro-h2">
+  <h2>Mi historial</h2>
+
+  <div class="filtros">
+    <button
+      class="btn-filtro"
+      (click)="cambiarFiltro('TODOS')"
+      [ngClass]="{ activo: filtroActivo === 'TODOS' }">
+      Todos
+    </button>
+
+    <button
+      class="btn-filtro"
+      (click)="cambiarFiltro('ACEPTADOS')"
+      [ngClass]="{ activo: filtroActivo === 'ACEPTADOS' }">
+      Aceptados
+    </button>
+
+    <button
+      class="btn-filtro"
+      (click)="cambiarFiltro('RECHAZADOS')"
+      [ngClass]="{ activo: filtroActivo === 'RECHAZADOS' }">
+      Rechazados
+    </button>
+  </div>
+</div>
+
+<div
+  class="card historial-card"
+  *ngFor="let h of historialFiltrado"
+  (click)="abrir(h)"
+>
+  <b>{{ h.tipoInfraccion }}</b>
+
+  <p class="hist-dir">{{ h.direccion }}</p>
+
+  <span
+    class="tag"
+    [ngClass]="{
+      ok: h.estado === 'finalizado',
+      no: h.estado === 'rechazado'
+    }"
+  >
+    {{
+      h.estado === 'finalizado'
+        ? 'Atendido'
+        : h.estado === 'rechazado'
+          ? 'Rechazado'
+          : ''
+    }}
+  </span>
+</div>
