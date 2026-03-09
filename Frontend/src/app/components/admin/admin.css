@@ -34,35 +34,111 @@ app-sidebar-admin {
   color: #0a2540;
 }
 
-/* ===== CHARTS GRID ===== */
-.charts-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
-  margin-bottom: 36px;
+
+
+
+/* Animación del título */
+.clickable:hover {
+  text-decoration: underline;
+  cursor: pointer;
 }
 
-/* ===== CHART CARD ===== */
-.chart-card {
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 20px;
-  box-shadow: 0 10px 24px rgba(10, 37, 64, 0.08);
-  border: 1px solid #e2e8f0;
+.text-primary.fw-bold {
+  color: #2563eb !important; /* Azul eléctrico profesional */
+  transition: color 0.2s ease;
+  
+
 }
 
-.chart-card h4 {
-  margin-bottom: 14px;
-  font-size: 15px;
-  font-weight: 600;
-  color: #1e3a8a;
+.text-primary.fw-bold:hover {
+  color: #1d4ed8 !important;
+   height: 28px !important;
 }
 
-.chart-card canvas {
-  width: 100% !important;
-  height: 260px !important;
+
+/* Contenedor de cada fila de filtro */
+.mini-filter-control {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: flex-end;
 }
 
+/* Etiquetas en gris suave y negrita */
+.mini-tag {
+  font-size: 10px;
+  font-weight: 800;
+  color: #2974e4;
+  letter-spacing: 0.5px;
+  text-align: right;
+  min-width: 80px;
+}
+
+/* El selector ultra-profesional */
+.pro-input-mini {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  height: 28px !important;
+  padding: 0 24px 0 10px !important;
+  width: 125px !important;
+  border-radius: 6px !important;
+  border: 1px solid #e2e8f0 !important;
+  background-color: #f8fafc !important;
+  color: #475569 !important;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+  
+  /* Flecha personalizada minimalista */
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  background-size: 12px 12px;
+}
+
+.pro-input-mini:hover {
+  border-color: #cbd5e1 !important;
+  background-color: #ffffff !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.pro-input-mini:focus {
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1) !important;
+}
+
+/* Ajuste para el modo oscuro (Dark Mode) */
+::ng-deep body.dark-mode .pro-input-mini {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+/* Ajuste para que en móviles no se rompa */
+@media (max-width: 768px) {
+  .filter-box {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+/* Responsividad */
+@media (max-width: 576px) {
+  .filter-container {
+    flex-direction: column;
+    width: 100%;
+  }
+  .filter-select {
+    width: 100%;
+  }
+}
+/* Ajuste para móviles */
+@media (max-width: 768px) {
+  .filter-group {
+    width: 100%;
+    flex-direction: column;
+  }
+}
 /* ===== TABLE SECTION ===== */
 .table-section {
   background: #ffffff;
@@ -227,6 +303,74 @@ app-sidebar-admin {
     /* separación del label */
   }
 
+}
+
+/* Contenedor del filtro individual */
+.pro-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Etiquetas en mayúsculas sutiles */
+.pro-label {
+  font-size: 10px;
+  font-weight: 800;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-left: 2px;
+}
+
+/* El selector estilo botón moderno */
+.pro-select {
+  appearance: none;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  color: #334155;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  height: 36px;
+  padding: 0 32px 0 12px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 140px;
+  outline: none;
+  /* Icono de flecha minimalista */
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.6rem center;
+  background-size: 1.2em 1.2em;
+}
+
+.pro-select:hover {
+  background-color: #ffffff;
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.pro-select:focus {
+  border-color: #2563eb;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Separador sutil */
+.border-bottom-light {
+  border-bottom: 1px solid #f1f5f9;
+}
+
+/* Estilo para el modo oscuro (Dark Mode) */
+::ng-deep body.dark-mode .pro-select {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+::ng-deep body.dark-mode .pro-select:hover {
+  background-color: #0f172a !important;
+  border-color: #2563eb !important;
 }
 
 @media (max-width: 360px) {
@@ -1153,3 +1297,4 @@ body.modal-open {
   width: 100% !important;
   height: 100% !important;
 }
+
