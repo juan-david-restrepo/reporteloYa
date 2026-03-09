@@ -2,6 +2,7 @@ package com.reporteloya.backend.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -139,4 +140,15 @@ public class ReporteController {
     public ResponseEntity<?> debug(Authentication auth) {
         return ResponseEntity.ok(auth.getName());
     }
+
+    @GetMapping
+    public Page<Reporte> listarReportes(
+            @RequestParam(required = false) String prioridad,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "6") int size) {
+
+        return reporteService.obtenerReportes(prioridad, page, size);
+    }
+
+    
 }

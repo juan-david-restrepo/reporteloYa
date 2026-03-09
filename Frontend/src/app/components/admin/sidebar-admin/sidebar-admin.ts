@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { AuthService } from '../../../service/auth.service';
+
 
 @Component({
   selector: 'app-sidebar-admin',
@@ -8,5 +10,14 @@ import { RouterModule } from '@angular/router';
   styleUrl: './sidebar-admin.css',
 })
 export class SidebarAdmin {
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+  ) {}
 
+  logout_admin() {
+    this.authService.logout().subscribe(() => {
+      this.router.navigate(['/login']);
+    });
+  }
 }

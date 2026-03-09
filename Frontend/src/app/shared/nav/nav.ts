@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ModalComponent } from '../../components/modal/modal.component';
 import { AuthService, AuthUser } from '../../service/auth.service';
@@ -13,7 +13,6 @@ import { Avatar } from '../../service/avatar';
   styleUrls: ['./nav.css'],
 })
 export class Nav implements OnInit {
-
   currentYear = new Date().getFullYear();
 
   isSidebarOpen = false;
@@ -25,7 +24,8 @@ export class Nav implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private avatarService: Avatar
+    private avatarService: Avatar,
+    private router: Router,
   ) {}
 
   ngOnInit() {
@@ -45,12 +45,12 @@ export class Nav implements OnInit {
     });
 
     // 🔹 Suscribirse a cambios globales de avatar
-    this.avatarService.avatar$.subscribe(avatar => {
+    this.avatarService.avatar$.subscribe((avatar) => {
       this.currentAvatar = avatar || 'assets/images/images (3).png';
     });
 
     // 🔹 Suscribirse al estado de autenticación (opcional para UI)
-    this.authService.authState$.subscribe(state => {
+    this.authService.authState$.subscribe((state) => {
       this.isLoggedIn = state;
       if (!state) {
         this.currentAvatar = 'assets/images/images (3).png';
@@ -82,10 +82,13 @@ export class Nav implements OnInit {
     this.authService.logout().subscribe({
       next: () => {
         this.currentAvatar = 'assets/images/images (3).png';
+
+        // redirigir al login
+        this.router.navigate(['/login'], { replaceUrl: true });
       },
       error: (err) => {
         console.error('Error al cerrar sesión', err);
-      }
+      },
     });
   }
 }
