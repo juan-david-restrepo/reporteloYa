@@ -26,4 +26,6 @@ export class App implements OnInit {
       this.showIdleModal = true;
     }); 
   }
+
+  
 }
