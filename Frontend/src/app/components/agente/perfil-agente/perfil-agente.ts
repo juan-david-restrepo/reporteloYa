@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { SidebarAgente } from '../sidebar-agente/sidebar-agente';
 import { CommonModule } from '@angular/common';
+import { AgenteServiceTs } from '../../../service/agente.service';  
 
 @Component({
   selector: 'app-perfil-agente',
@@ -22,11 +23,25 @@ export class PerfilAgente {
 
   @Input() estadoAgente!: 'LIBRE'|'OCUPADO'|'FUERA_SERVICIO';
 
-  @Output() estadoChange = new EventEmitter<Event>();
+  @Output() estadoChange = new EventEmitter<'LIBRE'|'FUERA_SERVICIO'>();
 
 
   cambiarEstado(event: any){
     this.estadoChange.emit(event);
+  }
+
+  constructor(private agenteService: AgenteServiceTs) {}
+
+  toggleServicio(event: any) {
+
+    const activo = event.target.checked;
+
+    if (activo) {
+      this.estadoChange.emit('LIBRE');
+    } else {
+      this.estadoChange.emit('FUERA_SERVICIO');
+    }
+
   }
 
 

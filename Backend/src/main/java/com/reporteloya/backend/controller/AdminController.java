@@ -16,11 +16,17 @@ import java.util.Optional;
 import com.reporteloya.backend.entity.Tarea;
 import com.reporteloya.backend.entity.Agentes;
 import com.reporteloya.backend.service.AgenteService;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import com.reporteloya.backend.repository.TareaRepository;
 
 @RestController
 @RequestMapping("/admin")
 public class AdminController {
+
+    /* constructor para enviar tareas */
+
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
 
     @Autowired
     private AgenteService agenteService;
@@ -56,13 +62,20 @@ public class AdminController {
     // =========================
     @PostMapping("/{placa}/tareas")
     public ResponseEntity<Agentes> agregarTarea(@PathVariable String placa, @RequestBody Tarea nuevaTarea) {
+
         return agenteService.buscarPorPlaca(placa).map(agente -> {
-            nuevaTarea.setAgente(agente); 
-            agente.getListaTareas().add(nuevaTarea); 
+
+            nuevaTarea.setAgente(agente);
+            agente.getListaTareas().add(nuevaTarea);
             agente.setEstado("PENDIENTE");
-            
-            Agentes actualizado = agenteService.guardar(agente); 
+
+            Agentes actualizado = agenteService.guardar(agente);
+
+            // 🔥 ENVIAR TAREA POR WEBSOCKET
+            messagingTemplate.convertAndSend("/topic/tareas/" + placa, nuevaTarea);
+
             return ResponseEntity.ok(actualizado);
+
         }).orElse(ResponseEntity.notFound().build());
     }
 
