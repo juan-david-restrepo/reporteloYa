@@ -1,9 +1,9 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { Reporte, EstadoReporte } from '../agente';
-
+import { AgenteServiceTs } from '../../../service/agente.service';
 import { trigger, transition, style, animate } from '@angular/animations';
 
 
@@ -32,7 +32,12 @@ import { trigger, transition, style, animate } from '@angular/animations';
 })
 export class Reportes {
 
+    reportesScroll: Reporte[] = [];
 
+    page = 0;
+    size = 6;
+    loading = false;
+    totalPages = 0;
 
     mostrarModalAceptar = false;
     modoAceptacion: 'solo' | 'acompanado' | null = null;
@@ -63,7 +68,9 @@ export class Reportes {
 
     @Input() reporteInicial: Reporte | null = null;
 
-    constructor(private sanitizer: DomSanitizer){}
+    constructor(private sanitizer: DomSanitizer
+        , private agenteService: AgenteServiceTs
+    ){}
     mapaUrl: SafeResourceUrl | null = null;
 
     @Input() reportes!: Reporte[];
@@ -207,7 +214,14 @@ export class Reportes {
     filtroActivo: 'TODOS'|'BAJA'|'MEDIA'|'ALTA' = 'TODOS';
 
     cambiarFiltro(filtro:'TODOS'|'BAJA'|'MEDIA'|'ALTA'){
-        this.filtroActivo = filtro;
+
+    this.filtroActivo = filtro;
+
+    this.page = 0;
+    this.totalPages = 0;
+    this.reportesScroll = [];
+
+    this.cargarReportes();
     }
 
     get reportesFiltrados(){
@@ -282,6 +296,73 @@ export class Reportes {
 
         this.cerrarModalAceptar();
     }
+
+    ngOnInit(){
+        this.cargarReportes();
+    }
+
+    @HostListener('window:scroll', [])
+        onScroll(){
+
+        const scrollTop = window.scrollY;
+        const windowHeight = window.innerHeight;
+        const documentHeight = document.body.offsetHeight;
+
+        if(scrollTop + windowHeight >= documentHeight - 200){
+            this.cargarReportes();
+        }
+
+    }
+
+    cargarReportes(){
+
+        if(this.loading) return;
+
+        if(this.page >= this.totalPages && this.page !== 0) return;
+
+        this.loading = true;
+
+        this.agenteService.getReportes(this.page, this.size, this.filtroActivo)
+        .subscribe({
+
+            next:(data)=>{
+
+            this.totalPages = data.totalPages;
+
+            const nuevos = data.content.map((r:any):Reporte => ({
+                id: r.id,
+                tipoInfraccion: r.tipoInfraccion,
+                direccion: r.direccion,
+                horaIncidente: r.horaIncidente ?? '',
+                fechaIncidente: r.fechaIncidente
+                ? new Date(r.fechaIncidente)
+                : new Date(),
+                descripcion: r.descripcion,
+                foto: r.urlFoto || '',
+                latitud: r.latitud,
+                longitud: r.longitud,
+                lat: r.latitud,
+                lng: r.longitud,
+                etiqueta: r.prioridad,
+                estado: r.estado?.toLowerCase()
+            }));
+
+            this.reportesScroll.push(...nuevos);
+
+            this.page++;
+
+            this.loading = false;
+
+            },
+
+            error:(err)=>{
+            console.error('Error cargando reportes',err);
+            this.loading = false;
+            }
+
+        });
+
+        }
 
     cerrarModalAceptar(){
         this.mostrarModalAceptar = false;

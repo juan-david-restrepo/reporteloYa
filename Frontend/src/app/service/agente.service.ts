@@ -73,4 +73,21 @@ export class AgenteServiceTs {
     );
   }
 
+  // =============================
+  // REPORTES PAGINADOS (SCROLL)
+  // =============================
+  getReportes(page:number, size:number, prioridad?:string): Observable<any>{
+
+    let url = `${this.apiReportes}?page=${page}&size=${size}`;
+
+    if(prioridad && prioridad !== 'TODOS'){
+      url += `&prioridad=${prioridad}`;
+    }
+
+    return this.http.get<any>(url,{
+      withCredentials:true
+    });
+
+  }
+
 }
