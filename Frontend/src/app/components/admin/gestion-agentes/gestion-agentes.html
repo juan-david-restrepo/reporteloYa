@@ -27,29 +27,32 @@
       </p>
     </div>
 
- <div class="card agente-info" *ngIf="agente">
-  <h2>Información del Agente</h2>
-  <div class="info-grid">
-    <p><strong>Nombre:</strong> {{ agente.nombreCompleto }}</p>
-    <p><strong>Placa:</strong> {{ agente.placa }}</p>
-    <p><strong>Documento:</strong> {{ agente.numeroDocumento }}</p>
-    <p><strong>Teléfono:</strong> {{ agente.telefono }}</p>
-    
-    <p class="estado-container">
-      <strong>Estado actual:</strong>
-      <span class="estado" [ngClass]="getClaseEstado(agente.estado)">
-        {{ agente.estado }}
-      </span>
-    </p>
-  </div>
-</div>
+    <div class="card agente-info" *ngIf="agente">
+      <h2>Información del Agente</h2>
+      <div class="info-grid">
+        <p><strong>Nombre:</strong> {{ agente.nombreCompleto }}</p>
+        <p><strong>Placa:</strong> {{ agente.placa }}</p>
+        <p><strong>Documento:</strong> {{ agente.numeroDocumento }}</p>
+        <p><strong>Teléfono:</strong> {{ agente.telefono }}</p>
+
+        <p class="estado-container">
+          <strong>Estado actual:</strong>
+          <span class="estado" [ngClass]="getClaseEstado(agente.estado)">
+            {{ agente.estado }}
+          </span>
+        </p>
+      </div>
+    </div>
 
     <div class="card" *ngIf="agente">
       <h2>Asignar tarea al agente</h2>
       <div class="info-grid">
         <div>
           <label>Título</label>
-          <input type="text" [(ngModel)]="titulo" placeholder="Ej: Control de tráfico" />
+          <input type="text" [(ngModel)]="titulo" placeholder="Ej: Control de tráfico" maxlength="20" />
+          <small *ngIf="titulo.length > 0" [style.color]="titulo.length === 20 ? 'red' : 'gray'">
+            {{ titulo.length }}/20
+          </small>
         </div>
 
         <div>
@@ -103,7 +106,7 @@
             <td data-label="Descripción" class="td-descripcion">
               <div class="descripcion-contenido">
                 <span class="descripcion-texto">{{ tarea.descripcion }}</span>
-                <button *ngIf="tarea.descripcion.length > 5" class="ver-mas"
+                <button *ngIf="tarea.descripcion.length >=10" class="ver-mas"
                   (click)="abrirModalDescripcion(tarea.descripcion)">
                   Ver más
                 </button>
