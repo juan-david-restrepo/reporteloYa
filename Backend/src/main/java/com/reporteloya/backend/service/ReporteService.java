@@ -1,5 +1,9 @@
 package com.reporteloya.backend.service;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -308,5 +312,20 @@ public class ReporteService {
                 .toList();
     }
 
+
+    // ================================
+    // scroll reporte 
+    // ================================
+    
+    public Page<Reporte> obtenerReportes(String prioridad, int page, int size) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+
+        if (prioridad != null) {
+            return reporteRepository.findByPrioridad(Prioridad.valueOf(prioridad.toUpperCase()), pageable);
+        }
+
+        return reporteRepository.findAll(pageable);
+    }
 
 }

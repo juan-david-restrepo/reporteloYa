@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
 import { SidebarAgente } from './sidebar-agente/sidebar-agente';
 import { Configuracion } from './configuracion/configuracion';
 import { PerfilAgente } from './perfil-agente/perfil-agente';
@@ -52,7 +51,7 @@ import { AuthService } from '../../service/auth.service';
       titulo:string;
       admin:string;
       descripcion:string;
-      estado:'PENDIENTE'|'EN_PROCESO'|'FINALIZADA';
+      estado:'PENDIENTE'|'EN PROCESO'|'FINALIZADO'|'RECHAZADO';
       hora:string;
       fecha: string;
       prioridad: 'BAJA'|'MEDIA'|'ALTA';
@@ -118,20 +117,15 @@ export class Agente implements OnInit, OnDestroy {
 
     estadoAgente:'LIBRE'|'OCUPADO'|'FUERA_SERVICIO' = 'LIBRE';
 
-      toggleServicio(event: any) {
+    toggleServicio(nuevoEstado:'LIBRE'|'FUERA_SERVICIO'){
 
-        const activo = event.target.checked;
+      this.estadoAgente = nuevoEstado;
 
-        if (activo) {
-          // Si está activado → está en servicio
-          this.estadoAgente = 'LIBRE';
-        } else {
-          // Si está desactivado → fuera de servicio
-          this.estadoAgente = 'FUERA_SERVICIO';
-        }
-      }
+      this.agenteService.actualizarEstado(nuevoEstado).subscribe();
 
-      config = {
+    }
+
+    config = {
       modoNoche:false,
       daltonismo:false,
       fontSize:16
@@ -194,7 +188,7 @@ export class Agente implements OnInit, OnDestroy {
           titulo:'Control vehicular',
           admin:'Supervisor',
           descripcion:'Revisión documentos vehículos pesados',
-          estado:'FINALIZADA',
+          estado:'FINALIZADO',
           hora:'02:00 PM',
           fecha:'2026-06-15',
           prioridad: 'MEDIA',
@@ -230,23 +224,39 @@ export class Agente implements OnInit, OnDestroy {
     comenzarTarea(t:Tarea){
 
       const yaOcupado = this.tareasAdmin.some(
-        tarea => tarea.estado === 'EN_PROCESO'
+        tarea => tarea.estado === 'EN PROCESO'
       );
 
       if(yaOcupado) return;
 
-      t.estado = 'EN_PROCESO';
-      t.fechaInicio = new Date();
+      this.agenteService.actualizarEstadoTarea(t.id,'EN PROCESO')
+      .subscribe(()=>{
 
-      this.estadoAgente = 'OCUPADO';
+        t.estado = 'EN PROCESO';
+        t.fechaInicio = new Date();
+
+        this.estadoAgente = 'OCUPADO';
+
+        this.agenteService.actualizarEstado('OCUPADO').subscribe();
+
+      });
+
     }
 
     finalizarTarea(t:Tarea){
 
-      t.estado = 'FINALIZADA';
-      t.fechaFin = new Date();
+      this.agenteService.actualizarEstadoTarea(t.id,'FINALIZADO')
+      .subscribe(()=>{
 
-      this.estadoAgente = 'LIBRE';
+        t.estado = 'FINALIZADO';
+        t.fechaFin = new Date();
+
+        this.estadoAgente = 'LIBRE';
+
+        this.agenteService.actualizarEstado('LIBRE').subscribe();
+
+      });
+
     }
 
     aceptarReporte(r: Reporte){
@@ -264,6 +274,7 @@ export class Agente implements OnInit, OnDestroy {
           r.estado = EstadoReporte.EN_PROCESO;
           r.fechaAceptado = new Date();
           this.estadoAgente = 'OCUPADO';
+          this.agenteService.actualizarEstado('OCUPADO').subscribe();
 
         },
 
@@ -276,6 +287,8 @@ export class Agente implements OnInit, OnDestroy {
     }
 
     cerrarSesion() {
+
+      /* this.agenteService.actualizarEstado('FUERA_SERVICIO').subscribe();*/
 
       this.authService.logout().subscribe({
         next: () => {
@@ -315,6 +328,7 @@ export class Agente implements OnInit, OnDestroy {
         this.reportesEntrantes.filter(x => x.id !== r.id);
 
       this.estadoAgente = 'LIBRE';
+      this.agenteService.actualizarEstado('LIBRE').subscribe();
     }
 
     verDetalleHist(r: Reporte) {
@@ -425,12 +439,12 @@ export class Agente implements OnInit, OnDestroy {
     }
 
 
-
     ngOnInit() {
 
-      // cargar perfil
+      // 1️⃣ cargar perfil del agente
       this.agenteService.getPerfil().subscribe({
         next: (data) => {
+
           this.perfilAgente = {
             nombre: data.nombreCompleto,
             documento: data.numeroDocumento,
@@ -439,37 +453,68 @@ export class Agente implements OnInit, OnDestroy {
             telefono: data.telefono || 'N/A',
             foto: 'https://randomuser.me/api/portraits/men/32.jpg'
           };
+          this.estadoAgente = data.estado || 'LIBRE';
+
+          // 🔌 conectar websocket con la placa real
+          if (data.placa) {
+            this.websocketService.connect(data.placa);
+          }
+
+          // 2️⃣ 🔵 CARGAR TAREAS DESDE BD (AQUI VA)
+          this.agenteService.getTareasAgente().subscribe({
+
+            next:(data:any[]) => {
+
+              this.tareasAdmin = data.map(t => ({
+                id: t.id,
+                titulo: t.titulo,
+                descripcion: t.descripcion,
+                admin: "Administrador",
+                estado: t.estado,
+                hora: t.hora,
+                fecha: t.fecha,
+                prioridad: t.prioridad
+              }));
+
+            },
+
+            error:(err)=>{
+              console.error("Error cargando tareas",err);
+            }
+
+          });
+
         },
+
         error: (err) => {
           console.error('Error cargando perfil', err);
         }
       });
 
-      // cargar reportes existentes
+
+      // 3️⃣ cargar reportes existentes
       this.cargarReportesDesdeBD();
 
-      // conectar websocket
-      this.websocketService.connect();
 
-      // escuchar nuevos reportes
+      // 4️⃣ escuchar nuevos reportes
       this.websocketService.reportes$.subscribe((reporteBackend:any) => {
 
         const nuevoReporte:Reporte = {
-            id: reporteBackend.id,
-            tipoInfraccion: reporteBackend.tipoInfraccion,
-            direccion: reporteBackend.direccion,
-            horaIncidente: reporteBackend.horaIncidente ?? '',
-            fechaIncidente: reporteBackend.fechaIncidente
-              ? new Date(reporteBackend.fechaIncidente)
-              : new Date(),
-            descripcion: reporteBackend.descripcion,
-            foto: reporteBackend.urlFoto || '',
-            latitud: reporteBackend.latitud,
-            longitud: reporteBackend.longitud,
-            lat: reporteBackend.latitud,
-            lng: reporteBackend.longitud,
-            etiqueta: reporteBackend.prioridad,
-            estado: reporteBackend.estado?.toLowerCase() as EstadoReporte
+          id: reporteBackend.id,
+          tipoInfraccion: reporteBackend.tipoInfraccion,
+          direccion: reporteBackend.direccion,
+          horaIncidente: reporteBackend.horaIncidente ?? '',
+          fechaIncidente: reporteBackend.fechaIncidente
+            ? new Date(reporteBackend.fechaIncidente)
+            : new Date(),
+          descripcion: reporteBackend.descripcion,
+          foto: reporteBackend.urlFoto || '',
+          latitud: reporteBackend.latitud,
+          longitud: reporteBackend.longitud,
+          lat: reporteBackend.latitud,
+          lng: reporteBackend.longitud,
+          etiqueta: reporteBackend.prioridad,
+          estado: reporteBackend.estado?.toLowerCase() as EstadoReporte
         };
 
         const existe = this.reportesEntrantes.some(
@@ -488,6 +533,32 @@ export class Agente implements OnInit, OnDestroy {
           });
 
         }
+
+      });
+
+
+      // 5️⃣ escuchar nuevas tareas por WebSocket
+      this.websocketService.tareas$.subscribe((tareaBackend:any) => {
+
+        const nuevaTarea: Tarea = {
+          id: tareaBackend.id,
+          titulo: tareaBackend.titulo,
+          descripcion: tareaBackend.descripcion,
+          admin: "Administrador",
+          estado: tareaBackend.estado,
+          hora: tareaBackend.hora,
+          fecha: tareaBackend.fecha,
+          prioridad: tareaBackend.prioridad
+        };
+
+        this.tareasAdmin.unshift(nuevaTarea);
+
+        this.notificaciones.unshift({
+          tipo:'TAREA',
+          texto:`Nueva tarea asignada: ${nuevaTarea.titulo}`,
+          hora:new Date().toLocaleTimeString(),
+          data:nuevaTarea
+        });
 
       });
 

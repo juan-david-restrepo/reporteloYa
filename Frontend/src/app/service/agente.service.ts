@@ -11,6 +11,7 @@ export interface Usuario {
   role: string;
   telefono: string;
   placa?: string;
+  estado: 'LIBRE' | 'OCUPADO' | 'FUERA_SERVICIO';
 }
 
 @Injectable({
@@ -50,6 +51,43 @@ export class AgenteServiceTs {
       {},
       { withCredentials: true }
     );
+  }
+
+  getTareasAgente(): Observable<any>{
+    return this.http.get('http://localhost:8080/agente/tareas', {withCredentials:true});
+  }
+
+  actualizarEstado(estado:string){
+    return this.http.post(
+      'http://localhost:8080/agente/estado',
+      {estado},
+      {withCredentials:true}
+    );
+  }
+
+  actualizarEstadoTarea(id:number, estado:string){
+    return this.http.post(
+      `${this.apiAgente}/tareas/${id}/estado`,
+      {estado},
+      {withCredentials:true}
+    );
+  }
+
+  // =============================
+  // REPORTES PAGINADOS (SCROLL)
+  // =============================
+  getReportes(page:number, size:number, prioridad?:string): Observable<any>{
+
+    let url = `${this.apiReportes}?page=${page}&size=${size}`;
+
+    if(prioridad && prioridad !== 'TODOS'){
+      url += `&prioridad=${prioridad}`;
+    }
+
+    return this.http.get<any>(url,{
+      withCredentials:true
+    });
+
   }
 
 }

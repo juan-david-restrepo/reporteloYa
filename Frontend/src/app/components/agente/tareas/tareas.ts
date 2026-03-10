@@ -64,11 +64,11 @@ export class Tareas {
   get tareasFiltradas(){
 
     if(this.filtro === 'PENDIENTES'){
-      return this.tareas.filter(t => t.estado !== 'FINALIZADA');
+      return this.tareas.filter(t => t.estado !== 'FINALIZADO');
     }
 
     if(this.filtro === 'HECHAS'){
-      return this.tareas.filter(t => t.estado === 'FINALIZADA');
+      return this.tareas.filter(t => t.estado === 'FINALIZADO');
     }
 
     return this.tareas;

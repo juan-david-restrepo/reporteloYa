@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -14,6 +14,8 @@ import { Agente } from '../../../models/agente.model';
 import { Reporte } from '../../../models/reporte.model';
 import { Tarea } from '../../../models/tarea.model';
 import { SidebarAdmin } from '../sidebar-admin/sidebar-admin';
+import { WebsocketService } from '../../../service/websocket.service';
+
 
 @Component({
   selector: 'app-gestion-agentes',
@@ -22,7 +24,7 @@ import { SidebarAdmin } from '../sidebar-admin/sidebar-admin';
   templateUrl: './gestion-agentes.html',
   styleUrl: './gestion-agentes.css',
 })
-export class GestionAgentes implements OnDestroy {
+export class GestionAgentes implements OnInit, OnDestroy {
 
   // =========================
   // 1. ESTADO GENERAL
@@ -87,11 +89,36 @@ export class GestionAgentes implements OnDestroy {
   constructor(
     private adminService: AdminService,
     private reportesService: ReportesService,
-    private tareasService: TareasService
+    private tareasService: TareasService,
+    private websocketService: WebsocketService
   ) {}
+
+  ngOnInit(): void {
+    this.websocketService.connect('admin');
+
+    this.websocketService.estadosAgentes$.subscribe((estado:any)=>{
+
+      if(this.agente && this.agente.placa === estado.placa){
+        this.agente.estado = estado.estado;
+      }
+
+    });
+
+    this.websocketService.tareaEstado$.subscribe((tarea:any)=>{
+
+      const t = this.tareas.find(x => x.id === tarea.id);
+
+      if(t){
+        t.estado = tarea.estado;
+      }
+
+    });
+
+  }
 
   ngOnDestroy(): void {
     this.detenerRefresco();
+    this.websocketService.disconnect();
   }
 
   private detenerRefresco(): void {
