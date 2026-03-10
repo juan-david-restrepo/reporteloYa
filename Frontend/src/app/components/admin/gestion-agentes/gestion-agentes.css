@@ -581,14 +581,14 @@ table td {
 /* Descripción */
 .tabla-tareas th:nth-child(4),
 .tabla-tareas td:nth-child(4) {
-  width: 115px;
+  width: 120px;
    text-align: center;
 }
 
 /* Estado (NUEVA) */
 .tabla-tareas th:nth-child(5),
 .tabla-tareas td:nth-child(5) {
-  width: 100px;
+  width: 110px;
    text-align: center;
 }
 
