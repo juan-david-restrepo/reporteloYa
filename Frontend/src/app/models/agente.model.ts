@@ -1,10 +1,10 @@
 export interface Agente {
   id: number;
   placa: string;
-  nombre: string;
-  estado: 'DISPONIBLE' | 'OCUPADO' | 'AUSENTE';
+  nombreCompleto: string;
+  estado: 'DISPONIBLE' | 'OCUPADO' | 'FUERA DE SERVICI';
   telefono: string;
-  documento: string; // 👈 AÑADIDO
+  numeroDocumento: string; // 👈 AÑADIDO
   foto?: string;
   promedioResenas: number;
 }

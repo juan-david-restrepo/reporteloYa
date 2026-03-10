@@ -11,68 +11,57 @@
     </div>
 
 
-<div class="charts-grid container-fluid mt-4">
-  <div class="card shadow-sm border-0 chart-card bg-white">
-    <div class="card-body p-4">
-      
-      <div class="d-flex justify-content-between align-items-start mb-4">
-        
-        <div class="text-start">
-          <h6 class="text-primary fw-bold mb-1 clickable" (click)="abrirModalBarras()">
-            Distribución de Infracciones
-          </h6>
-        </div>
-        
-        <div class="d-flex flex-column gap-2 align-items-end">
-          
-          <div class="mini-filter-control">
-            <span class="mini-tag">PERIODO</span>
-            <select class="pro-input-mini" (change)="filtrarPorTiempo($event)">
-              <option value="hoy">Hoy</option>
-              <option value="semana">Semana</option>
-              <option value="mes" selected>Mes</option>
-              <option value="anio">Año</option>
-            </select>
+    <div class="charts-grid container-fluid mt-4">
+      <div class="card shadow-sm border-0 chart-card bg-white">
+        <div class="card-body p-4">
+
+          <div class="d-flex justify-content-between align-items-start mb-4">
+
+            <div class="text-start">
+              <h6 class="text-primary fw-bold mb-1 clickable" (click)="abrirModalBarras()">
+                Distribución de Infracciones
+              </h6>
+            </div>
+
+            <div class="d-flex flex-column gap-2 align-items-end">
+
+              <div class="mini-filter-control">
+                <span class="mini-tag">PERIODO</span>
+                <select class="pro-input-mini" (change)="filtrarPorTiempo($event)">
+                  <option value="hoy">Hoy</option>
+                  <option value="semana">Semana</option>
+                  <option value="mes" selected>Mes</option>
+                  <option value="anio">Año</option>
+                </select>
+              </div>
+
+              <div class="mini-filter-control">
+                <span class="mini-tag">INFRACCIÓN</span>
+                <select class="pro-input-mini" (change)="filtrarPorTipo($event)">
+                  <option value="todos">Todos</option>
+                  <option value="Exceso de velocidad">Exceso Velocidad</option>
+                  <option value="Semáforo en Rojo">Semáforo Rojo</option>
+                  <option value="Vehículo mal estacionado">Mal Parqueo</option>
+                </select>
+              </div>
+
+            </div>
           </div>
 
-          <div class="mini-filter-control">
-            <span class="mini-tag">INFRACCIÓN</span>
-            <select class="pro-input-mini" (change)="filtrarPorTipo($event)">
-              <option value="todos">Todos</option>
-              <option value="Exceso de velocidad">Exceso Velocidad</option>
-              <option value="Semáforo en Rojo">Semáforo Rojo</option>
-              <option value="Vehículo mal estacionado">Mal Parqueo</option>
-            </select>
+          <div class="canvas-container" style="position: relative; height:260px; width:100%;">
+            <canvas id="barChart"></canvas>
           </div>
 
         </div>
       </div>
-
-      <div class="canvas-container" style="position: relative; height:260px; width:100%;">
-        <canvas id="barChart"></canvas>
-      </div>
-
     </div>
-  </div>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
 
     <div class="table-section">
-      <div class="table-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+      <div class="table-header"
+        style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
         <h3>Infracciones Recientes</h3>
         <select (change)="aplicarFiltro($event)" style="padding:8px; border-radius:8px; border:1px solid #e2e8f0;">
           <option value="">Todos los estados</option>
@@ -138,11 +127,18 @@
       </div>
       <div *ngIf="tipoModalActivo === 'infraccion' && infraccionSeleccionada" class="detalle-infraccion-container">
         <div class="detalle-grid">
-          <div class="detalle-item"><label>Referencia</label><p>{{ infraccionSeleccionada.ref }}</p></div>
-          <div class="detalle-item"><label>Tipo</label><p>{{ infraccionSeleccionada.tipo }}</p></div>
-          <div class="detalle-item"><label>Agente</label><p>{{ infraccionSeleccionada.agente }}</p></div>
+          <div class="detalle-item"><label>Referencia</label>
+            <p>{{ infraccionSeleccionada.ref }}</p>
+          </div>
+          <div class="detalle-item"><label>Tipo</label>
+            <p>{{ infraccionSeleccionada.tipo }}</p>
+          </div>
+          <div class="detalle-item"><label>Agente</label>
+            <p>{{ infraccionSeleccionada.agente }}</p>
+          </div>
           <div class="detalle-item"><label>Estado</label>
-            <p><span class="status-badge" [ngClass]="getClaseEstado(infraccionSeleccionada.estado)">{{ infraccionSeleccionada.estado }}</span></p>
+            <p><span class="status-badge" [ngClass]="getClaseEstado(infraccionSeleccionada.estado)">{{
+                infraccionSeleccionada.estado }}</span></p>
           </div>
         </div>
       </div>
