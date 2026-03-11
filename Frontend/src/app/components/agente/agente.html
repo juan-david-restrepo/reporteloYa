@@ -94,6 +94,9 @@
     <app-dashboard
       *ngIf="vistaActual === 'dashboard'"
       [estadoAgente]="estadoAgente"
+      (irHistorial)="abrirHistorial()"
+      (irReportes)="cambiarVista('reportes')"
+      (irResueltos)="abrirHistorialResueltos()"
     >
     </app-dashboard>
 
@@ -114,6 +117,7 @@
     <app-historial
       *ngIf="vistaActual === 'historial'"
       [historial]="historialReportes"
+      [filtroInicial]="filtroHistorial"
       (verDetalle)="verDetalleHist($event)"
     >
     </app-historial>

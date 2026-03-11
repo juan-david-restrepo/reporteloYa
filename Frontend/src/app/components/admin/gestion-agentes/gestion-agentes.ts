@@ -127,6 +127,9 @@ export class GestionAgentes implements OnInit, OnDestroy {
       return;
     }
 
+    // Normalizar para evitar fallos por minúsculas/espacios
+    this.placaBuscada = this.placaBuscada.trim().toUpperCase();
+
     this.detenerRefresco();
     this.cargando = true;
     this.error = '';

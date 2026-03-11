@@ -84,6 +84,19 @@ type VistaAgente =
 })
 export class Agente implements OnInit, OnDestroy {
 
+
+  filtroHistorial: 'TODOS' | 'ACEPTADOS' | 'RECHAZADOS' = 'TODOS';
+
+  abrirHistorial() {
+    this.filtroHistorial = 'TODOS';
+    this.vistaActual = 'historial';
+  }
+
+  abrirHistorialResueltos() {
+    this.filtroHistorial = 'ACEPTADOS';
+    this.vistaActual = 'historial';
+  }
+
   EstadoReporte = EstadoReporte;
   reporteDesdeHistorial: Reporte | null = null;
   origenDetalle: 'historial' | 'reportes' = 'reportes';

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
 import { Reporte, EstadoReporte } from '../agente';
 import { CommonModule } from '@angular/common';
 
@@ -9,7 +9,8 @@ import { CommonModule } from '@angular/common';
   templateUrl: './historial.html',
   styleUrl: './historial.css',
 })
-export class Historial {
+export class Historial implements OnInit {
+  @Input() filtroInicial: 'TODOS' | 'ACEPTADOS' | 'RECHAZADOS' = 'TODOS';
 
   @Input() historial!: Reporte[];
   @Output() verDetalle = new EventEmitter<Reporte>();
@@ -18,6 +19,10 @@ export class Historial {
 
   abrir(r: Reporte) {
     this.verDetalle.emit(r);
+  }
+
+  ngOnInit(){
+    this.filtroActivo = this.filtroInicial;
   }
 
   filtroActivo: 'TODOS' | 'ACEPTADOS' | 'RECHAZADOS' = 'TODOS';
