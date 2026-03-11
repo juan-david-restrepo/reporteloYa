@@ -424,8 +424,6 @@ export class Agente implements OnInit, OnDestroy {
 
     }
 
-
-
     ngOnInit() {
 
       // cargar perfil

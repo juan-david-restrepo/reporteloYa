@@ -41,9 +41,9 @@
     <div class="card agente-info" *ngIf="agente">
       <h2>Información del Agente</h2>
       <div class="info-grid">
-        <p><strong>Nombre:</strong> {{ agente.nombre }}</p>
-        <p><strong>Placa:</strong> {{ agente.placa }}</p>
-        <p><strong>Documento:</strong> {{ agente.documento }}</p>
+      <p><strong>Nombre:</strong> {{ agente.nombreCompleto || agente.nombre }}</p>
+      <p><strong>Placa:</strong> {{ agente.placa }}</p>
+      <p><strong>Documento:</strong> {{ agente.numeroDocumento || agente.documento }}</p>
         <p>
           <strong>Estado actual:</strong>
           <span class="estado" [ngClass]="agente.estado.toLowerCase()">{{
