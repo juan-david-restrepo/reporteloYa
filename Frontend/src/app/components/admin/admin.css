@@ -23,44 +23,43 @@ app-sidebar-admin {
   overflow-x: hidden;
 }
 
-/* ===== HEADER ===== */
-.header {
-  margin-bottom: 28px;
+
+
+
+
+/* Ajuste para el modo oscuro (Dark Mode) */
+::ng-deep body.dark-mode .pro-input-mini {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
 }
 
-.header h2 {
-  font-size: 26px;
-  font-weight: 700;
-  color: #0a2540;
+/* Ajuste para que en móviles no se rompa */
+@media (max-width: 768px) {
+  .filter-box {
+    flex: 1;
+    min-width: 0;
+  }
 }
 
-/* ===== CHARTS GRID ===== */
-.charts-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
-  margin-bottom: 36px;
+/* Responsividad */
+@media (max-width: 576px) {
+  .filter-container {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .filter-select {
+    width: 100%;
+  }
 }
 
-/* ===== CHART CARD ===== */
-.chart-card {
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 20px;
-  box-shadow: 0 10px 24px rgba(10, 37, 64, 0.08);
-  border: 1px solid #e2e8f0;
-}
-
-.chart-card h4 {
-  margin-bottom: 14px;
-  font-size: 15px;
-  font-weight: 600;
-  color: #1e3a8a;
-}
-
-.chart-card canvas {
-  width: 100% !important;
-  height: 260px !important;
+/* Ajuste para móviles */
+@media (max-width: 768px) {
+  .filter-group {
+    width: 100%;
+    flex-direction: column;
+  }
 }
 
 /* ===== TABLE SECTION ===== */
@@ -83,7 +82,7 @@ app-sidebar-admin {
 
 .data-table th {
   padding: 15px;
-  text-align: left;
+  text-align: center;
   font-size: 13px;
   font-weight: 600;
   color: #1e3a8a;
@@ -93,29 +92,14 @@ app-sidebar-admin {
   padding: 15px;
   font-size: 14px;
   border-top: 1px solid #e2e8f0;
+  text-align: center;
 }
 
 .data-table tbody tr:hover {
   background: #f1f5ff;
 }
 
-/* ===== STATUS BADGES ===== */
-.status {
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-}
 
-.status.pending {
-  background: #fff7ed;
-  color: #c2410c;
-}
-
-.status.validated {
-  background: #ecfdf5;
-  color: #15803d;
-}
 
 /* ===== MENÚ MÓVIL ===== */
 .mobile-menu-btn {
@@ -229,6 +213,74 @@ app-sidebar-admin {
 
 }
 
+/* Contenedor del filtro individual */
+.pro-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Etiquetas en mayúsculas sutiles */
+.pro-label {
+  font-size: 10px;
+  font-weight: 800;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-left: 2px;
+}
+
+/* El selector estilo botón moderno */
+.pro-select {
+  appearance: none;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  color: #334155;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  height: 36px;
+  padding: 0 32px 0 12px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 140px;
+  outline: none;
+  /* Icono de flecha minimalista */
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.6rem center;
+  background-size: 1.2em 1.2em;
+}
+
+.pro-select:hover {
+  background-color: #ffffff;
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.pro-select:focus {
+  border-color: #2563eb;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Separador sutil */
+.border-bottom-light {
+  border-bottom: 1px solid #f1f5f9;
+}
+
+/* Estilo para el modo oscuro (Dark Mode) */
+::ng-deep body.dark-mode .pro-select {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+::ng-deep body.dark-mode .pro-select:hover {
+  background-color: #0f172a !important;
+  border-color: #2563eb !important;
+}
+
 @media (max-width: 360px) {
   .header h2 {
     font-size: 18px;
@@ -340,15 +392,7 @@ app-sidebar-admin {
   border-radius: 10px;
 }
 
-/* ===== FOOTER (SI LO USAS) ===== */
-.modal-footer {
-  padding: 18px 28px;
-  border-top: 1px solid #e2e8f0;
-  background: #f8fafc;
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-}
+
 
 /* BOTONES */
 .modal-btn {
@@ -479,33 +523,6 @@ app-sidebar-admin {
   background: #f8fafc;
 }
 
-/* BADGES DEL MODAL */
-.status-badge {
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-  display: inline-block;
-}
-
-.status-badge.pending {
-  background: #fff7ed;
-  color: #c2410c;
-}
-
-.status-badge.validated {
-  background: #ecfdf5;
-  color: #15803d;
-}
-
-/* Estado vacío */
-.empty-state {
-  text-align: center;
-  padding: 30px 10px;
-  color: #64748b;
-  font-size: 14px;
-}
-
 /* Responsive tabla modal */
 @media (max-width: 768px) {
 
@@ -546,165 +563,91 @@ app-sidebar-admin {
   }
 }
 
-
-
-/* ====================================================
-    📊 TARJETAS Y GRÁFICOS
-==================================================== */
-.charts-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-}
-
-.chart-card {
+/* Contenedor principal de la tarjeta */
+.card-dashboard {
   background: #ffffff;
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  min-height: 350px;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  border: 1px solid #edf2f7;
+  padding: 24px;
+  transition: transform 0.3s ease;
 }
 
-.chart-card h4 {
-  color: #2563eb;
-  margin-bottom: 1rem;
-  cursor: pointer;
-  transition: color 0.2s;
-}
-
-.chart-card h4:hover {
-  color: #1d4ed8;
-  text-decoration: underline;
-}
-
-/* ====================================================
-    📋 DETALLE DE INFRACCIÓN (VISTA TABLA)
-==================================================== */
-.detalle-card {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
-}
-
-.detalle-item label {
-  display: block;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #64748b;
-  margin-bottom: 0.25rem;
-  font-weight: 600;
-}
-
-.detalle-item p {
-  color: #1e293b;
-  font-weight: 500;
-  margin: 0;
-}
-
-
-
-
-/* ====================================================
-   🌙 SOPORTE PARA MODO NOCHE (DARK MODE)
-   ==================================================== */
-::ng-deep body.dark-mode .status.pending,
-::ng-deep body.dark-mode .status-badge.pending {
-  background: #2a1b0a !important;
-  color: #fbbf24 !important;
-  border-color: #452b0d !important;
-}
-
-::ng-deep body.dark-mode .status.validated,
-::ng-deep body.dark-mode .status-badge.validated {
-  background: #062016 !important;
-  color: #34d399 !important;
-  border-color: #064e3b !important;
-}
-
-::ng-deep body.dark-mode .status.rejected,
-::ng-deep body.dark-mode .status-badge.rejected {
-  background: #2d0a0a !important;
-  color: #f87171 !important;
-  border-color: #7f1d1d !important;
-}
-
-::ng-deep body.dark-mode .status.process,
-::ng-deep body.dark-mode .status-badge.process {
-  background: #082f49 !important;
-  color: #38bdf8 !important;
-  border-color: #0c4a6e !important;
-}
-
-/* Resto de tu layout general... */
-.admin-layout {
+/* Cabecera del Gráfico */
+.card-header-pro {
   display: flex;
-  min-height: 100vh;
-  background: #f4f7fb;
-  color: #0a2540;
-  font-family: system-ui, -apple-system, sans-serif;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  gap: 20px;
 }
 
-/* (Aquí iría el resto de tu código de Layout, Header, etc.) */
-
-/* Etiquetas en mayúsculas y gris (image_fa569f.png) */
-.detail-block label {
-  display: block;
-  font-size: 11px;
+.chart-title {
+  color: #1a365d;
+  /* Azul oscuro institucional */
   font-weight: 800;
-  color: #94a3b8;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 6px;
-}
-
-.detail-block p {
-  font-size: 15px;
-  font-weight: 600;
-  color: #334155;
+  font-size: 1.1rem;
   margin: 0;
-}
-
-/* Badges de estado (image_fa569f.png / image_fa4b5c.png) */
-.status-badge {
-  padding: 6px 16px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 700;
-  display: inline-block;
-}
-
-.status-badge.pending {
-  background: #fff7ed;
-  color: #9a3412;
-  border: 1px solid #ffedd5;
-}
-
-.status-badge.validated {
-  background: #ecfdf5;
-  color: #166534;
-  border: 1px solid #d1fae5;
-}
-
-/* Botón cerrar (X) */
-.btn-close {
-  background: #f1f5f9;
-  border: none;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: 0.2s;
+  letter-spacing: -0.5px;
 }
 
-.btn-close:hover {
-  background: #fee2e2;
-  color: #ef4444;
+.chart-subtitle {
+  color: #718096;
+  font-size: 0.85rem;
+  margin: 4px 0 0 0;
 }
+
+/* Controles de Filtro */
+.controls-wrapper {
+  display: flex;
+  gap: 12px;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.filter-group label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #2b6cb0;
+  /* Azul acento */
+  letter-spacing: 1px;
+}
+
+.custom-select-pro {
+  background-color: #f7fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  color: #4a5568;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.custom-select-pro:focus {
+  border-color: #3182ce;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
+}
+
+/* Contenedor del Canvas */
+.canvas-container {
+  position: relative;
+  height: 300px;
+  /* Un poco más alto para mejor visualización */
+  width: 100%;
+}
+
+
+
 
 /* =========================================
    RESPONSIVE MODAL (Hasta 320px)
@@ -715,9 +658,24 @@ app-sidebar-admin {
     /* Una columna en móvil */
     gap: 20px;
   }
+
+  .card-header-pro {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+
 }
 
 @media (max-width: 400px) {
+
+  .card-header-pro {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
 
   .table-header {
     display: flex;
@@ -1133,23 +1091,8 @@ body.modal-open {
 
 /* 🔴 RECHAZADO */
 .estado-rechazado {
-  background-color: #f8d7da;
-  color: #842029;
+  background-color: #ff0202;
+  color: #f7f7f7;
 }
 
 
-
-
-/* ===== FIX GRÁFICO DONA EN MODAL ===== */
-
-.modal-body .canvas-container {
-  position: relative;
-  width: 100%;
-  height: 300px; /* altura real para que Chart.js renderice */
-  margin-bottom: 20px;
-}
-
-.modal-body canvas {
-  width: 100% !important;
-  height: 100% !important;
-}

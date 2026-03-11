@@ -10,6 +10,8 @@
 
 }
 
+
+
 /* ===============================
    CONTENIDO PRINCIPAL
 ================================ */
@@ -558,41 +560,53 @@ table td {
 /* ===== ANCHOS ESPECÍFICOS PARA 6 COLUMNAS ===== */
 .tabla-tareas th:nth-child(1),
 .tabla-tareas td:nth-child(1) {
-  width: 110px;
+  width: 130px;
+  text-align: center;
 }
 
 /* Fecha */
 .tabla-tareas th:nth-child(2),
 .tabla-tareas td:nth-child(2) {
   width: 80px;
+   text-align: center;
 }
 
 /* Hora */
 .tabla-tareas th:nth-child(3),
 .tabla-tareas td:nth-child(3) {
-  width: auto;
+  width: 80px;
+   text-align: center;
 }
 
 /* Descripción */
 .tabla-tareas th:nth-child(4),
 .tabla-tareas td:nth-child(4) {
-  width: 125px;
+  width: 120px;
+   text-align: center;
 }
 
 /* Estado (NUEVA) */
 .tabla-tareas th:nth-child(5),
 .tabla-tareas td:nth-child(5) {
   width: 110px;
+   text-align: center;
 }
 
 /* Prioridad */
 .tabla-tareas th:nth-child(6),
 .tabla-tareas td:nth-child(6) {
-  width: 100px;
+  width: 95px;
   text-align: center;
 }
 
 /* Acción */
+.tabla-tareas th:nth-child(7),
+.tabla-tareas td:nth-child(7) {
+  width: 90px;
+  text-align: center;
+}
+
+
 
 
 /* columna descripción limpia */
@@ -606,7 +620,6 @@ table td {
 .descripcion-contenido {
   display: flex;
   align-items: center;
-  gap: 8px;
 }
 
 /* texto preview */
@@ -739,46 +752,30 @@ table td {
   background: #1e3a8a;
 }
 
-/* ================= COLORES DE ESTADOS ACTUALIZADOS ================= */
-.badge-estado {
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-weight: 800;
-  font-size: 10px;
-  color: #fff;
+/* Estilo base - Ajustado para no romper el layout */
+.estado {
+  padding: 2px 8px; /* Padding pequeño para que no crezca mucho */
+  border-radius: 4px;
+  color: white !important;
+  font-weight: bold;
+  display: inline; /* Cambiado a inline para que no salte de línea */
   text-transform: uppercase;
-  display: inline-block;
-  min-width: 95px;
-  text-align: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-size: 0.9rem;
+  margin-left: 5px; /* Espacio respecto al label */
 }
 
-/* Pendiente -> Amarillo */
-.bg-pendiente {
-  background-color: #ffb921e0 !important;
-  color: #f7f7f7 !important;
+/* Colores por estado */
+.disponible {
+  background-color: #28a745 !important;
 }
 
-/* En Proceso -> Azul */
-.bg-proceso {
-  background-color: #3b82f6 !important;
-  color: #fff !important;
+.ocupado {
+  background-color: #007bff !important;
 }
 
-/* Finalizado -> Verde */
-.bg-finalizado {
-  background-color: #2ecc71 !important;
-  color: #fff !important;
+.fuera-de-servicio {
+  background-color: #dc3545 !important;
 }
-
-/* Rechazado (por si lo usas) -> Rojo */
-.bg-rechazado {
-  background-color: #e63946 !important;
-  color: #fff !important;
-}
-
-
-
 
 /* =========================================
    ESTILOS NUEVOS: HISTORIAL Y FILTROS
@@ -898,9 +895,9 @@ table td {
 }
 
 /* =========================================
-   MEDIA QUERY: TABLETS Y MÓVILES
+   MEDIA QUERY
    ========================================= */
-@media (max-width: 992px) {
+@media (max-width: 1120px) {
   .mobile-menu-btn {
     display: block;
   }
@@ -927,9 +924,9 @@ table td {
 }
 
 /* =========================================
-   MEDIA QUERY: MÓVILES PEQUEÑOS (HASTA 340px)
+   MEDIA QUERY
    ========================================= */
-@media (max-width: 768px) {
+@media (max-width: 820px) {
 
   /* Convertir tablas en formato lista/card */
   table,
@@ -1009,3 +1006,22 @@ table td {
 
 
 }
+
+
+/* EL ESTILO DE ESTADO (Badges sólidos) */
+.badge-estado {
+     display: inline-block;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    min-width: 80px;
+    text-align: center;
+}
+
+/* Colores específicos */
+.bg-pendiente { background-color: #FFB300; color: white;} /* Amarillo vibrante */
+.bg-proceso { background-color: #00B8D4; color: white; }   /* Azul claro sólido */
+.bg-finalizado { background-color: #2E7D32; color: #ffffff; } /* Verde bosque */
+.bg-rechazado { background-color: #C62828; color: #ffffff; }  /* Rojo intenso */
