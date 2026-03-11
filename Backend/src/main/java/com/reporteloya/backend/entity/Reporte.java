@@ -34,6 +34,7 @@ public class Reporte {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_reporte")
     private Long id;
+
     @ManyToOne
     @JoinColumn(name = "id_usuario")
     private Usuario usuario;
@@ -42,7 +43,12 @@ public class Reporte {
     @JoinColumn(name = "id_agente")
     @JsonBackReference
     private Agentes agente;
-    
+
+    // ✅ NUEVO: agente compañero (referencia al segundo agente)
+    @ManyToOne
+    @JoinColumn(name = "id_agente_companero")
+    private Agentes agenteCompanero;
+
     @Enumerated(EnumType.STRING)
     private Prioridad prioridad;
 
@@ -53,7 +59,11 @@ public class Reporte {
     private Double longitud;
     private String placa;
 
-    private String estado; // PENDIENTE, ASIGNADO, EN_PROCESO, FINALIZADO
+    private String estado; // PENDIENTE, EN_PROCESO, FINALIZADO, RECHAZADO
+
+    // ✅ NUEVO: flag para saber si fue atendido en dupla
+    private Boolean acompanado = false;
+
     private LocalDate fechaIncidente;
     private LocalTime horaIncidente;
 
@@ -77,4 +87,12 @@ public class Reporte {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(length = 1000)
+    private String resumenOperativo;
+
+    private LocalDateTime fechaAceptado;
+
+    private LocalDateTime fechaFinalizado;
+
+    private LocalDateTime fechaRechazado;
 }

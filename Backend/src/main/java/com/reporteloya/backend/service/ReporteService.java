@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.reporteloya.backend.entity.Reporte;
 import com.reporteloya.backend.dto.ReporteSocketDTO;
+import com.reporteloya.backend.dto.AgenteDisponibleDTO;
 import com.reporteloya.backend.entity.Agentes;
 import com.reporteloya.backend.entity.Evidencia;
 import com.reporteloya.backend.entity.Prioridad;
@@ -18,14 +19,15 @@ import com.reporteloya.backend.repository.ReporteRepository;
 import com.reporteloya.backend.repository.AgenteRepository;
 import com.reporteloya.backend.repository.EvidenciaRepository;
 
+import java.time.LocalDateTime;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.io.IOException;
+import java.util.Optional;
 
 @Service
 public class ReporteService {
-
 
     private final ImageValidationService imageValidationService;
     private final AgenteRepository agenteRepository;
@@ -64,11 +66,6 @@ public class ReporteService {
             String tipoInfraccion,
             List<MultipartFile> archivos) {
 
-
-
-                // ================================
-        // 🔥 VALIDACIÓN IA (ANTES DE GUARDAR)
-        // ================================
         if (archivos == null || archivos.isEmpty()) {
             throw new RuntimeException("Debe subir al menos una imagen");
         }
@@ -76,12 +73,10 @@ public class ReporteService {
         boolean imagenValida = false;
 
         for (MultipartFile archivo : archivos) {
-
             if (archivo.getContentType() == null ||
                     !archivo.getContentType().startsWith("image")) {
                 continue;
             }
-
             try {
                 if (imageValidationService.esImagenDeTransito(archivo)) {
                     imagenValida = true;
@@ -97,24 +92,19 @@ public class ReporteService {
         }
 
         Reporte reporte = new Reporte();
-
-        // 🔹 Datos básicos
         reporte.setDescripcion(descripcion);
         reporte.setDireccion(direccion);
         reporte.setLatitud(latitud);
         reporte.setLongitud(longitud);
         reporte.setEstado("PENDIENTE");
-
-        // 🔹 Tipo y prioridad
+        reporte.setAcompanado(false);
         reporte.setTipoInfraccion(tipoInfraccion);
         reporte.setPrioridad(obtenerPrioridadPorTipo(tipoInfraccion));
 
-        // 🔹 Placa
         if (placa != null && !placa.isBlank()) {
             reporte.setPlaca(placa.trim().toUpperCase());
         }
 
-        // 🔹 Fecha segura
         if (fechaIncidente != null && !fechaIncidente.isBlank()) {
             try {
                 reporte.setFechaIncidente(LocalDate.parse(fechaIncidente.trim()));
@@ -123,28 +113,20 @@ public class ReporteService {
             }
         }
 
-        // 🔹 Hora segura
         if (horaIncidente != null && !horaIncidente.isBlank()) {
             try {
                 reporte.setHoraIncidente(
-                LocalTime.parse(horaIncidente.trim().substring(0,5))
+                    LocalTime.parse(horaIncidente.trim().substring(0, 5))
                 );
             } catch (Exception e) {
                 throw new RuntimeException("Formato de hora inválido. Debe ser HH:mm");
             }
         }
 
-        // 🔹 Guardar reporte
         Reporte guardado = reporteRepository.save(reporte);
-
-        // 🔹 Guardar evidencias
         guardarEvidencias(archivos, guardado);
 
-        // 🔥 Notificaciones en tiempo real
-        
-
         ReporteSocketDTO dto = convertirADTO(guardado);
-
         messagingTemplate.convertAndSend("/topic/reportes", dto);
 
         return guardado;
@@ -154,21 +136,16 @@ public class ReporteService {
     // GUARDAR EVIDENCIAS
     // ================================
     private void guardarEvidencias(List<MultipartFile> archivos, Reporte reporte) {
-
-        if (archivos == null || archivos.isEmpty())
-            return;
+        if (archivos == null || archivos.isEmpty()) return;
 
         for (MultipartFile archivo : archivos) {
             try {
                 String url = fileStorageService.guardarArchivo(archivo, reporte.getId());
-
                 Evidencia evidencia = new Evidencia();
                 evidencia.setTipo(archivo.getContentType());
                 evidencia.setArchivo(url);
                 evidencia.setReporte(reporte);
-
                 evidenciaRepository.save(evidencia);
-
             } catch (IOException e) {
                 throw new RuntimeException("Error al guardar archivo: " + e.getMessage(), e);
             }
@@ -179,60 +156,86 @@ public class ReporteService {
     // PRIORIDAD AUTOMÁTICA
     // ================================
     private Prioridad obtenerPrioridadPorTipo(String tipo) {
-
-        if (tipo == null)
-            return Prioridad.BAJA;
+        if (tipo == null) return Prioridad.BAJA;
 
         return switch (tipo) {
-
             case "Accidente de tránsito",
-                    "Semáforo dañado",
-                    "Conducción peligrosa" ->
-                Prioridad.ALTA;
+                 "Semáforo dañado",
+                 "Conducción peligrosa" -> Prioridad.ALTA;
 
             case "Vehículo mal estacionado",
-                    "Invasión de carril" ->
-                Prioridad.MEDIA;
+                 "Invasión de carril" -> Prioridad.MEDIA;
 
             default -> Prioridad.BAJA;
         };
     }
 
-    private ReporteSocketDTO convertirADTO(Reporte reporte) {
+    // ================================
+    // CONVERTIR A DTO
+    // ================================
+    public ReporteSocketDTO convertirADTO(Reporte reporte) {
+        ReporteSocketDTO dto = new ReporteSocketDTO();
 
-    ReporteSocketDTO dto = new ReporteSocketDTO();
+        dto.setId(reporte.getId());
+        dto.setTipoInfraccion(reporte.getTipoInfraccion());
+        dto.setDescripcion(reporte.getDescripcion());
+        dto.setDireccion(reporte.getDireccion());
+        dto.setLatitud(reporte.getLatitud());
+        dto.setLongitud(reporte.getLongitud());
+        dto.setEstado(reporte.getEstado());
+        dto.setPrioridad(reporte.getPrioridad() != null ? reporte.getPrioridad().name() : null);
+        dto.setAcompanado(reporte.getAcompanado() != null ? reporte.getAcompanado() : false);
+        dto.setResumenOperativo(reporte.getResumenOperativo());
 
-    dto.setId(reporte.getId());
-    dto.setTipoInfraccion(reporte.getTipoInfraccion());
-    dto.setDescripcion(reporte.getDescripcion());
-    dto.setDireccion(reporte.getDireccion());
-    dto.setLatitud(reporte.getLatitud());
-    dto.setLongitud(reporte.getLongitud());
-    dto.setEstado(reporte.getEstado());
-    dto.setPrioridad(reporte.getPrioridad().name());
-
-
-    dto.setHoraIncidente(
-        reporte.getHoraIncidente() != null
-            ? reporte.getHoraIncidente().toString().substring(0,5)
-            : null
-    );
-
-    dto.setFechaIncidente(
-        reporte.getFechaIncidente() != null
-            ? reporte.getFechaIncidente().toString()
-            : null
-    );
-
-    // 🔥 Aquí obtenemos la primera evidencia si existe
-    if (reporte.getEvidencias() != null && !reporte.getEvidencias().isEmpty()) {
-        dto.setUrlFoto(
-            reporte.getEvidencias().get(0).getArchivo()
+        dto.setHoraIncidente(
+            reporte.getHoraIncidente() != null
+                ? reporte.getHoraIncidente().toString().substring(0, 5)
+                : null
         );
-    }
 
-    return dto;
-}
+        dto.setFechaIncidente(
+            reporte.getFechaIncidente() != null
+                ? reporte.getFechaIncidente().toString()
+                : null
+        );
+
+        dto.setFechaAceptado(
+            reporte.getFechaAceptado() != null
+                ? reporte.getFechaAceptado().toString()
+                : null
+        );
+
+        dto.setFechaFinalizado(
+            reporte.getFechaFinalizado() != null
+                ? reporte.getFechaFinalizado().toString()
+                : null
+        );
+
+        dto.setFechaRechazado(
+            reporte.getFechaRechazado() != null
+                ? reporte.getFechaRechazado().toString()
+                : null
+        );
+
+        // Agente principal
+        if (reporte.getAgente() != null) {
+            dto.setPlacaAgente(reporte.getAgente().getPlaca());
+            dto.setNombreAgente(reporte.getAgente().getNombre());
+        }
+
+        // Agente compañero
+        if (reporte.getAgenteCompanero() != null) {
+            dto.setPlacaCompanero(reporte.getAgenteCompanero().getPlaca());
+            dto.setNombreCompanero(reporte.getAgenteCompanero().getNombre());
+        }
+
+        // Primera evidencia
+        if (reporte.getEvidencias() != null && !reporte.getEvidencias().isEmpty()) {
+            dto.setUrlFoto(reporte.getEvidencias().get(0).getArchivo());
+        }
+
+        return dto;
+    }
 
     // ================================
     // OBTENER PENDIENTES
@@ -242,9 +245,9 @@ public class ReporteService {
     }
 
     // ================================
-    // AGENTE TOMA REPORTE
+    // AGENTE TOMA REPORTE (SOLO)
     // ================================
-    public Reporte tomarReporte(Long reporteId, String placaAgente) {
+    public Reporte tomarReporte(Long reporteId, String emailAgente) {
 
         Reporte reporte = reporteRepository.findById(reporteId)
                 .orElseThrow(() -> new RuntimeException("Reporte no encontrado"));
@@ -253,20 +256,110 @@ public class ReporteService {
             throw new RuntimeException("El reporte ya fue tomado");
         }
 
-        Agentes agente = agenteRepository.findByPlacaIgnoreCase(placaAgente)
+        // ✅ Buscar por email (no por placa)
+        Agentes agente = agenteRepository.findByEmail(emailAgente)
                 .orElseThrow(() -> new RuntimeException("Agente no encontrado"));
 
         reporte.setAgente(agente);
         reporte.setEstado("EN_PROCESO");
+        reporte.setFechaAceptado(LocalDateTime.now());
+        reporte.setAcompanado(false);
+
+        // Poner agente en OCUPADO
+        agente.setEstado("OCUPADO");
+        agenteRepository.save(agente);
 
         Reporte actualizado = reporteRepository.save(reporte);
 
+        // Notificar a todos por WebSocket
         messagingTemplate.convertAndSend("/topic/reportes", convertirADTO(actualizado));
 
         return actualizado;
     }
 
-    public Reporte finalizarReporte(Long reporteId, String placaAgente) {
+    // ================================
+    // AGENTE TOMA REPORTE (ACOMPAÑADO)
+    // ================================
+    public Reporte tomarReporteConCompanero(Long reporteId, String emailAgente, String placaCompanero) {
+
+        Reporte reporte = reporteRepository.findById(reporteId)
+                .orElseThrow(() -> new RuntimeException("Reporte no encontrado"));
+
+        if (!"PENDIENTE".equals(reporte.getEstado())) {
+            throw new RuntimeException("El reporte ya fue tomado");
+        }
+
+        // Agente principal (por email del token)
+        Agentes agente = agenteRepository.findByEmail(emailAgente)
+                .orElseThrow(() -> new RuntimeException("Agente principal no encontrado"));
+
+        // Agente compañero (por placa)
+        Agentes companero = agenteRepository.findByPlacaIgnoreCase(placaCompanero)
+                .orElseThrow(() -> new RuntimeException("Agente compañero no encontrado con placa: " + placaCompanero));
+
+        // Validar que el compañero esté libre
+        if (!"LIBRE".equals(companero.getEstado())) {
+            throw new RuntimeException("El agente compañero no está disponible (estado: " + companero.getEstado() + ")");
+        }
+
+        reporte.setAgente(agente);
+        reporte.setAgenteCompanero(companero);
+        reporte.setEstado("EN_PROCESO");
+        reporte.setFechaAceptado(LocalDateTime.now());
+        reporte.setAcompanado(true);
+
+        // Poner ambos agentes en OCUPADO
+        agente.setEstado("OCUPADO");
+        companero.setEstado("OCUPADO");
+        agenteRepository.save(agente);
+        agenteRepository.save(companero);
+
+        Reporte actualizado = reporteRepository.save(reporte);
+        ReporteSocketDTO dto = convertirADTO(actualizado);
+
+        // Notificar a todos por WebSocket (topic general)
+        messagingTemplate.convertAndSend("/topic/reportes", dto);
+
+        // ✅ Notificar al compañero por su topic personal para que le aparezca el reporte
+        messagingTemplate.convertAndSend(
+            "/topic/reporte-asignado/" + companero.getPlaca(),
+            dto
+        );
+
+        return actualizado;
+    }
+
+    // ================================
+    // RECHAZAR REPORTE
+    // Se guarda en historial con estado RECHAZADO (sin resumen).
+    // ================================
+    public Reporte rechazarReporte(Long reporteId, String emailAgente) {
+
+        Reporte reporte = reporteRepository.findById(reporteId)
+                .orElseThrow(() -> new RuntimeException("Reporte no encontrado"));
+
+        if (!"PENDIENTE".equals(reporte.getEstado())) {
+            throw new RuntimeException("Solo se pueden rechazar reportes pendientes");
+        }
+
+        Agentes agente = agenteRepository.findByEmail(emailAgente)
+                .orElseThrow(() -> new RuntimeException("Agente no encontrado"));
+
+        reporte.setAgente(agente);
+        reporte.setEstado("RECHAZADO");
+        reporte.setFechaRechazado(LocalDateTime.now());
+        reporte.setResumenOperativo(null);
+
+        Reporte actualizado = reporteRepository.save(reporte);
+        messagingTemplate.convertAndSend("/topic/reportes", convertirADTO(actualizado));
+
+        return actualizado;
+    }
+
+    // ================================
+    // FINALIZAR REPORTE
+    // ================================
+    public Reporte finalizarReporte(Long reporteId, String emailAgente, String resumen) {
 
         Reporte reporte = reporteRepository.findById(reporteId)
                 .orElseThrow(() -> new RuntimeException("Reporte no encontrado"));
@@ -276,47 +369,106 @@ public class ReporteService {
         }
 
         reporte.setEstado("FINALIZADO");
+        reporte.setResumenOperativo(resumen);
+        reporte.setFechaFinalizado(LocalDateTime.now());
 
-        Reporte actualizado = reporteRepository.save(reporte);
+        Reporte finalizado = reporteRepository.save(reporte);
 
-        messagingTemplate.convertAndSend("/topic/reportes", convertirADTO(actualizado));
+        // ✅ Liberar al agente principal
+        if (reporte.getAgente() != null) {
+            Agentes agente = reporte.getAgente();
+            agente.setEstado("LIBRE");
+            agenteRepository.save(agente);
+        }
 
-        return actualizado;
+        // ✅ Liberar también al compañero si había uno
+        if (reporte.getAgenteCompanero() != null) {
+            Agentes companero = reporte.getAgenteCompanero();
+            companero.setEstado("LIBRE");
+            agenteRepository.save(companero);
+        }
+
+        ReporteSocketDTO dto = convertirADTO(finalizado);
+
+        // Notificar a todos
+        messagingTemplate.convertAndSend("/topic/reportes", dto);
+
+        // ✅ Notificar al compañero que el reporte finalizó
+        if (reporte.getAgenteCompanero() != null) {
+            messagingTemplate.convertAndSend(
+                "/topic/reporte-asignado/" + reporte.getAgenteCompanero().getPlaca(),
+                dto
+            );
+        }
+
+        return finalizado;
     }
 
-    public List<Reporte> obtenerReportesParaAgente(String placaAgente) {
+    // ================================
+    // REPORTES ACTIVOS DEL AGENTE
+    // (PENDIENTES GLOBALES + SUS EN_PROCESO)
+    // ================================
+    public List<ReporteSocketDTO> obtenerReportesDTOParaAgente(String emailAgente) {
+
+        Agentes agente = agenteRepository.findByEmail(emailAgente)
+                .orElseThrow(() -> new RuntimeException("Agente no encontrado"));
+
+        String placa = agente.getPlaca();
 
         List<Reporte> pendientes = reporteRepository.findByEstado("PENDIENTE");
 
-        List<Reporte> enProceso = reporteRepository.findByAgentePlacaIgnoreCaseAndEstado(
-                placaAgente, "EN_PROCESO");
+        // Reportes en proceso donde es agente principal O compañero
+        List<Reporte> enProceso = reporteRepository
+                .findEnProcesoParaAgente(placa);
 
         pendientes.addAll(enProceso);
 
-        return pendientes;
-    }
-
-    public List<Reporte> obtenerHistorialAgente(String placaAgente) {
-
-        return reporteRepository
-                .findByAgentePlacaIgnoreCaseAndEstado(
-                        placaAgente, "FINALIZADO");
-    }
-
-    public List<ReporteSocketDTO> obtenerReportesDTOParaAgente(String placaAgente) {
-
-        List<Reporte> reportes = obtenerReportesParaAgente(placaAgente);
-
-        return reportes.stream()
+        return pendientes.stream()
                 .map(this::convertirADTO)
                 .toList();
     }
 
+    // ================================
+    // HISTORIAL DEL AGENTE
+    // (Reportes FINALIZADOS donde participó)
+    // ================================
+    public List<ReporteSocketDTO> obtenerHistorialAgente(String emailAgente) {
+
+        Agentes agente = agenteRepository.findByEmail(emailAgente)
+                .orElseThrow(() -> new RuntimeException("Agente no encontrado"));
+
+        String placa = agente.getPlaca();
+
+        List<Reporte> historial = reporteRepository.findHistorialParaAgente(placa);
+
+        return historial.stream()
+                .map(this::convertirADTO)
+                .toList();
+    }
 
     // ================================
-    // scroll reporte 
+    // BUSCAR AGENTE DISPONIBLE POR PLACA
     // ================================
-    
+    public AgenteDisponibleDTO buscarAgenteDisponible(String placa, String emailSolicitante) {
+
+        Agentes agente = agenteRepository.findByPlacaIgnoreCase(placa)
+                .orElseThrow(() -> new RuntimeException("No existe un agente con placa: " + placa));
+
+        // No puede buscarse a sí mismo
+        if (agente.getEmail().equalsIgnoreCase(emailSolicitante)) {
+            throw new RuntimeException("No puedes seleccionarte a ti mismo como compañero");
+        }
+
+        return new AgenteDisponibleDTO(
+            agente.getPlaca(),
+            agente.getNombre(),
+            agente.getEstado()
+        );
+    }
+
+    // ================================
+    // SCROLL PAGINADO (admin / general)
+    // ================================
     public Page<Reporte> obtenerReportes(String prioridad, int page, int size) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
@@ -327,5 +479,4 @@ public class ReporteService {
 
         return reporteRepository.findAll(pageable);
     }
-
 }

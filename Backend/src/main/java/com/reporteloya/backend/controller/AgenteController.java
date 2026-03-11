@@ -1,6 +1,7 @@
 package com.reporteloya.backend.controller;
 
 import com.reporteloya.backend.dto.EstadoAgenteDTO;
+import com.reporteloya.backend.dto.PerfilAgenteDTO;
 import com.reporteloya.backend.entity.Agentes;
 import com.reporteloya.backend.entity.Tarea;
 import com.reporteloya.backend.repository.TareaRepository;
@@ -30,12 +31,23 @@ public class AgenteController {
     private SimpMessagingTemplate messagingTemplate;
 
     @GetMapping("/perfil")
-    public ResponseEntity<Agentes> obtenerPerfilAgente(Authentication authentication) {
+    public ResponseEntity<PerfilAgenteDTO> obtenerPerfilAgente(Authentication authentication) {
 
         String email = authentication.getName();
 
         return agenteService.buscarPorEmail(email)
-                .map(ResponseEntity::ok)
+                .map(agente -> {
+                    PerfilAgenteDTO dto = new PerfilAgenteDTO(
+                            agente.getNombreCompleto(),
+                            agente.getNumeroDocumento(),
+                            agente.getEmail(),
+                            agente.getPlaca(),
+                            agente.getTelefono(),
+                            agente.getEstado(),
+                            agente.getFoto()
+                    );
+                    return ResponseEntity.ok(dto);
+                })
                 .orElse(ResponseEntity.notFound().build());
     }
 

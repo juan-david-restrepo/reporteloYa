@@ -13,7 +13,22 @@ public class ReporteSocketDTO {
     private Double longitud;
     private String estado;
     private String prioridad;
-    private String urlFoto; // solo una evidencia (la primera)
+    private String urlFoto;
     private String fechaIncidente;
     private String horaIncidente;
+
+    // ✅ NUEVO: datos del agente principal
+    private String placaAgente;
+    private String nombreAgente;
+
+    // ✅ NUEVO: datos del compañero
+    private Boolean acompanado;
+    private String placaCompanero;
+    private String nombreCompanero;
+
+    // ✅ NUEVO: fechas de gestión
+    private String fechaAceptado;
+    private String fechaFinalizado;
+    private String fechaRechazado;
+    private String resumenOperativo;
 }
