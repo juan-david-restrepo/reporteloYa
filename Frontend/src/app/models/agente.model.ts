@@ -1,10 +1,10 @@
 export interface Agente {
   id: number;
   placa: string;
-  nombreCompleto: string;
-  estado: 'DISPONIBLE' | 'OCUPADO' | 'FUERA DE SERVICI';
+  nombre: string;        // ✅ así llega del AdminAgenteDTO
+  documento: string;     // ✅ así llega del AdminAgenteDTO
+  estado: 'DISPONIBLE' | 'OCUPADO' | 'AUSENTE';
   telefono: string;
-  numeroDocumento: string; // 👈 AÑADIDO
   foto?: string;
   promedioResenas: number;
 }
