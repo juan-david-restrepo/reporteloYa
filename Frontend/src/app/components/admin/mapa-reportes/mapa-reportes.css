@@ -258,3 +258,71 @@ app-sidebar-admin {
   from { transform: translateX(100%); }
   to { transform: translateX(0); }
 }
+
+/* ====================================================
+   🌙 MODO OSCURO
+   ==================================================== */
+::ng-deep body.dark-mode .admin-container {
+  background-color: #0f172a !important;
+}
+
+::ng-deep body.dark-mode .admin-content {
+  background-color: #0f172a !important;
+}
+
+::ng-deep body.dark-mode .admin-header h1 {
+  color: #f8fafc !important;
+}
+
+::ng-deep body.dark-mode .admin-header p {
+  color: #94a3b8 !important;
+}
+
+::ng-deep body.dark-mode .stat-card {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+::ng-deep body.dark-mode .stat-card h3 {
+  color: #94a3b8 !important;
+}
+
+::ng-deep body.dark-mode .stat-card.pendiente span { color: #f87171 !important; }
+::ng-deep body.dark-mode .stat-card.proceso span { color: #fbbf24 !important; }
+::ng-deep body.dark-mode .stat-card.resuelto span { color: #4ade80 !important; }
+::ng-deep body.dark-mode .stat-card.total span { color: #60a5fa !important; }
+
+::ng-deep body.dark-mode .map-card {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+::ng-deep body.dark-mode .map-header h2 {
+  color: #f8fafc !important;
+}
+
+::ng-deep body.dark-mode .map-header span {
+  background-color: #334155 !important;
+  color: #60a5fa !important;
+}
+
+::ng-deep body.dark-mode #map {
+  border-color: #334155 !important;
+}
+
+::ng-deep body.dark-mode .detalle-panel {
+  background-color: #1e293b !important;
+}
+
+::ng-deep body.dark-mode .detalle-header {
+  background-color: #334155 !important;
+}
+
+::ng-deep body.dark-mode .detalle-body {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+::ng-deep body.dark-mode .mobile-menu-btn {
+  background-color: #334155 !important;
+}
