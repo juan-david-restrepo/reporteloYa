@@ -1,13 +1,8 @@
-<<<<<<< HEAD
+
 # Reglas del Proyecto ReporteloYa
 
 ## Estructura de Carpetas
 
-```
-=======
-Reglas del Proyecto ReporteloYa
-Estructura de Carpetas
->>>>>>> miguel
 Frontend/src/app/
 ├── components/       # Páginas/componentes principales
 │   ├── home/
@@ -19,8 +14,7 @@ Frontend/src/app/
 ├── guards/            # Guards de rutas
 ├── shared/            # Componentes reutilizables (nav, footer, chat-bot)
 └── app.routes.ts      # Rutas principales
-<<<<<<< HEAD
-```
+
 
 ## Convenciones de Nomenclatura
 
@@ -44,25 +38,8 @@ Frontend/src/app/
 ## Patrones de Código
 
 ### Componentes Angular (Standalone)
-```typescript
-=======
-Convenciones de Nomenclatura
-Componentes
-Carpeta: kebab-case (ej: subir-reporte/, gestion-agentes/)
-Archivos: mismo nombre que la carpeta (subir-reporte.ts, subir-reporte.html, subir-reporte.css)
-Clase: PascalCase (ej: Home, Login, GestionAgentes)
-Selector: app-nombre (ej: app-home, app-login)
-Servicios
-Archivo: .service.ts (ej: auth.service.ts)
-Clase: PascalCase con sufijo Service (ej: AuthService, ReportesService)
-Modelos/Interfaces
-Archivo: .model.ts (ej: reporte.model.ts)
-Interfaz: PascalCase (ej: Reporte, AuthUser)
-Rutas
-Path: kebab-case (ej: subir-reporte, pico-placa, gestion-agentes)
-Patrones de Código
-Componentes Angular (Standalone)
->>>>>>> miguel
+
+
 @Component({
   selector: 'app-nombre',
   standalone: true,
@@ -76,42 +53,32 @@ export class Nombre implements OnInit, OnDestroy {
   ngOnInit() { ... }
   ngOnDestroy() { ... }
 }
-<<<<<<< HEAD
-```
+
 
 ### Servicios
-```typescript
-=======
-Servicios
->>>>>>> miguel
+
+
 @Injectable({ providedIn: 'root' })
 export class NombreService {
   private apiUrl = 'http://localhost:8080/api/...';
   
   constructor(private http: HttpClient) {}
 }
-<<<<<<< HEAD
-```
 
 ### Guards (Funcionales)
-```typescript
+
 export const authGuard: CanActivateFn = () => { ... };
-```
+
 
 ### Modelos
-```typescript
-=======
-Guards (Funcionales)
-export const authGuard: CanActivateFn = () => { ... };
-Modelos
->>>>>>> miguel
+
+
 export interface Reporte {
   id: number;
   placaAgente: string;
   fecha: string;
 }
-<<<<<<< HEAD
-```
+
 
 ## Reglas de Estilo
 
@@ -154,4 +121,4 @@ Ejecución de Comandos
 Frontend: ng serve (puerto 4200)
 Backend: ejecutar desde IDE o Maven (puerto 8080)
 No ejecutar comandos de build sin verificar primero
->>>>>>> miguel
+
