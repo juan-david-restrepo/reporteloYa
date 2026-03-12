@@ -177,6 +177,7 @@
     <button
       *ngIf="tareaSeleccionada.estado === 'PENDIENTE'"
       class="btnTareas btn-accion"
+      [disabled]="!puedeAccion"
       (click)="comenzarClick(tareaSeleccionada); $event.stopPropagation()"
     >
       Comenzar tarea

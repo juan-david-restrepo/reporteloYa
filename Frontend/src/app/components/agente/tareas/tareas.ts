@@ -17,6 +17,7 @@ export class Tareas {
 
 
   @Input() tareas!: Tarea[];   // 🔥 ARREGLADO
+  @Input() puedeAccion: boolean = true; // Para deshabilitar botones
 
   @Output() comenzar = new EventEmitter<Tarea>();
   @Output() finalizar = new EventEmitter<Tarea>();

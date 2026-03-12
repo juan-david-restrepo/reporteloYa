@@ -91,20 +91,20 @@ public class AdminController {
     // AGREGAR TAREA (Múltiples)
     // =========================
     @PostMapping("/{placa}/tareas")
-    public ResponseEntity<Agentes> agregarTarea(@PathVariable String placa, @RequestBody Tarea nuevaTarea) {
+    public ResponseEntity<?> agregarTarea(@PathVariable String placa, @RequestBody Tarea nuevaTarea) {
 
         return agenteService.buscarPorPlaca(placa).map(agente -> {
 
             nuevaTarea.setAgente(agente);
             agente.getListaTareas().add(nuevaTarea);
-            agente.setEstado("PENDIENTE");
+            // No cambiar el estado del agente, solo crear la tarea
 
-            Agentes actualizado = agenteService.guardar(agente);
+            agenteService.guardar(agente);
 
             // 🔥 ENVIAR TAREA POR WEBSOCKET
             messagingTemplate.convertAndSend("/topic/tareas/" + placa, nuevaTarea);
 
-            return ResponseEntity.ok(actualizado);
+            return ResponseEntity.ok("Tarea asignada con éxito");
 
         }).orElse(ResponseEntity.notFound().build());
     }

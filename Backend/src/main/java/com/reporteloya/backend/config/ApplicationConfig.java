@@ -27,7 +27,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class ApplicationConfig {
 
     private final UsuarioRepository usuarioRepository;
-    private final AgenteRepository AgenteRepository;
+    private final AgenteRepository agenteRepository;
 
     /**
      * Define cómo Spring Security debe cargar los detalles de un usuario.
@@ -88,7 +88,7 @@ public class ApplicationConfig {
                 System.out.println(">>> Usuario ADMIN creado (admin@admin.com / admin123) <<<");
             }
           
-            if (!AgenteRepository.existsByEmail("agente@transito.com")) {
+            if (!agenteRepository.existsByEmail("agente@transito.com")) {
 
                 Agentes agente = new Agentes();
 
@@ -101,15 +101,15 @@ public class ApplicationConfig {
 
                 agente.setPlaca("AT-125");
                 agente.setTelefono("3001234567");
-                agente.setEstado("DISPONIBLE");
+                agente.setEstado("LIBRE");
                 agente.setFoto(null);
 
-                AgenteRepository.save(agente);
+                agenteRepository.save(agente);
 
                 System.out.println(">>> Agente completo creado correctamente <<<");
             }
 
-            if (!AgenteRepository.existsByEmail("agente@transito2.com")) {
+            if (!agenteRepository.existsByEmail("agente@transito2.com")) {
 
                 Agentes agente = new Agentes();
 
@@ -122,10 +122,10 @@ public class ApplicationConfig {
 
                 agente.setPlaca("AT-126");
                 agente.setTelefono("3229801122");
-                agente.setEstado("DISPONIBLE");
+                agente.setEstado("LIBRE");
                 agente.setFoto(null);
 
-                AgenteRepository.save(agente);
+                agenteRepository.save(agente);
 
                 System.out.println(">>> Agente completo David creado correctamente <<<");
             }
