@@ -34,6 +34,11 @@
   height: 28px;
 }
 
+input.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .switch input {
   opacity: 0;
   width: 0;

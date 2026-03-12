@@ -26,6 +26,11 @@
   gap: 14px;
 }
 
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .hora{
   display: flex;
   flex-direction: row;
@@ -414,6 +419,20 @@ h3 {
 
 .resumen-box p {
   background: white;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  color: #374151;
+  max-height: 120px;
+  overflow-y: auto;
+  word-break: break-word;
+}
+
+.resumen-lectura {
+  max-height: 120px;
+  overflow-y: auto;
+  word-break: break-word;
+  background: #f8fafc;
   padding: 12px;
   border-radius: 10px;
   border: 1px solid #cbd5e1;

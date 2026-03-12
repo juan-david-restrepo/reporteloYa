@@ -22,6 +22,7 @@ export class PerfilAgente {
 };
 
   @Input() estadoAgente!: 'LIBRE'|'OCUPADO'|'FUERA_SERVICIO';
+  @Input() bloquearCambioEstado: boolean = false;
 
   @Output() estadoChange = new EventEmitter<'LIBRE'|'FUERA_SERVICIO'>();
 

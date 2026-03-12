@@ -13,6 +13,7 @@ import { OnInit, OnDestroy } from '@angular/core';
 import { WebsocketService } from '../../service/websocket.service';
 import { Router } from '@angular/router';
 import { AuthService } from '../../service/auth.service';
+import { signal } from '@angular/core';
 
 
 export enum EstadoReporte {
@@ -147,7 +148,22 @@ export class Agente implements OnInit, OnDestroy {
     
     // Ya hay un reporte en proceso - no puede hacer ambas cosas a la vez
     if (this.hayEnProceso) return;
-    
+
+    // Si está en FUERA_SERVICIO, automáticamente pasa a LIBRE y luego OCUPADO
+    if (this.estadoAgente === 'FUERA_SERVICIO') {
+      this.agenteService.actualizarEstado('LIBRE').subscribe({
+        next: () => {
+          this.estadoAgente = 'LIBRE';
+          this.comenzarTareaInterno(t);
+        },
+        error: (err) => console.error('Error al activar servicio', err)
+      });
+    } else {
+      this.comenzarTareaInterno(t);
+    }
+  }
+
+  private comenzarTareaInterno(t: Tarea) {
     this.agenteService.actualizarEstadoTarea(t.id, 'EN PROCESO').subscribe(() => {
       t.estado = 'EN PROCESO';
       t.fechaInicio = new Date();
@@ -177,6 +193,21 @@ export class Agente implements OnInit, OnDestroy {
     // Ya hay una tarea en proceso - no puede hacer ambas cosas a la vez
     if (this.tareasAdmin.some(t => t.estado === 'EN PROCESO')) return;
 
+    // Si está en FUERA_SERVICIO, automáticamente pasa a LIBRE y luego OCUPADO
+    if (this.estadoAgente === 'FUERA_SERVICIO') {
+      this.agenteService.actualizarEstado('LIBRE').subscribe({
+        next: () => {
+          this.estadoAgente = 'LIBRE';
+          this.aceptarReporteInterno(r);
+        },
+        error: (err) => console.error('Error al activar servicio', err)
+      });
+    } else {
+      this.aceptarReporteInterno(r);
+    }
+  }
+
+  private aceptarReporteInterno(r: Reporte) {
     const call = (r.acompanado && r.placaCompanero)
       ? this.agenteService.tomarReporteAcompanado(r.id, r.placaCompanero)
       : this.agenteService.tomarReporte(r.id);
@@ -194,12 +225,12 @@ export class Agente implements OnInit, OnDestroy {
         };
         if (idx !== -1) this.reportesEntrantes[idx] = actualizado;
         else            this.reportesEntrantes.push(actualizado);
+        
         this.estadoAgente = 'OCUPADO';
+        this.agenteService.actualizarEstado('OCUPADO').subscribe();
       },
       error: (err) => {
         console.error('Error aceptando reporte', err);
-        // El hijo lo puso EN_PROCESO optimistamente pero el backend rechazó
-        // Recargar para dejar la lista limpia
         this.cargarReportesDesdeBD();
       }
     });
@@ -406,6 +437,10 @@ export class Agente implements OnInit, OnDestroy {
   // VISTAS
   // ================================
   toggleServicio(nuevoEstado: 'LIBRE' | 'FUERA_SERVICIO') {
+    if (nuevoEstado === 'FUERA_SERVICIO' && (this.hayEnProceso || this.estadoAgente === 'OCUPADO')) {
+      alert('No puedes ponerte en fuera de servicio mientras tienes un reporte o tarea en proceso');
+      return;
+    }
     this.estadoAgente = nuevoEstado;
     this.agenteService.actualizarEstado(nuevoEstado).subscribe();
   }
@@ -445,11 +480,17 @@ export class Agente implements OnInit, OnDestroy {
   toggleSidebar() { this.sidebarAbierto = !this.sidebarAbierto; }
   cerrarSidebar()  { this.sidebarAbierto = false; }
 
+  reiniciarCronometroSignal: number = 0;
+
   cerrarSesion() {
-    this.authService.logout().subscribe({
-      next:  () => { this.websocketService.disconnect(); this.router.navigate(['/login']); },
-      error: () => { this.router.navigate(['/login']); }
-    });
+    this.reiniciarCronometroSignal++;
+    setTimeout(() => {
+      localStorage.removeItem('agente_tiempo_activo_inicio');
+      this.authService.logout().subscribe({
+        next:  () => { this.websocketService.disconnect(); this.router.navigate(['/login']); },
+        error: () => { this.router.navigate(['/login']); }
+      });
+    }, 100);
   }
 
   // ================================

@@ -329,7 +329,7 @@ p {
 }
 
 .desc-box {
-  max-height: 160px;
+  max-height: 120px;
   overflow-y: auto;
   background: var(--card);
   border: 3px solid rgba(0,0,0,.05);
@@ -337,6 +337,7 @@ p {
   border-radius: 14px;
   color: var(--text);
   line-height: 1.5;
+  word-wrap: break-word;
 }
 
 /* =========================
@@ -424,7 +425,7 @@ button:disabled {
   padding: 35px;
   width: 520px;
   max-width: 95%;
-
+ align-items: center;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -494,9 +495,8 @@ button:disabled {
 
 .resumen-lectura{
   width: 100%;
-  flex: 1;              /* ocupa espacio disponible */
-  min-height: 0;        /* necesario en flex */
-  overflow-y: auto;     /* scroll vertical */
+  max-height: 120px;
+  overflow-y: auto;
   overflow-x: hidden;
   color: #020617;
 

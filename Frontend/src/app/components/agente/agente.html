@@ -94,6 +94,7 @@
     <app-dashboard
       *ngIf="vistaActual === 'dashboard'"
       [estadoAgente]="estadoAgente"
+      [reiniciarCronometro$]="reiniciarCronometroSignal"
       (irHistorial)="abrirHistorial()"
       (irReportes)="cambiarVista('reportes')"
       (irResueltos)="abrirHistorialResueltos()"
@@ -136,6 +137,7 @@
       *ngIf="vistaActual === 'perfil'"
       [agente]="perfilAgente"
       [estadoAgente]="estadoAgente"
+      [bloquearCambioEstado]="estadoAgente === 'OCUPADO' || hayEnProceso"
       (estadoChange)="toggleServicio($event)"
     >
     </app-perfil-agente>
