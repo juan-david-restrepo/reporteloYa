@@ -571,6 +571,7 @@ app-sidebar-admin {
   border: 1px solid #edf2f7;
   padding: 24px;
   transition: transform 0.3s ease;
+  margin-bottom: 30px;
 }
 
 /* Cabecera del Gráfico */
@@ -1059,40 +1060,63 @@ body.modal-open {
 }
 
 
-/* Base */
-.status,
-.status-badge {
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  display: inline-block;
-  text-align: center;
-  min-width: 110px;
-}
+
 
 /* 🟡 PENDIENTE */
 .estado-pendiente {
   background-color: #fff3cd;
   color: #856404;
+  display: inline-block;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    min-width: 80px;
+    text-align: center;
+  
 }
 
 /* 🟢 FINALIZADO */
 .estado-finalizado {
-  background-color: #d4edda;
-  color: #155724;
+  background: #dcfce7;
+  color: #166534;
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    min-width: 80px;
+    text-align: center;
 }
 
 /* 🔵 EN PROCESO */
 .estado-proceso {
   background-color: #cfe2ff;
   color: #084298;
+  display: inline-block;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    min-width: 80px;
+    text-align: center;
 }
 
 /* 🔴 RECHAZADO */
 .estado-rechazado {
-  background-color: #ff0202;
-  color: #f7f7f7;
+    background: #fee2e2;
+  color: #991b1b;
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    min-width: 80px;
+    text-align: center;
 }
 
 
