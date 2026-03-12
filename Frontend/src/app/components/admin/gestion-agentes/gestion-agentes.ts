@@ -31,7 +31,7 @@ export class GestionAgentes implements OnInit, OnDestroy {
   // =========================
   placaBuscada: string = '';
   agente: Agente | null = null;
-  reportes: Reporte[] = [];
+  reportes: any[] = [];
   tareas: Tarea[] = [];
   
   // Estado de filtros, carga y responsive
@@ -54,7 +54,7 @@ export class GestionAgentes implements OnInit, OnDestroy {
     return this.tareas.filter(t => t.estado === 'FINALIZADO');
   }
 
-  get reportesHistorial(): Reporte[] {
+  get reportesHistorial(): any[] {
     return this.reportes; 
   }
 
