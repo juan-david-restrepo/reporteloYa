@@ -1,5 +1,5 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Reporte } from '../agente';
+import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
+import { Reporte, EstadoReporte } from '../agente';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -9,31 +9,47 @@ import { CommonModule } from '@angular/common';
   templateUrl: './historial.html',
   styleUrl: './historial.css',
 })
-export class Historial {
-  @Input() historial!: Reporte[];
+export class Historial implements OnInit {
+  @Input() filtroInicial: 'TODOS' | 'ACEPTADOS' | 'RECHAZADOS' = 'TODOS';
 
+  @Input() historial!: Reporte[];
   @Output() verDetalle = new EventEmitter<Reporte>();
 
-  abrir(r: Reporte){
+  EstadoReporte = EstadoReporte;
+
+  abrir(r: Reporte) {
     this.verDetalle.emit(r);
+  }
+
+  ngOnInit(){
+    this.filtroActivo = this.filtroInicial;
   }
 
   filtroActivo: 'TODOS' | 'ACEPTADOS' | 'RECHAZADOS' = 'TODOS';
 
-  cambiarFiltro(filtro: 'TODOS' | 'ACEPTADOS' | 'RECHAZADOS'){
+  cambiarFiltro(filtro: 'TODOS' | 'ACEPTADOS' | 'RECHAZADOS') {
     this.filtroActivo = filtro;
   }
 
-  get historialFiltrado(){
-    if(this.filtroActivo === 'ACEPTADOS'){
-      return this.historial.filter(h => h.estado === 'finalizado');
+  get historialFiltrado() {
+    if (this.filtroActivo === 'ACEPTADOS') {
+      // ✅ Comparación contra EstadoReporte enum (minúsculas)
+      return this.historial.filter(h => h.estado === EstadoReporte.FINALIZADO);
     }
 
-    if(this.filtroActivo === 'RECHAZADOS'){
-      return this.historial.filter(h => h.estado === 'rechazado');
+    if (this.filtroActivo === 'RECHAZADOS') {
+      return this.historial.filter(h => h.estado === EstadoReporte.RECHAZADO);
     }
 
     return this.historial;
   }
 
+  // ✅ Fecha formateada para mostrar
+  getFechaDisplay(r: Reporte): string {
+    const fecha = r.fechaFinalizado ?? r.fechaRechazado ?? r.fechaIncidente;
+    if (!fecha) return '';
+    return new Date(fecha).toLocaleDateString('es-CO', {
+      day: '2-digit', month: '2-digit', year: 'numeric'
+    });
+  }
 }

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AfterViewInit } from '@angular/core';
 import { Chart, ChartConfiguration } from 'chart.js/auto';
@@ -16,6 +16,10 @@ export class Dashboard implements AfterViewInit {
   
 
  @Input() estadoAgente!:string;
+   
+ @Output() irHistorial = new EventEmitter<void>();
+  @Output() irReportes = new EventEmitter<void>();
+  @Output() irResueltos = new EventEmitter<void>();
 
   chart!: Chart;
    tipoGrafica: 'bar' | 'line' | 'pie' = 'bar';   

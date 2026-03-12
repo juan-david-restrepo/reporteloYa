@@ -41,7 +41,7 @@
 
     <!-- ================= TARJETAS ================= -->
     <div class="dashboard-cards mt-4">
-      <div class="dash-card">
+      <div class="dash-card" (click)="irHistorial.emit()">
         <div class="icono-titulo">
           <i class="fa-solid fa-camera"></i>
           <span>Reportes hoy</span>
@@ -49,7 +49,7 @@
         <h2>12</h2>
       </div>
 
-      <div class="dash-card">
+      <div class="dash-card" (click)="irReportes.emit()">
         <div class="icono-titulo">
           <i class="fa-solid fa-clock"></i>
           <span>Pendientes</span>
@@ -57,7 +57,7 @@
         <h2>4</h2>
       </div>
 
-      <div class="dash-card">
+      <div class="dash-card" (click)="irResueltos.emit()">
         <div class="icono-titulo">
           <i class="fa-solid fa-check-circle"></i>
           <span>Resueltos</span>

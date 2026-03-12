@@ -47,7 +47,7 @@ export class GestionAgentes implements OnInit, OnDestroy {
   private pollingSubscription?: Subscription;
 
   // =========================
-  // 2. GETTERS
+  // 2. GETTERS Y UTILIDADES DE VISTA
   // =========================
 
   get tareasFinalizadas(): Tarea[] {
@@ -56,6 +56,15 @@ export class GestionAgentes implements OnInit, OnDestroy {
 
   get reportesHistorial(): Reporte[] {
     return this.reportes; 
+  }
+
+  /**
+   * FORMATEA EL ESTADO PARA CSS
+   * Convierte "FUERA DE SERVICIO" -> "fuera-de-servicio" para evitar problemas de espacios
+   */
+  getClaseEstado(estado: string | undefined): string {
+    if (!estado) return '';
+    return estado.toLowerCase().trim().replace(/\s+/g, '-');
   }
 
   // =========================
@@ -127,6 +136,9 @@ export class GestionAgentes implements OnInit, OnDestroy {
       return;
     }
 
+    // Normalizar para evitar fallos por minúsculas/espacios
+    this.placaBuscada = this.placaBuscada.trim().toUpperCase();
+
     this.detenerRefresco();
     this.cargando = true;
     this.error = '';
@@ -142,8 +154,6 @@ export class GestionAgentes implements OnInit, OnDestroy {
         this.cargarReportes();
         this.cargarTareas();
         this.iniciarRefresco();
-
-      
       },
       error: () => {
         this.error = 'No se encontró ningún agente con esa placa';
@@ -167,12 +177,9 @@ export class GestionAgentes implements OnInit, OnDestroy {
   }
 
   private fetchTareas(silent = false): void {
-
     this.tareasService.obtenerTareasPorAgente(this.agente!.placa)
     .subscribe({
-
       next: (data: any) => {
-
         if (Array.isArray(data)) {
           this.tareas = data;
         } else if (data.listaTareas) {
@@ -180,10 +187,8 @@ export class GestionAgentes implements OnInit, OnDestroy {
         } else {
           this.tareas = [];
         }
-
         if (!silent) this.cargandoTareas = false;
       },
-
       error: () => {
         if (!silent) {
           this.tareas = [];
@@ -195,7 +200,6 @@ export class GestionAgentes implements OnInit, OnDestroy {
 
   private iniciarRefresco(): void {
     this.detenerRefresco();
-
     this.pollingSubscription = interval(5000).subscribe(() => {
       this.cargarTareasSilent();
       this.cargarReportes();

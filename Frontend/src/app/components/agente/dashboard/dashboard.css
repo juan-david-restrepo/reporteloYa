@@ -8,9 +8,8 @@
   border-radius: 20px;
   color: var(--text);
   font-size: 1em;
+  
 }
-
-
 
 .chart-header,
 .chart-calendar,
@@ -96,6 +95,7 @@
   border-radius: 18px;
   box-shadow: 0 10px 30px rgba(0,0,0,.1);
   transition: transform .2s ease;
+  cursor: pointer;
 }
 
 .dash-card:hover {

@@ -13,7 +13,7 @@
       class="btn-filtro"
       (click)="cambiarFiltro('ACEPTADOS')"
       [ngClass]="{ activo: filtroActivo === 'ACEPTADOS' }">
-      Aceptados
+      Atendidos
     </button>
 
     <button
@@ -25,28 +25,45 @@
   </div>
 </div>
 
-<div
-  class="card historial-card"
-  *ngFor="let h of historialFiltrado"
-  (click)="abrir(h)"
->
-  <b>{{ h.tipoInfraccion }}</b>
+<div class="historial-scroll">
+  <!-- Lista vacía -->
+  <div *ngIf="historialFiltrado.length === 0" class="historial-vacio">
+    <i class="fa-solid fa-folder-open"></i>
+    <p>No hay registros en el historial</p>
+  </div>
 
-  <p class="hist-dir">{{ h.direccion }}</p>
-
-  <span
-    class="tag"
-    [ngClass]="{
-      ok: h.estado === 'finalizado',
-      no: h.estado === 'rechazado'
-    }"
+  <!-- Cards -->
+  <div
+    class="card historial-card"
+    *ngFor="let h of historialFiltrado"
+    (click)="abrir(h)"
   >
-    {{
-      h.estado === 'finalizado'
-        ? 'Atendido'
-        : h.estado === 'rechazado'
-          ? 'Rechazado'
-          : ''
-    }}
-  </span>
+    <div class="hist-info">
+      <b>{{ h.tipoInfraccion }}</b>
+      <p class="hist-dir">{{ h.direccion }}</p>
+
+      <!-- ✅ Mostrar si fue con compañero -->
+      <p class="hist-companero" *ngIf="h.acompanado">
+        <i class="fa-solid fa-user-group"></i>
+        Acompañado por: {{ h.nombreCompanero || h.placaCompanero }}
+      </p>
+    </div>
+
+    <div class="hist-meta">
+      <span class="hist-fecha">{{ getFechaDisplay(h) }}</span>
+
+      <span
+        class="tag"
+        [ngClass]="{
+          ok: h.estado === EstadoReporte.FINALIZADO,
+          no: h.estado === EstadoReporte.RECHAZADO
+        }"
+      >
+        {{ h.estado === EstadoReporte.FINALIZADO ? 'Atendido'  :
+          h.estado === EstadoReporte.RECHAZADO  ? 'Rechazado' : '' }}
+      </span>
+    </div>
+  </div>
+
 </div>
+

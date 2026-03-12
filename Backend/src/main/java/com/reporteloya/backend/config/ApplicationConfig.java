@@ -108,6 +108,27 @@ public class ApplicationConfig {
 
                 System.out.println(">>> Agente completo creado correctamente <<<");
             }
+
+            if (!AgenteRepository.existsByEmail("agente@transito2.com")) {
+
+                Agentes agente = new Agentes();
+
+                agente.setTipoDocumento("CC");
+                agente.setNumeroDocumento("1092456845");
+                agente.setNombreCompleto("Juan David");
+                agente.setEmail("agente@transito2.com");
+                agente.setPassword(passwordEncoder.encode("agente123456"));
+                agente.setRole(Role.AGENTE);
+
+                agente.setPlaca("AT-126");
+                agente.setTelefono("3229801122");
+                agente.setEstado("DISPONIBLE");
+                agente.setFoto(null);
+
+                AgenteRepository.save(agente);
+
+                System.out.println(">>> Agente completo David creado correctamente <<<");
+            }
             
 
             

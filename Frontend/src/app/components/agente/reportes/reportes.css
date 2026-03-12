@@ -266,6 +266,7 @@ p {
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 10px;
   margin-top: 20px;
+  margin-bottom: 10px;
 }
 
 .dato {
@@ -307,7 +308,7 @@ p {
   gap: 10px;
   padding: 10px 8px;
   border-radius: 12px;
-
+  margin-bottom: 9px;
   border: 1px solid rgba(59,130,246,.15);
   box-shadow: 0 4px 12px rgba(0,0,0,.3);
   color: var(--text);
@@ -491,6 +492,31 @@ button:disabled {
 
   white-space: pre-wrap;
   word-break: break-word;
+}
+
+
+/* =========================
+   SCROLL SOLO REPORTES
+========================= */
+
+.reportes-scroll{
+  height: calc(100vh - 180px);
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+/* scrollbar bonito */
+
+.reportes-scroll::-webkit-scrollbar{
+  width: 4px;
+}
+
+.reportes-scroll::-webkit-scrollbar-thumb{
+  background: transparent;
+}
+
+.reportes-scroll:hover::-webkit-scrollbar-thumb{
+  background: #94a3b8;
 }
 
 @keyframes modalPop{

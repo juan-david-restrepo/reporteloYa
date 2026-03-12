@@ -1,16 +1,16 @@
 package com.reporteloya.backend.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.reporteloya.backend.dto.AgenteDisponibleDTO;
 import com.reporteloya.backend.dto.ReporteSocketDTO;
 import com.reporteloya.backend.entity.Reporte;
 import com.reporteloya.backend.service.ReporteService;
@@ -21,14 +21,15 @@ public class ReporteController {
 
     private final ReporteService reporteService;
 
-    // ✅ Inyección correcta
     public ReporteController(ReporteService reporteService) {
         this.reporteService = reporteService;
     }
 
+    // ================================
+    // CREAR REPORTE (ciudadano)
+    // ================================
     @PostMapping(value = "/crear", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> crearReporte(
-
             @RequestParam String descripcion,
             @RequestParam String direccion,
             @RequestParam Double latitud,
@@ -37,7 +38,6 @@ public class ReporteController {
             @RequestParam String tipoInfraccion,
             @RequestParam(required = false) String fechaIncidente,
             @RequestParam(required = false) String horaIncidente,
-
             @RequestParam("archivos") List<MultipartFile> archivos,
             Authentication authentication) {
 
@@ -47,15 +47,9 @@ public class ReporteController {
 
         try {
             Reporte reporte = reporteService.crearReporte(
-                    descripcion,
-                    direccion,
-                    latitud,
-                    longitud,
-                    placa,
-                    fechaIncidente,
-                    horaIncidente,
-                    tipoInfraccion,
-                    archivos);
+                    descripcion, direccion, latitud, longitud,
+                    placa, fechaIncidente, horaIncidente,
+                    tipoInfraccion, archivos);
 
             return ResponseEntity.ok(reporte);
 
@@ -65,82 +59,146 @@ public class ReporteController {
         }
     }
 
-    @Autowired
-    private SimpMessagingTemplate messagingTemplate;
-
-    @GetMapping("/pendientes")
-    public ResponseEntity<List<Reporte>> obtenerPendientes() {
-        return ResponseEntity.ok(reporteService.obtenerPendientes());
-    }
-
-    // 🔹 Tomar reporte
+    // ================================
+    // ACEPTAR REPORTE (ir SOLO)
+    // ================================
     @PostMapping("/aceptar/{id}")
     public ResponseEntity<?> tomarReporte(
             @PathVariable Long id,
             Authentication authentication) {
 
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(403).body("No autenticado");
+        try {
+            // ✅ Se pasa el email (authentication.getName()) al servicio
+            Reporte actualizado = reporteService.tomarReporte(id, authentication.getName());
+            return ResponseEntity.ok(reporteService.convertirADTO(actualizado));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
-
-        String placaAgente = authentication.getName();
-
-        Reporte actualizado = reporteService.tomarReporte(id, placaAgente);
-
-        return ResponseEntity.ok(actualizado);
     }
 
+    // ================================
+    // ACEPTAR REPORTE (ir ACOMPAÑADO)
+    // ================================
+    @PostMapping("/aceptar/{id}/acompanado")
+    public ResponseEntity<?> tomarReporteAcompanado(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> body,
+            Authentication authentication) {
+
+        String placaCompanero = body.get("placaCompanero");
+
+        if (placaCompanero == null || placaCompanero.isBlank()) {
+            return ResponseEntity.badRequest().body("Debes indicar la placa del compañero");
+        }
+
+        try {
+            Reporte actualizado = reporteService.tomarReporteConCompanero(
+                    id, authentication.getName(), placaCompanero);
+            return ResponseEntity.ok(reporteService.convertirADTO(actualizado));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    // ================================
+    // RECHAZAR REPORTE
+    // ================================
     @PostMapping("/rechazar/{id}")
     public ResponseEntity<?> rechazarReporte(
             @PathVariable Long id,
             Authentication authentication) {
 
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(403).body("No autenticado");
+        try {
+            Reporte actualizado = reporteService.rechazarReporte(id, authentication.getName());
+            return ResponseEntity.ok(reporteService.convertirADTO(actualizado));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
-
-        String placaAgente = authentication.getName();
-
-        Reporte actualizado = reporteService.tomarReporte(id, placaAgente);
-
-        return ResponseEntity.ok(actualizado);
     }
 
+    // ================================
+    // FINALIZAR REPORTE
+    // ================================
     @PostMapping("/finalizar/{id}")
     public ResponseEntity<?> finalizarReporte(
             @PathVariable Long id,
+            @RequestBody Map<String, String> body,
             Authentication authentication) {
 
-        String placaAgente = authentication.getName();
-        Reporte actualizado = reporteService.finalizarReporte(id, placaAgente);
+        String resumen = body.get("resumen");
 
-        return ResponseEntity.ok(actualizado);
+        try {
+            Reporte actualizado = reporteService.finalizarReporte(
+                    id, authentication.getName(), resumen);
+            return ResponseEntity.ok(reporteService.convertirADTO(actualizado));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
+    // ================================
+    // REPORTES ACTIVOS DEL AGENTE
+    // (pendientes globales + su EN_PROCESO)
+    // ================================
     @GetMapping("/agente")
-    public ResponseEntity<List<ReporteSocketDTO>> obtenerReportesAgente(Authentication authentication) {
+    public ResponseEntity<List<ReporteSocketDTO>> obtenerReportesAgente(
+            Authentication authentication) {
 
-        String placaAgente = authentication.getName();
-
-        return ResponseEntity.ok(
-                reporteService.obtenerReportesDTOParaAgente(placaAgente)
-        );
+        try {
+            return ResponseEntity.ok(
+                reporteService.obtenerReportesDTOParaAgente(authentication.getName())
+            );
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
+    // ================================
+    // HISTORIAL DEL AGENTE
+    // (finalizados donde participó)
+    // ================================
     @GetMapping("/agente/historial")
-    public ResponseEntity<?> historialAgente(Authentication authentication) {
+    public ResponseEntity<List<ReporteSocketDTO>> historialAgente(
+            Authentication authentication) {
 
-        String placaAgente = authentication.getName();
-
-        return ResponseEntity.ok(
-                reporteService.obtenerHistorialAgente(placaAgente));
+        try {
+            return ResponseEntity.ok(
+                reporteService.obtenerHistorialAgente(authentication.getName())
+            );
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
-    @GetMapping("/debug")
-    public ResponseEntity<?> debug(Authentication auth) {
-        return ResponseEntity.ok(auth.getName());
+    // ================================
+    // BUSCAR AGENTE DISPONIBLE POR PLACA
+    // (para el modal de acompañado)
+    // ================================
+    @GetMapping("/buscar-agente/{placa}")
+    public ResponseEntity<?> buscarAgenteDisponible(
+            @PathVariable String placa,
+            Authentication authentication) {
+
+        try {
+            AgenteDisponibleDTO dto = reporteService.buscarAgenteDisponible(
+                    placa, authentication.getName());
+            return ResponseEntity.ok(dto);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
+    // ================================
+    // REPORTES PENDIENTES (admin)
+    // ================================
+    @GetMapping("/pendientes")
+    public ResponseEntity<List<Reporte>> obtenerPendientes() {
+        return ResponseEntity.ok(reporteService.obtenerPendientes());
+    }
+
+    // ================================
+    // SCROLL PAGINADO (admin / general)
+    // ================================
     @GetMapping
     public Page<Reporte> listarReportes(
             @RequestParam(required = false) String prioridad,
@@ -150,5 +208,8 @@ public class ReporteController {
         return reporteService.obtenerReportes(prioridad, page, size);
     }
 
-    
+    @GetMapping("/debug")
+    public ResponseEntity<?> debug(Authentication auth) {
+        return ResponseEntity.ok(auth.getName());
+    }
 }
