@@ -107,6 +107,7 @@
       [reporteInicial]="reporteDesdeHistorial"
       [modoLectura]="reporteDesdeHistorial !== null"
       [origen]="origenDetalle"
+      [puedeAccion]="puedeAceptarReportes"
       (volver)="volverDesdeDetalle($event)"
       (aceptar)="aceptarReporte($event)"
       (rechazar)="rechazarReporte($event)"
@@ -125,6 +126,7 @@
     <app-tareas
       *ngIf="vistaActual === 'tareas'"
       [tareas]="tareasAdmin"
+      [puedeAccion]="puedeComenzarTarea"
       (comenzar)="comenzarTarea($event)"
       (finalizar)="finalizarTarea($event)"
     >

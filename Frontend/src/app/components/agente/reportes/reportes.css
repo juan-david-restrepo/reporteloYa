@@ -437,6 +437,21 @@ button:disabled {
   
 }
 
+.modal-box button{
+  margin-top: 10px;
+}
+
+.error-busqueda{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12PX;
+  box-shadow: 0 8px 25px rgba(0,0,0,.4);
+  padding: 15px;
+  border-radius: 12px;
+  margin-top: 6px ;
+}
+
 .tex-area{
   width: 100%;
   height: 150px;
@@ -453,6 +468,7 @@ button:disabled {
   gap: 19px;
   align-items: center;
   justify-content: center;
+  justify-content: space-between;
 }
 
 .modal-actions button {

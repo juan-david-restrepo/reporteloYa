@@ -461,7 +461,7 @@ public class ReporteService {
 
         return new AgenteDisponibleDTO(
             agente.getPlaca(),
-            agente.getNombre(),
+            agente.getNombreCompleto(),
             agente.getEstado()
         );
     }

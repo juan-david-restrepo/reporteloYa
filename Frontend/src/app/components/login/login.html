@@ -4,20 +4,8 @@
   <div class="container-login">
     <div class="left">
       <h1>REPÓRTELO YA!</h1>
-      <p>Accede a tu cuenta</p>
 
 <form [formGroup]="formLogin" (ngSubmit)="onSubmit()">
-
-  <label for="rol">Tipo de usuario</label>
-  <div class="input-group">
-    <i class="fa-solid fa-user-shield"></i>
-    <select id="rol" formControlName="rol" required>
-      <option value="" disabled>Selecciona tu rol</option>
-      <option value="ciudadano">Ciudadano</option>
-      <option value="agente">Agente de Tránsito</option>
-      <option value="administrador">administrador</option>
-    </select>
-  </div>
 
   <label for="emailLogin">Correo electrónico</label>
   <div class="input-group">

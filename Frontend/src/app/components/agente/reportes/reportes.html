@@ -200,8 +200,8 @@
 
       <!-- Acciones -->
       <div class="acciones" *ngIf="r.estado === EstadoReporte.PENDIENTE">
-        <button class="btn-ok"  [disabled]="hayEnProceso" (click)="aceptarClick(r)">Aceptar</button>
-        <button class="btn-no"  [disabled]="hayEnProceso" (click)="rechazarClick(r)">Rechazar</button>
+        <button class="btn-ok"  [disabled]="!puedeAccion" (click)="aceptarClick(r)">Aceptar</button>
+        <button class="btn-no"  [disabled]="!puedeAccion" (click)="rechazarClick(r)">Rechazar</button>
       </div>
 
       <div class="en-proceso" *ngIf="r.estado === EstadoReporte.EN_PROCESO">
@@ -318,7 +318,7 @@
       <!-- Error de búsqueda -->
       <div *ngIf="errorBusqueda" class="error-busqueda">
         <i class="fa-solid fa-triangle-exclamation"></i>
-        {{ errorBusqueda }}
+        <strong>{{ errorBusqueda }}</strong>  
       </div>
 
       <!-- Resultado encontrado -->

@@ -54,6 +54,7 @@ export class Reportes implements OnChanges {
   // INPUTS / OUTPUTS
   // ================================
   @Input() hayEnProceso: boolean = false;
+  @Input() puedeAccion: boolean = true; // Para deshabilitar botones
   @Input() origen: 'historial' | 'reportes' = 'reportes';
   @Output() volver = new EventEmitter<'historial' | 'reportes'>();
   @Input() modoLectura: boolean = false;

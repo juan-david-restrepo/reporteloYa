@@ -142,7 +142,12 @@ export class Agente implements OnInit, OnDestroy {
   // TAREAS
   // ================================
   comenzarTarea(t: Tarea) {
+    // Ya hay una tarea en proceso
     if (this.tareasAdmin.some(x => x.estado === 'EN PROCESO')) return;
+    
+    // Ya hay un reporte en proceso - no puede hacer ambas cosas a la vez
+    if (this.hayEnProceso) return;
+    
     this.agenteService.actualizarEstadoTarea(t.id, 'EN PROCESO').subscribe(() => {
       t.estado = 'EN PROCESO';
       t.fechaInicio = new Date();
@@ -166,7 +171,11 @@ export class Agente implements OnInit, OnDestroy {
   // Aquí solo hacemos el HTTP y actualizamos reportesEntrantes.
   // ================================
   aceptarReporte(r: Reporte) {
+    // Ya hay un reporte en proceso
     if (this.hayEnProceso) return;
+    
+    // Ya hay una tarea en proceso - no puede hacer ambas cosas a la vez
+    if (this.tareasAdmin.some(t => t.estado === 'EN PROCESO')) return;
 
     const call = (r.acompanado && r.placaCompanero)
       ? this.agenteService.tomarReporteAcompanado(r.id, r.placaCompanero)
@@ -382,6 +391,17 @@ export class Agente implements OnInit, OnDestroy {
     return this.reportesEntrantes.some(r => r.estado === EstadoReporte.EN_PROCESO);
   }
 
+  // Verifica si puede aceptar reportes (no debe tener tarea en proceso)
+  get puedeAceptarReportes(): boolean {
+    const hayTareaEnProceso = this.tareasAdmin.some(t => t.estado === 'EN PROCESO');
+    return !hayTareaEnProceso;
+  }
+
+  // Verifica si puede comenzar tareas (no debe tener reporte en proceso)
+  get puedeComenzarTarea(): boolean {
+    return !this.hayEnProceso;
+  }
+
   // ================================
   // VISTAS
   // ================================
@@ -418,8 +438,7 @@ export class Agente implements OnInit, OnDestroy {
   }
 
   updateConfig(config: any) {
-    document.body.classList.toggle('dark-mode', config.modoNoche);
-    document.documentElement.style.setProperty('--font-size-base', config.fontSize + 'px');
+    // Los estilos ya se aplican desde el template via [class.dark], [class.cb] y [style.font-size.px]
   }
 
   sidebarAbierto = false;
