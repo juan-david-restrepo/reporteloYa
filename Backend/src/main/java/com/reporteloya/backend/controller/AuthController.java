@@ -106,27 +106,27 @@ public class AuthController {
     }
 
 
+            // =========================
+        // GET CURRENT USER
         // =========================
-    // GET CURRENT USER
-    // =========================
-    @GetMapping("/me")
-    public ResponseEntity<?> getCurrentUser() {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        @GetMapping("/me")
+        public ResponseEntity<?> getCurrentUser() {
+            var authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            if (authentication == null || !authentication.isAuthenticated()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+
+            Usuario usuario = (Usuario) authentication.getPrincipal();
+
+            return ResponseEntity.ok(
+                    AuthResponse.builder()
+                            .userId(usuario.getId())
+                            .email(usuario.getEmail())
+                            .role(usuario.getRole())
+                            .build()
+            );
         }
-
-        Usuario usuario = (Usuario) authentication.getPrincipal();
-
-        return ResponseEntity.ok(
-                AuthResponse.builder()
-                        .userId(usuario.getId())
-                        .email(usuario.getEmail())
-                        .role(usuario.getRole())
-                        .build()
-        );
-    }
 
     // =========================
     // COOKIE HELPER
