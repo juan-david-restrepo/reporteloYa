@@ -1,14 +1,7 @@
 import { Injectable } from '@angular/core';
-import { Client, IMessage } from '@stomp/stompjs';
-import { BehaviorSubject, Subject } from 'rxjs';
+import { Client } from '@stomp/stompjs';
+import { Subject } from 'rxjs';
 import SockJS from 'sockjs-client';
-
-
-export interface Report {
-  id: number;
-  description: string;
-  agentId: number;
-}
 
 @Injectable({
   providedIn: 'root',
@@ -17,58 +10,135 @@ export class WebsocketService {
   private stompClient!: Client;
   private connected = false;
 
+  // =========================
+  // SUBJECTS
+  // =========================
+
+  private tareasSubject = new Subject<any>();
+  public tareas$ = this.tareasSubject.asObservable();
+
   private reportesSubject = new Subject<any>();
   public reportes$ = this.reportesSubject.asObservable();
 
-  public adminReports$ = new BehaviorSubject<Report | null>(null);
-  public agentReports$ = new BehaviorSubject<Report | null>(null);
+  private estadosAgentesSubject = new Subject<any>();
+  public estadosAgentes$ = this.estadosAgentesSubject.asObservable();
 
-  public connected$ = new BehaviorSubject<boolean>(false);
+  private tareaEstadoSubject = new Subject<any>();
+  public tareaEstado$ = this.tareaEstadoSubject.asObservable();
 
-  connect() {
+  private reporteAsignadoSubject = new Subject<any>();
+  public reporteAsignado$ = this.reporteAsignadoSubject.asObservable();
+
+  // =========================
+  // CONEXIÓN WEBSOCKET
+  // =========================
+
+  connect(placa?: string) {
+    if (this.connected) {
+      console.log('WebSocket ya conectado');
+      return;
+    }
+
     const socket = new SockJS('http://localhost:8080/ws');
 
     this.stompClient = new Client({
       webSocketFactory: () => socket,
       reconnectDelay: 5000,
-      debug: (str) => console.log(str),
+     
     });
 
     this.stompClient.onConnect = () => {
-      console.log('Conectado al WebSocket');
+      console.log('✅ WebSocket conectado');
 
-      this.stompClient.activate();
+      this.connected = true;
+
+      // =========================
+      // SUSCRIPCIONES
+      // =========================
+
+      this.subscribeToReports();
+
+      if (placa) {
+        this.subscribeAgentChannels(placa);
+      }
+
+      this.subscribeAdminChannels();
     };
+
+    this.stompClient.onStompError = (frame) => {
+      console.error('❌ Error STOMP:', frame.headers['message']);
+      console.error('Detalles:', frame.body);
+    };
+
+    this.stompClient.onWebSocketClose = () => {
+      console.warn('⚠️ WebSocket cerrado');
+      this.connected = false;
+    };
+
+    this.stompClient.activate();
   }
 
-  subscribeAsAdmin() {
-    this.stompClient.subscribe('/topic/admins', (message) => {
-      const report = JSON.parse(message.body);
-      this.adminReports$.next(report);
-    });
-  }
+  // =========================
+  // SUSCRIPCIONES
+  // =========================
 
-  subscribeAsAgent() {
-    this.stompClient.subscribe('/topic/agents', (message) => {
-      const report = JSON.parse(message.body);
-      this.agentReports$.next(report);
-    });
-  }
+  private subscribeToReports() {
+    if (!this.connected) return;
 
-  subscribeToReports() {
-    this.stompClient.subscribe('/topic/reportes', (message) => {
-      const reporte = JSON.parse(message.body);
+    this.stompClient.subscribe('/topic/reportes', (msg) => {
+      const reporte = JSON.parse(msg.body);
 
-      console.log('Reporte recibido:', reporte);
+      console.log('📡 Reporte recibido:', reporte);
 
       this.reportesSubject.next(reporte);
     });
   }
 
+  private subscribeAdminChannels() {
+    if (!this.connected) return;
+
+    this.stompClient.subscribe('/topic/estado-agentes', (msg) => {
+      const estado = JSON.parse(msg.body);
+
+      this.estadosAgentesSubject.next(estado);
+    });
+
+    this.stompClient.subscribe('/topic/tarea-estado', (msg) => {
+      const tarea = JSON.parse(msg.body);
+
+      this.tareaEstadoSubject.next(tarea);
+    });
+  }
+
+  private subscribeAgentChannels(placa: string) {
+    if (!this.connected) return;
+
+    this.stompClient.subscribe(`/topic/tareas/${placa}`, (msg) => {
+      const tarea = JSON.parse(msg.body);
+
+      this.tareasSubject.next(tarea);
+    });
+
+    this.stompClient.subscribe(`/topic/reporte-asignado/${placa}`, (msg) => {
+      const reporte = JSON.parse(msg.body);
+
+      console.log('📌 Reporte asignado como compañero:', reporte);
+
+      this.reporteAsignadoSubject.next(reporte);
+    });
+  }
+
+  // =========================
+  // DESCONECTAR
+  // =========================
+
   disconnect() {
-    if (this.stompClient) {
+    if (this.stompClient && this.connected) {
       this.stompClient.deactivate();
+
       this.connected = false;
+
+      console.log('🔌 WebSocket desconectado');
     }
   }
 }

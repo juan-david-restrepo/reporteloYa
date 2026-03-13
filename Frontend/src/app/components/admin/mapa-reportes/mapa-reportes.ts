@@ -13,9 +13,9 @@ interface Reporte {
   descripcion: string;
   latitud: number;
   longitud: number;
-  fechaIncidente: Date | string;
-  horaIncidente: Date | string;
-  estado: 'pendiente' | 'en_proceso' | 'resuelto';
+  fechaIncidente: Date ;
+  horaIncidente: Date ;
+  estado: 'PENDIENTE' | 'EN_PROCESO' | 'FINALIZADO';
   agente?: string;
   foto?: string;
   direccion?: string;
@@ -34,17 +34,10 @@ export class MapaReportesComponent implements AfterViewInit, OnInit, OnDestroy {
   private markersLayer = L.layerGroup();
   private socket?: WebSocket;
   private mapaListo = false;
-  private modoDemo = false;
+ 
   private intervaloNuevos?: any;
   private intervaloCambios?: any;
-  private agentesDemo = [
-    'Unidad Móvil 12',
-    'Patrulla Vial 7',
-    'Agente Ramírez',
-    'Agente Torres',
-    'Grúa Municipal',
-    'Motorizado 3',
-  ];
+ 
 
   // --- Propiedades Públicas ---
   menuAbierto: boolean = false; // 🔹 Control del Sidebar Responsive
@@ -85,9 +78,7 @@ export class MapaReportesComponent implements AfterViewInit, OnInit, OnDestroy {
     // 2️⃣ conectar al websocket
     this.websocketService.connect();
 
-    // 3️⃣ suscribirse a reportes en tiempo real
-    this.websocketService.subscribeToReports();
-
+    
     this.websocketService.reportes$.subscribe((reporte) => {
       if (!reporte) return;
 
@@ -154,13 +145,13 @@ export class MapaReportesComponent implements AfterViewInit, OnInit, OnDestroy {
 
   private actualizarContadores(): void {
     this.pendientes = this.reportes.filter(
-      (r) => r.estado === 'pendiente',
+      (r) => r.estado === 'PENDIENTE',
     ).length;
     this.enProceso = this.reportes.filter(
-      (r) => r.estado === 'en_proceso',
+      (r) => r.estado === 'EN_PROCESO',
     ).length;
     this.resueltos = this.reportes.filter(
-      (r) => r.estado === 'resuelto',
+      (r) => r.estado === 'FINALIZADO',
     ).length;
   }
 
@@ -233,11 +224,11 @@ export class MapaReportesComponent implements AfterViewInit, OnInit, OnDestroy {
 
   private getColorEstado(estado: string): string {
     switch (estado) {
-      case 'pendiente':
+      case 'PENDIENTE':
         return '#ffc107';
-      case 'en_proceso':
+      case 'EN_PROCESO':
         return '#fd7e14';
-      case 'resuelto':
+      case 'FINALIZADO':
         return '#28a745';
       default:
         return '#6c757d';
@@ -259,9 +250,5 @@ export class MapaReportesComponent implements AfterViewInit, OnInit, OnDestroy {
     this.router.navigate(['/admin/reporte', id]);
   }
 
-  // --- Simulador Demo ---
-  private activarSimulador(): void {
-    if (this.modoDemo) return;
-    this.modoDemo = true;
-  }
+ 
 }

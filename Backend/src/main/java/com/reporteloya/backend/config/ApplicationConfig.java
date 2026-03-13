@@ -101,7 +101,7 @@ public class ApplicationConfig {
 
                 agente.setPlaca("AT-125");
                 agente.setTelefono("3001234567");
-                agente.setEstado("LIBRE");
+                agente.setEstado("DISPONIBLE");
                 agente.setFoto(null);
 
                 agenteRepository.save(agente);
@@ -122,7 +122,7 @@ public class ApplicationConfig {
 
                 agente.setPlaca("AT-126");
                 agente.setTelefono("3229801122");
-                agente.setEstado("LIBRE");
+                agente.setEstado("DISPONIBLE");
                 agente.setFoto(null);
 
                 agenteRepository.save(agente);

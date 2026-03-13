@@ -122,3 +122,7 @@ Frontend: ng serve (puerto 4200)
 Backend: ejecutar desde IDE o Maven (puerto 8080)
 No ejecutar comandos de build sin verificar primero
 
+## Añadir
+
+Comenta simepre el codigo cuando lo agregues para que 
+sirve y donde se utiliza y para que se utiliza 

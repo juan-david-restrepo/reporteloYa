@@ -8,7 +8,9 @@ import { Reporte } from '../models/reporte.model';
 })
 export class ReportesService {
 
-  private apiUrl = 'http://localhost:8080/admin';
+
+  private api = 'http://localhost:8080/admin';
+  private apiUrl = 'http://localhost:8080/api/reportes';
 
   constructor(private http: HttpClient) {}
 
@@ -16,8 +18,9 @@ export class ReportesService {
    * Obtiene el historial de reportes de un agente por placa
    */
   obtenerReportesPorAgente(placa: string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/${placa}/reportes`, { withCredentials: true });
+    return this.http.get<any[]>(`${this.api}/${placa}/reportes`, { withCredentials: true });
   }
+  
 
   obtenerReportes() {
     return fetch(this.apiUrl).then((res) => res.json());

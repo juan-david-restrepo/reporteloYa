@@ -165,7 +165,7 @@ export class GestionAgentes implements OnInit, OnDestroy {
         this.cargando = false;
         this.cargarReportes();
         this.cargarTareas();
-        this.iniciarRefresco();
+        // this.iniciarRefresco();
       },
       error: () => {
         this.error = 'No se encontró ningún agente con esa placa';
@@ -210,13 +210,13 @@ export class GestionAgentes implements OnInit, OnDestroy {
     });
   }
 
-  private iniciarRefresco(): void {
-    this.detenerRefresco();
-    this.pollingSubscription = interval(5000).subscribe(() => {
-      this.cargarTareasSilent();
-      this.cargarReportes();
-    });
-  }
+  // private iniciarRefresco(): void {
+  //   this.detenerRefresco();
+  //   this.pollingSubscription = interval(5000).subscribe(() => {
+  //     this.cargarTareasSilent();
+  //     this.cargarReportes();
+  //   });
+  // }
 
   asignarTarea(): void {
     if (!this.agente) return;
