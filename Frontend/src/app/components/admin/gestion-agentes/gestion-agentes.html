@@ -132,7 +132,7 @@
           </tr>
         </tbody>
       </table>
-      <p *ngIf="tareas.length === 0">No hay tareas asignadas.</p>
+      <p class="mensaje-vacio" *ngIf="tareas.length === 0">No hay tareas asignadas.</p>
     </div>
 
     <div class="card" *ngIf="agente">
@@ -175,7 +175,7 @@
             </tr>
           </tbody>
         </table>
-        <p *ngIf="tareasFinalizadas.length === 0">
+        <p class="mensaje-vacio" *ngIf="tareasFinalizadas.length === 0">
           No hay tareas finalizadas para mostrar.
         </p>
       </ng-container>
@@ -208,7 +208,7 @@
             </tr>
           </tbody>
         </table>
-        <p *ngIf="reportes.length === 0">No hay reportes registrados.</p>
+        <p class="mensaje-vacio" *ngIf="reportes.length === 0">No hay reportes registrados.</p>
       </ng-container>
     </div>
   </div>
