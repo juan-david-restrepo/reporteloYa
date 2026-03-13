@@ -206,7 +206,7 @@
 
 .estado.ocupado {
   background: #fee2e2;
-  color: #991b1b;
+  color: #ffc70f;
     display: inline-block;
     padding: 6px 14px;
     border-radius: 999px;
@@ -214,7 +214,7 @@
     font-weight: 800;
     text-transform: uppercase;
     min-width: 80px;
-    text-align: center;
+    text-align: center;   
 }
 
 .estado.fuera-servicio {
@@ -785,7 +785,7 @@ table td {
 }
 
 .ocupado {
-  background-color: #007bff !important;
+  background-color: #ffda06 !important;
 }
 
 .fuera-de-servicio {
@@ -872,14 +872,35 @@ table td {
   border: 1px solid #e5e7eb;
 }
 
+.tabla-reportes tbody{
+  text-align: center;
+}
+
 /* Mensajes cuando no hay datos en el historial */
-.card p {
+.card p:not(.mensaje-vacio) {
   margin-top: 15px;
   padding: 10px;
   background: #f8fafc;
   border-radius: 8px;
   text-align: center;
   font-style: italic;
+}
+
+/* Mensaje vacío - estilo base */
+.mensaje-vacio {
+  margin-top: 15px;
+  padding: 10px;
+  background: #f8fafc;
+  border-radius: 8px;
+  text-align: center;
+  font-style: italic;
+}
+
+/* Modo oscuro - mensajes vacíos */
+::ng-deep body.dark-mode .mensaje-vacio {
+  background-color: #1e293b !important;
+  color: #94a3b8 !important;
+  border: 1px solid #334155 !important;
 }
 
 
@@ -1126,6 +1147,14 @@ table td {
   color: #f8fafc !important;
 }
 
+/* Mensaje de éxito con fondo apropiado en modo oscuro */
+::ng-deep body.dark-mode .mensaje-ok {
+  background-color: #052e16 !important;
+  border: 1px solid #166534 !important;
+  padding: 10px !important;
+  border-radius: 8px !important;
+}
+
 ::ng-deep body.dark-mode .estado-inicial {
   background-color: #1e293b !important;
 }
@@ -1224,7 +1253,7 @@ table td {
 }
 
 ::ng-deep body.dark-mode .estado.ocupado {
-  background-color: #991b1b !important;
+  background-color: #ffda08 !important;
   color: #ffffff !important;
 }
 
@@ -1426,11 +1455,4 @@ table td {
 ::ng-deep body.dark-mode .tabla-tareas td[data-label="Hora"] {
   color: #60a5fa !important;
   font-weight: 600 !important;
-}
-
-/* Mensaje cuando no hay tareas/reportes */
-::ng-deep body.dark-mode .card > p:only-child,
-::ng-deep body.dark-mode .card p:empty + p:not(:empty) {
-  background-color: #1e293b !important;
-  color: #94a3b8 !important;
 }
