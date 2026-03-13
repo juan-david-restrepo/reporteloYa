@@ -16,7 +16,7 @@
 
       <span class="switch-label">
         {{ estadoAgente === 'FUERA_SERVICIO'
-          ? 'Fuera de servicio'
+          ? 'FUERA_SERVICIO'
           : 'En servicio' }}
       </span>
 
@@ -40,7 +40,7 @@
         [class.ocupado]="estadoAgente === 'OCUPADO'"
         [class.off]="estadoAgente === 'FUERA_SERVICIO'">
          {{ estadoAgente === 'FUERA_SERVICIO'
-          ? 'Fuera de servicio'
+          ? 'FUERA_SERVICIO'
           : estadoAgente === 'OCUPADO'
             ? 'Ocupado'
             : 'Disponible' }}

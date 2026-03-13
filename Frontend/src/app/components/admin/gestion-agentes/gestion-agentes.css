@@ -217,8 +217,8 @@
     text-align: center;
 }
 
-.estado.fuera-de-servicio {
-  background: #fef3c7;
+.estado.fuera-servicio {
+  background: #f81d1d;
   color: #92400e;
     display: inline-block;
     padding: 6px 14px;

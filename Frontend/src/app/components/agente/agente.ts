@@ -438,7 +438,7 @@ export class Agente implements OnInit, OnDestroy {
   // ================================
   toggleServicio(nuevoEstado: 'DISPONIBLE' | 'FUERA_SERVICIO') {
     if (nuevoEstado === 'FUERA_SERVICIO' && (this.hayEnProceso || this.estadoAgente === 'OCUPADO')) {
-      alert('No puedes ponerte en fuera de servicio mientras tienes un reporte o tarea en proceso');
+      alert('No puedes ponerte en FUERA_SERVICIO mientras tienes un reporte o tarea en proceso');
       return;
     }
     this.estadoAgente = nuevoEstado;
