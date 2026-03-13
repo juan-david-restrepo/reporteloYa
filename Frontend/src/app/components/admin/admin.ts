@@ -52,7 +52,19 @@ export class Admin implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(private infraccionService: InfraccionService) {}
 
+  private loadSettings() {
+    const isDark = localStorage.getItem('darkMode') === 'true';
+    if (isDark) document.body.classList.add('dark-mode');
+
+    const isColorBlind = localStorage.getItem('colorBlind') === 'true';
+    if (isColorBlind) document.body.classList.add('color-blind');
+
+    const savedSize = localStorage.getItem('fontSize') || 'normal';
+    document.body.classList.add(`font-${savedSize}`);
+  }
+
   ngOnInit(): void {
+    this.loadSettings();
     this.cargarInfracciones();
   }
 

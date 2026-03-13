@@ -1,8 +1,8 @@
+
 # Reglas del Proyecto ReporteloYa
 
 ## Estructura de Carpetas
 
-```
 Frontend/src/app/
 ├── components/       # Páginas/componentes principales
 │   ├── home/
@@ -14,7 +14,7 @@ Frontend/src/app/
 ├── guards/            # Guards de rutas
 ├── shared/            # Componentes reutilizables (nav, footer, chat-bot)
 └── app.routes.ts      # Rutas principales
-```
+
 
 ## Convenciones de Nomenclatura
 
@@ -38,7 +38,8 @@ Frontend/src/app/
 ## Patrones de Código
 
 ### Componentes Angular (Standalone)
-```typescript
+
+
 @Component({
   selector: 'app-nombre',
   standalone: true,
@@ -52,31 +53,32 @@ export class Nombre implements OnInit, OnDestroy {
   ngOnInit() { ... }
   ngOnDestroy() { ... }
 }
-```
+
 
 ### Servicios
-```typescript
+
+
 @Injectable({ providedIn: 'root' })
 export class NombreService {
   private apiUrl = 'http://localhost:8080/api/...';
   
   constructor(private http: HttpClient) {}
 }
-```
 
 ### Guards (Funcionales)
-```typescript
+
 export const authGuard: CanActivateFn = () => { ... };
-```
+
 
 ### Modelos
-```typescript
+
+
 export interface Reporte {
   id: number;
   placaAgente: string;
   fecha: string;
 }
-```
+
 
 ## Reglas de Estilo
 
@@ -100,3 +102,23 @@ Cuando me pidas hacer algo o cambiar algo, siempre te explicaré:
 - Frontend: `ng serve` (puerto 4200)
 - Backend: ejecutar desde IDE o Maven (puerto 8080)
 - No ejecutar comandos de build sin verificar primero
+=======
+Reglas de Estilo
+Usar standalone: true en todos los componentes
+Imports en una línea cuando sea posible, si son muchos agrupar por tipo
+Preferir templateUrl y styleUrls sobre templates inline
+Usar CommonModule para funcionalidades básicas de Angular
+Usar RouterModule o RouterLink para navegación
+Usar ReactiveFormsModule para formularios
+Usar Swal (SweetAlert2) para alertas
+Comunicación
+Cuando me pidas hacer algo o cambiar algo, siempre te explicaré:
+
+Qué hice - Resumen de la acción
+Cómo lo hice - Explicación técnica breve
+Por qué - Si es relevante para el contexto
+Ejecución de Comandos
+Frontend: ng serve (puerto 4200)
+Backend: ejecutar desde IDE o Maven (puerto 8080)
+No ejecutar comandos de build sin verificar primero
+

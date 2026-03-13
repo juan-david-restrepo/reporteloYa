@@ -31,7 +31,7 @@ export class GestionAgentes implements OnInit, OnDestroy {
   // =========================
   placaBuscada: string = '';
   agente: Agente | null = null;
-  reportes: Reporte[] = [];
+  reportes: any[] = [];
   tareas: Tarea[] = [];
   
   // Estado de filtros, carga y responsive
@@ -54,7 +54,7 @@ export class GestionAgentes implements OnInit, OnDestroy {
     return this.tareas.filter(t => t.estado === 'FINALIZADO');
   }
 
-  get reportesHistorial(): Reporte[] {
+  get reportesHistorial(): any[] {
     return this.reportes; 
   }
 
@@ -93,7 +93,19 @@ export class GestionAgentes implements OnInit, OnDestroy {
     private websocketService: WebsocketService
   ) {}
 
+  private loadSettings() {
+    const isDark = localStorage.getItem('darkMode') === 'true';
+    if (isDark) document.body.classList.add('dark-mode');
+
+    const isColorBlind = localStorage.getItem('colorBlind') === 'true';
+    if (isColorBlind) document.body.classList.add('color-blind');
+
+    const savedSize = localStorage.getItem('fontSize') || 'normal';
+    document.body.classList.add(`font-${savedSize}`);
+  }
+
   ngOnInit(): void {
+    this.loadSettings();
     this.websocketService.connect('admin');
 
     this.websocketService.estadosAgentes$.subscribe((estado:any)=>{

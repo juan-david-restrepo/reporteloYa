@@ -467,6 +467,16 @@ public class ReporteService {
     }
 
     // ================================
+    // HISTORIAL DE REPORTES PARA ADMIN (por placa)
+    // ================================
+    public List<ReporteSocketDTO> obtenerHistorialParaAdmin(String placa) {
+        List<Reporte> historial = reporteRepository.findHistorialParaAgente(placa);
+        return historial.stream()
+                .map(this::convertirADTO)
+                .toList();
+    }
+
+    // ================================
     // SCROLL PAGINADO (admin / general)
     // ================================
     public Page<Reporte> obtenerReportes(String prioridad, int page, int size) {
