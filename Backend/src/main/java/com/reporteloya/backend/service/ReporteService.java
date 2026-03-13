@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.reporteloya.backend.entity.Reporte;
 import com.reporteloya.backend.dto.ReporteSocketDTO;
 import com.reporteloya.backend.dto.AgenteDisponibleDTO;
+import com.reporteloya.backend.dto.EstadoAgenteDTO;
 import com.reporteloya.backend.entity.Agentes;
 import com.reporteloya.backend.entity.Evidencia;
 import com.reporteloya.backend.entity.Prioridad;
@@ -268,6 +269,8 @@ public class ReporteService {
         // Poner agente en OCUPADO
         agente.setEstado("OCUPADO");
         agenteRepository.save(agente);
+        messagingTemplate.convertAndSend("/topic/estado-agentes", 
+            new EstadoAgenteDTO(agente.getPlaca(), "OCUPADO"));
 
         Reporte actualizado = reporteRepository.save(reporte);
 
@@ -297,8 +300,8 @@ public class ReporteService {
         Agentes companero = agenteRepository.findByPlacaIgnoreCase(placaCompanero)
                 .orElseThrow(() -> new RuntimeException("Agente compañero no encontrado con placa: " + placaCompanero));
 
-        // Validar que el compañero esté libre
-        if (!"DISPONIBLE".equals(companero.getEstado())) {
+        // Validar que el compañero esté libre (case-insensitive)
+        if (companero.getEstado() == null || !"DISPONIBLE".equalsIgnoreCase(companero.getEstado())) {
             throw new RuntimeException("El agente compañero no está disponible (estado: " + companero.getEstado() + ")");
         }
 
@@ -313,6 +316,11 @@ public class ReporteService {
         companero.setEstado("OCUPADO");
         agenteRepository.save(agente);
         agenteRepository.save(companero);
+        
+        messagingTemplate.convertAndSend("/topic/estado-agentes", 
+            new EstadoAgenteDTO(agente.getPlaca(), "OCUPADO"));
+        messagingTemplate.convertAndSend("/topic/estado-agentes", 
+            new EstadoAgenteDTO(companero.getPlaca(), "OCUPADO"));
 
         Reporte actualizado = reporteRepository.save(reporte);
         ReporteSocketDTO dto = convertirADTO(actualizado);
@@ -379,6 +387,8 @@ public class ReporteService {
             Agentes agente = reporte.getAgente();
             agente.setEstado("DISPONIBLE");
             agenteRepository.save(agente);
+            messagingTemplate.convertAndSend("/topic/estado-agentes", 
+                new EstadoAgenteDTO(agente.getPlaca(), "DISPONIBLE"));
         }
 
         // ✅ Liberar también al compañero si había uno
@@ -386,6 +396,8 @@ public class ReporteService {
             Agentes companero = reporte.getAgenteCompanero();
             companero.setEstado("DISPONIBLE");
             agenteRepository.save(companero);
+            messagingTemplate.convertAndSend("/topic/estado-agentes", 
+                new EstadoAgenteDTO(companero.getPlaca(), "DISPONIBLE"));
         }
 
         ReporteSocketDTO dto = convertirADTO(finalizado);
@@ -462,7 +474,7 @@ public class ReporteService {
         return new AgenteDisponibleDTO(
             agente.getPlaca(),
             agente.getNombreCompleto(),
-            agente.getEstado()
+            agente.getEstado() != null ? agente.getEstado().toUpperCase() : "DISPONIBLE"
         );
     }
 
@@ -478,15 +490,16 @@ public class ReporteService {
 
     // ================================
     // SCROLL PAGINADO (admin / general)
+    // Solo devuelve PENDIENTES para agentes
     // ================================
     public Page<Reporte> obtenerReportes(String prioridad, int page, int size) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
 
-        if (prioridad != null) {
+        if (prioridad != null && !prioridad.isEmpty()) {
             return reporteRepository.findByPrioridad(Prioridad.valueOf(prioridad.toUpperCase()), pageable);
         }
 
-        return reporteRepository.findAll(pageable);
+        return reporteRepository.findByEstado("PENDIENTE", pageable);
     }
 }

@@ -18,6 +18,8 @@ public interface ReporteRepository extends JpaRepository<Reporte, Long> {
 
     List<Reporte> findByEstado(String estado);
 
+    Page<Reporte> findByEstado(String estado, Pageable pageable);
+
     List<Reporte> findByAgentePlacaIgnoreCaseAndEstado(String placa, String estado);
 
     int countByUsuario_Id(Long idUsuario);

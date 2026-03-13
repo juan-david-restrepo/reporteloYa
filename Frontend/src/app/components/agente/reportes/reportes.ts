@@ -252,11 +252,13 @@ export class Reportes implements OnChanges {
       }
     }
 
-    // 3. Quitar del scroll los PENDIENTES que el padre ya eliminó
-    //    (los tomó otro agente). Los EN_PROCESO se quedan siempre.
+    // 3. Quitar del scroll los reportes que ya no están en el padre
+    //    - PENDIENTES: los tomó otro agente
+    //    - EN_PROCESO: los finalizamos o el compañero los finalizó
+    //    - FINALIZADOS/RECHAZADOS: siempre se quitaron del padre
     const idsDelPadre = new Set(this.reportes.map(r => r.id));
     this.reportesScroll = this.reportesScroll.filter(r => {
-      if (r.estado === EstadoReporte.PENDIENTE && !idsDelPadre.has(r.id)) return false;
+      if (!idsDelPadre.has(r.id)) return false;
       return true;
     });
 
@@ -344,7 +346,7 @@ export class Reportes implements OnChanges {
     this.agenteService.buscarAgenteDisponible(placa).subscribe({
       next: (agente) => {
         this.buscandoCompanero = false;
-        if (agente.estado !== 'DISPONIBLE') {
+        if (!agente.estado || agente.estado.toUpperCase() !== 'DISPONIBLE') {
           this.errorBusqueda = `${agente.nombre} no está disponible (${agente.estado})`;
         } else {
           this.companeroEncontrado = agente;
