@@ -123,3 +123,7 @@ Backend: ejecutar desde IDE o Maven (puerto 8080)
 No ejecutar comandos de build sin verificar primero
 Cada que a añadas codigo haz un pequeño comentario arriba de el fragmento añadido 
 
+## Añadir
+
+Comenta simepre el codigo cuando lo agregues para que 
+sirve y donde se utiliza y para que se utiliza 

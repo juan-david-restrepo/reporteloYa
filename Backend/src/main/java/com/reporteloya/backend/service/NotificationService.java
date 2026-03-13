@@ -16,7 +16,8 @@ public class NotificationService {
     public void notifyNewReport(Reporte reporte) {
 
         messagingTemplate.convertAndSend("/topic/admins", reporte);
-        messagingTemplate.convertAndSend("/topic/agents", reporte);
+        messagingTemplate.convertAndSend("/topic/agentes", reporte);
+        messagingTemplate.convertAndSend("/topic/reportes", reporte);
     }
 
 }

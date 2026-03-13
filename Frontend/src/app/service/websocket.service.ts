@@ -40,6 +40,8 @@ export class WebsocketService {
 
       console.log('✅ WebSocket conectado');
 
+      
+
       // Reportes globales (nuevos y actualizaciones de estado)
       this.stompClient.subscribe('/topic/reportes', (msg) => {
         const reporte = JSON.parse(msg.body);
@@ -70,6 +72,14 @@ export class WebsocketService {
         console.log('📌 Reporte asignado como compañero:', reporte);
         this.reporteAsignadoSubject.next(reporte);
       });
+
+       this.stompClient.subscribe('/topic/reportes', (message) => {
+         const reporte = JSON.parse(message.body);
+
+         console.log('Reporte recibido:', reporte);
+
+         this.reportesSubject.next(reporte);
+       });
 
     };
 

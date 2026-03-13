@@ -212,4 +212,5 @@ public class ReporteController {
     public ResponseEntity<?> debug(Authentication auth) {
         return ResponseEntity.ok(auth.getName());
     }
+    
 }

@@ -16,7 +16,9 @@ import java.util.stream.Collectors;
 import com.reporteloya.backend.entity.Tarea;
 import com.reporteloya.backend.entity.Agentes;
 import com.reporteloya.backend.dto.AdminAgenteDTO;
+import com.reporteloya.backend.dto.ReporteSocketDTO;
 import com.reporteloya.backend.service.AgenteService;
+import com.reporteloya.backend.service.ReporteService;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import com.reporteloya.backend.repository.TareaRepository;
 
@@ -34,6 +36,9 @@ public class AdminController {
 
     @Autowired
     private TareaRepository tareaRepository;
+
+    @Autowired
+    private ReporteService reporteService;
 
     // =========================
     // LISTAR TODOS LOS AGENTES
@@ -145,6 +150,19 @@ public class AdminController {
         }
 
         return ResponseEntity.notFound().build();
+    }
+
+    // =========================
+    // OBTENER REPORTES (HISTORIAL) DE AGENTE
+    // =========================
+    @GetMapping("/{placa}/reportes")
+    public ResponseEntity<?> obtenerReportesPorAgente(@PathVariable String placa) {
+        try {
+            List<ReporteSocketDTO> reportes = reporteService.obtenerHistorialParaAdmin(placa);
+            return ResponseEntity.ok(reportes);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
 
