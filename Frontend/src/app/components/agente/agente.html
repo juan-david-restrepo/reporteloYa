@@ -35,14 +35,14 @@
 
           <div
             class="estado-card"
-            [class.libre]="estadoAgente === 'LIBRE'"
+            [class.libre]="estadoAgente === 'DISPONIBLE'"
             [class.ocupado]="estadoAgente === 'OCUPADO'"
             [class.off]="estadoAgente === 'FUERA_SERVICIO'"
           >
             <i
               class="fa-solid"
               [ngClass]="{
-                'fa-circle-check': estadoAgente === 'LIBRE',
+                'fa-circle-check': estadoAgente === 'DISPONIBLE',
                 'fa-circle-pause': estadoAgente === 'OCUPADO',
                 'fa-circle-xmark': estadoAgente === 'FUERA_SERVICIO',
               }"

@@ -344,7 +344,7 @@ export class Reportes implements OnChanges {
     this.agenteService.buscarAgenteDisponible(placa).subscribe({
       next: (agente) => {
         this.buscandoCompanero = false;
-        if (agente.estado !== 'LIBRE') {
+        if (agente.estado !== 'DISPONIBLE') {
           this.errorBusqueda = `${agente.nombre} no está disponible (${agente.estado})`;
         } else {
           this.companeroEncontrado = agente;

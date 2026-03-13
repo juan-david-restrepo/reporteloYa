@@ -11,7 +11,7 @@ export interface Usuario {
   role: string;
   telefono: string;
   placa?: string;
-  estado: 'LIBRE' | 'OCUPADO' | 'FUERA_SERVICIO';
+  estado: 'DISPONIBLE' | 'OCUPADO' | 'FUERA_SERVICIO';
 }
 
 // ✅ NUEVO: DTO que devuelve el backend al buscar compañero

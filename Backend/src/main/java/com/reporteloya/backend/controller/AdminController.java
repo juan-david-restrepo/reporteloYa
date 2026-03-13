@@ -68,11 +68,7 @@ public class AdminController {
 
         String estado = a.getEstado();
         if (estado != null) {
-            String up = estado.trim().toUpperCase();
-            // Normalizar al vocabulario del admin frontend
-            if (up.equals("LIBRE")) up = "DISPONIBLE";
-            if (up.equals("FUERA_SERVICIO")) up = "AUSENTE";
-            estado = up;
+            estado = estado.trim().toUpperCase();
         }
 
         return new AdminAgenteDTO(
@@ -96,13 +92,17 @@ public class AdminController {
         return agenteService.buscarPorPlaca(placa).map(agente -> {
 
             nuevaTarea.setAgente(agente);
+            nuevaTarea.setEstado("PENDIENTE");
             agente.getListaTareas().add(nuevaTarea);
-            // No cambiar el estado del agente, solo crear la tarea
-
             agenteService.guardar(agente);
 
-            // 🔥 ENVIAR TAREA POR WEBSOCKET
-            messagingTemplate.convertAndSend("/topic/tareas/" + placa, nuevaTarea);
+            Tarea tareaGuardada = tareaRepository.findAll().stream()
+                .filter(t -> t.getTitulo().equals(nuevaTarea.getTitulo()) 
+                          && t.getAgente().getPlaca().equals(placa))
+                .reduce((first, second) -> second)
+                .orElse(nuevaTarea);
+
+            messagingTemplate.convertAndSend("/topic/tareas/" + placa, tareaGuardada);
 
             return ResponseEntity.ok("Tarea asignada con éxito");
 

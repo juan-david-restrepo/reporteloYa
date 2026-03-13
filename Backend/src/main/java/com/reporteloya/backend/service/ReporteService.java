@@ -298,7 +298,7 @@ public class ReporteService {
                 .orElseThrow(() -> new RuntimeException("Agente compañero no encontrado con placa: " + placaCompanero));
 
         // Validar que el compañero esté libre
-        if (!"LIBRE".equals(companero.getEstado())) {
+        if (!"DISPONIBLE".equals(companero.getEstado())) {
             throw new RuntimeException("El agente compañero no está disponible (estado: " + companero.getEstado() + ")");
         }
 
@@ -377,14 +377,14 @@ public class ReporteService {
         // ✅ Liberar al agente principal
         if (reporte.getAgente() != null) {
             Agentes agente = reporte.getAgente();
-            agente.setEstado("LIBRE");
+            agente.setEstado("DISPONIBLE");
             agenteRepository.save(agente);
         }
 
         // ✅ Liberar también al compañero si había uno
         if (reporte.getAgenteCompanero() != null) {
             Agentes companero = reporte.getAgenteCompanero();
-            companero.setEstado("LIBRE");
+            companero.setEstado("DISPONIBLE");
             agenteRepository.save(companero);
         }
 

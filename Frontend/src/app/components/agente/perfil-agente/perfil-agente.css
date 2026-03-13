@@ -137,7 +137,7 @@ input:checked + .slider:before {
 
 /*Estados*/
 
-.estado-badge.libre {
+.estado-badge.disponible {
   background: #16a34a;
 }
 .estado-badge.ocupado {

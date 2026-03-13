@@ -34,7 +34,7 @@ export class AdminService {
 
   actualizarEstado(
     placa: string,
-    estado: 'DISPONIBLE' | 'OCUPADO' | 'AUSENTE'
+    estado: 'DISPONIBLE' | 'OCUPADO' | 'FUERA_SERVICIO'
   ): Observable<any> {
     return this.http.patch(
       `${this.apiUrl}/${placa}`,

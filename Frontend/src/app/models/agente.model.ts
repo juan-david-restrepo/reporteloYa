@@ -3,7 +3,7 @@ export interface Agente {
   placa: string;
   nombre: string;        // ✅ así llega del AdminAgenteDTO
   documento: string;     // ✅ así llega del AdminAgenteDTO
-  estado: 'DISPONIBLE' | 'OCUPADO' | 'AUSENTE';
+  estado: 'DISPONIBLE' | 'OCUPADO' | 'FUERA_SERVICIO';
   telefono: string;
   foto?: string;
   promedioResenas: number;

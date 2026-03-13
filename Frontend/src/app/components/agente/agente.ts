@@ -103,7 +103,7 @@ export class Agente implements OnInit, OnDestroy {
   origenDetalle: 'historial' | 'reportes' = 'reportes';
 
   vistaActual: VistaAgente = 'dashboard';
-  estadoAgente: 'LIBRE' | 'OCUPADO' | 'FUERA_SERVICIO' = 'LIBRE';
+  estadoAgente: 'DISPONIBLE' | 'OCUPADO' | 'FUERA_SERVICIO' = 'DISPONIBLE';
 
   config = { modoNoche: false, daltonismo: false, fontSize: 16 };
 
@@ -149,11 +149,11 @@ export class Agente implements OnInit, OnDestroy {
     // Ya hay un reporte en proceso - no puede hacer ambas cosas a la vez
     if (this.hayEnProceso) return;
 
-    // Si está en FUERA_SERVICIO, automáticamente pasa a LIBRE y luego OCUPADO
+    // Si está en FUERA_SERVICIO, automáticamente pasa a DISPONIBLE y luego OCUPADO
     if (this.estadoAgente === 'FUERA_SERVICIO') {
-      this.agenteService.actualizarEstado('LIBRE').subscribe({
+      this.agenteService.actualizarEstado('DISPONIBLE').subscribe({
         next: () => {
-          this.estadoAgente = 'LIBRE';
+          this.estadoAgente = 'DISPONIBLE';
           this.comenzarTareaInterno(t);
         },
         error: (err) => console.error('Error al activar servicio', err)
@@ -176,8 +176,8 @@ export class Agente implements OnInit, OnDestroy {
     this.agenteService.actualizarEstadoTarea(t.id, 'FINALIZADO').subscribe(() => {
       t.estado = 'FINALIZADO';
       t.fechaFin = new Date();
-      this.estadoAgente = 'LIBRE';
-      this.agenteService.actualizarEstado('LIBRE').subscribe();
+      this.estadoAgente = 'DISPONIBLE';
+      this.agenteService.actualizarEstado('DISPONIBLE').subscribe();
     });
   }
 
@@ -193,11 +193,11 @@ export class Agente implements OnInit, OnDestroy {
     // Ya hay una tarea en proceso - no puede hacer ambas cosas a la vez
     if (this.tareasAdmin.some(t => t.estado === 'EN PROCESO')) return;
 
-    // Si está en FUERA_SERVICIO, automáticamente pasa a LIBRE y luego OCUPADO
+    // Si está en FUERA_SERVICIO, automáticamente pasa a DISPONIBLE y luego OCUPADO
     if (this.estadoAgente === 'FUERA_SERVICIO') {
-      this.agenteService.actualizarEstado('LIBRE').subscribe({
+      this.agenteService.actualizarEstado('DISPONIBLE').subscribe({
         next: () => {
-          this.estadoAgente = 'LIBRE';
+          this.estadoAgente = 'DISPONIBLE';
           this.aceptarReporteInterno(r);
         },
         error: (err) => console.error('Error al activar servicio', err)
@@ -271,7 +271,7 @@ export class Agente implements OnInit, OnDestroy {
       next: () => {
         // Quitar de reportesEntrantes
         this.reportesEntrantes = this.reportesEntrantes.filter(x => x.id !== r.id);
-        this.estadoAgente = 'LIBRE';
+        this.estadoAgente = 'DISPONIBLE';
 
         // ===========================================================
         // Recargar historial desde BD para tener datos 100% correctos
@@ -337,7 +337,7 @@ export class Agente implements OnInit, OnDestroy {
           telefono:  data.telefono ?? 'N/A',
           foto:      'https://randomuser.me/api/portraits/men/32.jpg'
         };
-        this.estadoAgente = data.estado || 'LIBRE';
+        this.estadoAgente = data.estado || 'DISPONIBLE';
       },
       error: (err) => {
         if (err.status === 401) this.router.navigate(['/login']);
@@ -387,7 +387,7 @@ export class Agente implements OnInit, OnDestroy {
         // Finalizado desde otro dispositivo (el compañero lo finalizó)
         if (idx !== -1) {
           this.reportesEntrantes.splice(idx, 1);
-          this.estadoAgente = 'LIBRE';
+          this.estadoAgente = 'DISPONIBLE';
           // Recargar historial para incluir el nuevo reporte finalizado
           this.cargarHistorialDesdeBD();
         }
@@ -436,7 +436,7 @@ export class Agente implements OnInit, OnDestroy {
   // ================================
   // VISTAS
   // ================================
-  toggleServicio(nuevoEstado: 'LIBRE' | 'FUERA_SERVICIO') {
+  toggleServicio(nuevoEstado: 'DISPONIBLE' | 'FUERA_SERVICIO') {
     if (nuevoEstado === 'FUERA_SERVICIO' && (this.hayEnProceso || this.estadoAgente === 'OCUPADO')) {
       alert('No puedes ponerte en fuera de servicio mientras tienes un reporte o tarea en proceso');
       return;
@@ -509,7 +509,7 @@ export class Agente implements OnInit, OnDestroy {
           telefono:  data.telefono || 'N/A',
           foto:      'https://randomuser.me/api/portraits/men/32.jpg'
         };
-        this.estadoAgente = data.estado || 'LIBRE';
+        this.estadoAgente = data.estado || 'DISPONIBLE';
         if (data.placa) this.websocketService.connect(data.placa);
 
         this.agenteService.getTareasAgente().subscribe({

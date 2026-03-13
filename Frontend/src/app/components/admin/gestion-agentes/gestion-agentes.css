@@ -217,7 +217,7 @@
     text-align: center;
 }
 
-.estado.ausente {
+.estado.fuera-de-servicio {
   background: #fef3c7;
   color: #92400e;
     display: inline-block;

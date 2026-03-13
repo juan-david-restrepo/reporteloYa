@@ -60,11 +60,11 @@ export class GestionAgentes implements OnInit, OnDestroy {
 
   /**
    * FORMATEA EL ESTADO PARA CSS
-   * Convierte "FUERA DE SERVICIO" -> "fuera-de-servicio" para evitar problemas de espacios
+   * Convierte "FUERA_SERVICIO" -> "fuera-de-servicio" para evitar problemas de guiones bajos
    */
   getClaseEstado(estado: string | undefined): string {
     if (!estado) return '';
-    return estado.toLowerCase().trim().replace(/\s+/g, '-');
+    return estado.toLowerCase().trim().replace(/_/g, '-').replace(/\s+/g, '-');
   }
 
   // =========================
@@ -97,11 +97,11 @@ export class GestionAgentes implements OnInit, OnDestroy {
     this.websocketService.connect('admin');
 
     this.websocketService.estadosAgentes$.subscribe((estado:any)=>{
-
-      if(this.agente && this.agente.placa === estado.placa){
+      console.log('📡 Estado recibido por WS:', estado);
+      if(this.agente && this.agente.placa?.toUpperCase() === estado.placa?.toUpperCase()){
         this.agente.estado = estado.estado;
+        console.log('✅ Estado actualizado:', estado.estado);
       }
-
     });
 
     this.websocketService.tareaEstado$.subscribe((tarea:any)=>{
