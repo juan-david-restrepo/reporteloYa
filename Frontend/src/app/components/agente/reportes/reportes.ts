@@ -1,10 +1,10 @@
-import { Component, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, OnChanges, OnDestroy, Output, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { Reporte, EstadoReporte } from '../agente';
 import { AgenteServiceTs } from '../../../service/agente.service';
 import { trigger, transition, style, animate } from '@angular/animations';
+import * as L from 'leaflet';
 
 
 @Component({
@@ -25,7 +25,11 @@ import { trigger, transition, style, animate } from '@angular/animations';
     ])
   ]
 })
-export class Reportes implements OnChanges {
+export class Reportes implements OnChanges, OnDestroy {
+
+  private map!: L.Map;
+  private marker!: L.Marker;
+  private markersLayer = L.layerGroup();
 
   // ================================================================
   // reportesScroll: lo que SE MUESTRA en pantalla.
@@ -88,7 +92,7 @@ export class Reportes implements OnChanges {
   // DETALLE
   // ================================
   reporteSeleccionado: Reporte | null = null;
-  mapaUrl: SafeResourceUrl | null = null;
+  tieneCoordenadas = false;
 
   // ================================
   // FILTROS
@@ -101,7 +105,6 @@ export class Reportes implements OnChanges {
   mensajeAlerta: string | null = null;
 
   constructor(
-    private sanitizer: DomSanitizer,
     private agenteService: AgenteServiceTs
   ) {}
 
@@ -313,11 +316,65 @@ export class Reportes implements OnChanges {
   // ================================
   seleccionar(r: Reporte) {
     this.reporteSeleccionado = r;
-    if (r.lat && r.lng) {
-      const url = `https://www.google.com/maps?q=${r.lat},${r.lng}&hl=es&z=16&output=embed`;
-      this.mapaUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
-    } else {
-      this.mapaUrl = null;
+    this.tieneCoordenadas = !!(r.lat && r.lng);
+    
+    setTimeout(() => {
+      this.inicializarMapa(r.lat, r.lng);
+    }, 100);
+  }
+
+  private inicializarMapa(lat: number | undefined, lng: number | undefined) {
+    if (!lat || !lng) return;
+
+    if (this.map) {
+      this.map.remove();
+    }
+
+    const mapContainer = document.getElementById('detalle-mapa');
+    if (!mapContainer) return;
+
+    this.map = L.map('detalle-mapa', { 
+      center: [lat, lng], 
+      zoom: 17,
+      zoomControl: true,
+      dragging: true,
+      scrollWheelZoom: true
+    });
+
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      attribution: ''
+    }).addTo(this.map);
+
+    L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
+      attribution: ''
+    }).addTo(this.map);
+
+    const customIcon = L.divIcon({
+      className: 'custom-marker',
+      html: `<div style="
+        background-color: #ef4444;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        border: 3px solid white;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      "></div>`,
+      iconSize: [24, 24],
+      iconAnchor: [12, 12]
+    });
+
+    this.marker = L.marker([lat, lng], { icon: customIcon, draggable: false })
+      .addTo(this.map)
+      .bindPopup(`<strong>Ubicación del reporte</strong><br>${this.reporteSeleccionado?.direccion || ''}`);
+
+    setTimeout(() => {
+      this.map.invalidateSize();
+    }, 200);
+  }
+
+  ngOnDestroy() {
+    if (this.map) {
+      this.map.remove();
     }
   }
 
@@ -473,12 +530,6 @@ export class Reportes implements OnChanges {
       case 'baja':  return 'prioridad-baja';
       default:      return '';
     }
-  }
-
-  getMapaUrl(r: Reporte): SafeResourceUrl {
-    if (!r.lat || !r.lng) return '';
-    const url = `https://www.google.com/maps?q=${r.lat},${r.lng}&hl=es&z=16&output=embed`;
-    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
   }
 
   getDuracion(r: Reporte) {

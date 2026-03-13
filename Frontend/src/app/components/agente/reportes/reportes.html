@@ -220,7 +220,15 @@
 
   <!-- Mapa -->
   <div class="detalle-mapa">
-    <iframe *ngIf="mapaUrl" [src]="mapaUrl" loading="lazy"></iframe>
+    <div class="mapa-header">
+      <i class="fa-solid fa-location-dot"></i>
+      <span>Ubicación del reporte</span>
+    </div>
+    <div id="detalle-mapa" class="mapa-container"></div>
+    <div *ngIf="!tieneCoordenadas" class="sin-coordenadas">
+      <i class="fa-solid fa-map-location-dot"></i>
+      <span>No hay coordenadas disponibles para este reporte</span>
+    </div>
   </div>
 </div>
 
