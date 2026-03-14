@@ -35,14 +35,14 @@
 
           <div
             class="estado-card"
-            [class.libre]="estadoAgente === 'LIBRE'"
+            [class.disponible]="estadoAgente === 'DISPONIBLE'"
             [class.ocupado]="estadoAgente === 'OCUPADO'"
             [class.off]="estadoAgente === 'FUERA_SERVICIO'"
           >
             <i
               class="fa-solid"
               [ngClass]="{
-                'fa-circle-check': estadoAgente === 'LIBRE',
+                'fa-circle-check': estadoAgente === 'DISPONIBLE',
                 'fa-circle-pause': estadoAgente === 'OCUPADO',
                 'fa-circle-xmark': estadoAgente === 'FUERA_SERVICIO',
               }"
@@ -52,7 +52,7 @@
             <span class="estado-text">
               {{
                 estadoAgente === "FUERA_SERVICIO"
-                  ? "Fuera de servicio"
+                  ? "FUERA_SERVICIO"
                   : estadoAgente === "OCUPADO"
                     ? "Ocupado"
                     : "Disponible"
@@ -94,6 +94,10 @@
     <app-dashboard
       *ngIf="vistaActual === 'dashboard'"
       [estadoAgente]="estadoAgente"
+      [reiniciarCronometro$]="reiniciarCronometroSignal"
+      (irHistorial)="abrirHistorial()"
+      (irReportes)="cambiarVista('reportes')"
+      (irResueltos)="abrirHistorialResueltos()"
     >
     </app-dashboard>
 
@@ -104,6 +108,7 @@
       [reporteInicial]="reporteDesdeHistorial"
       [modoLectura]="reporteDesdeHistorial !== null"
       [origen]="origenDetalle"
+      [puedeAccion]="puedeAceptarReportes"
       (volver)="volverDesdeDetalle($event)"
       (aceptar)="aceptarReporte($event)"
       (rechazar)="rechazarReporte($event)"
@@ -114,6 +119,7 @@
     <app-historial
       *ngIf="vistaActual === 'historial'"
       [historial]="historialReportes"
+      [filtroInicial]="filtroHistorial"
       (verDetalle)="verDetalleHist($event)"
     >
     </app-historial>
@@ -121,6 +127,7 @@
     <app-tareas
       *ngIf="vistaActual === 'tareas'"
       [tareas]="tareasAdmin"
+      [puedeAccion]="puedeComenzarTarea"
       (comenzar)="comenzarTarea($event)"
       (finalizar)="finalizarTarea($event)"
     >
@@ -130,6 +137,7 @@
       *ngIf="vistaActual === 'perfil'"
       [agente]="perfilAgente"
       [estadoAgente]="estadoAgente"
+      [bloquearCambioEstado]="estadoAgente === 'OCUPADO' || hayEnProceso"
       (estadoChange)="toggleServicio($event)"
     >
     </app-perfil-agente>

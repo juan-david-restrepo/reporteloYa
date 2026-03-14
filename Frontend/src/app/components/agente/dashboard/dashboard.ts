@@ -1,21 +1,87 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnInit, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AfterViewInit } from '@angular/core';
 import { Chart, ChartConfiguration } from 'chart.js/auto';
 
 @Component({
- selector: 'app-dashboard',
- standalone: true,
- imports: [FormsModule, CommonModule],
- templateUrl: './dashboard.html',
- styleUrl: './dashboard.css',
+  selector: 'app-dashboard',
+  standalone: true,
+  imports: [FormsModule, CommonModule],
+  templateUrl: './dashboard.html',
+  styleUrl: './dashboard.css',
 })
-export class Dashboard implements AfterViewInit {
+export class Dashboard implements AfterViewInit, OnInit, OnDestroy {
 
-  
+  @Input() estadoAgente!: string;
+  @Input() tiempoActivo: number = 0;
+  private _reiniciarSignal: number = 0;
+  @Input() set reiniciarCronometro$(value: number) {
+    if (value > this._reiniciarSignal) {
+      this._reiniciarSignal = value;
+      this.reiniciar();
+    }
+  }
+    
+  @Output() irHistorial = new EventEmitter<void>();
+  @Output() irReportes = new EventEmitter<void>();
+  @Output() irResueltos = new EventEmitter<void>();
 
- @Input() estadoAgente!:string;
+  private intervalId: any;
+  private readonly STORAGE_KEY = 'agente_tiempo_activo_inicio';
+
+  tiempoFormateado: string = '00:00:00';
+  private tiempoInicial: number = 0;
+
+  ngOnInit() {
+    this.cargarOCrearTiempo();
+    this.iniciarCronometro();
+  }
+
+  ngOnDestroy() {
+    this.detenerCronometro();
+  }
+
+  private cargarOCrearTiempo() {
+    const inicioSesion = localStorage.getItem(this.STORAGE_KEY);
+    
+    if (!inicioSesion) {
+      this.tiempoInicial = Date.now();
+      localStorage.setItem(this.STORAGE_KEY, this.tiempoInicial.toString());
+    } else {
+      this.tiempoInicial = parseInt(inicioSesion, 10);
+    }
+    
+    this.actualizarDisplay();
+  }
+
+  private iniciarCronometro() {
+    this.intervalId = setInterval(() => {
+      this.actualizarDisplay();
+    }, 1000);
+  }
+
+  private actualizarDisplay() {
+    const diff = Math.floor((Date.now() - this.tiempoInicial) / 1000);
+    const horas = Math.floor(diff / 3600);
+    const minutos = Math.floor((diff % 3600) / 60);
+    const segs = diff % 60;
+    
+    this.tiempoFormateado = 
+      `${horas.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}:${segs.toString().padStart(2, '0')}`;
+  }
+
+  private detenerCronometro() {
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+    }
+  }
+
+  reiniciar() {
+    this.tiempoInicial = Date.now();
+    localStorage.setItem(this.STORAGE_KEY, this.tiempoInicial.toString());
+    this.actualizarDisplay();
+  }
 
   chart!: Chart;
    tipoGrafica: 'bar' | 'line' | 'pie' = 'bar';   

@@ -1,16 +1,9 @@
-<div
-  class="admin-container"
-  [class.modal-abierto]="mostrarModal || modalDescripcion"
->
+<div class="admin-container" [class.modal-abierto]="mostrarModal || modalDescripcion">
   <button class="mobile-menu-btn" (click)="menuAbierto = !menuAbierto">
     ☰
   </button>
 
-  <div
-    class="sidebar-overlay"
-    *ngIf="menuAbierto"
-    (click)="menuAbierto = false"
-  ></div>
+  <div class="sidebar-overlay" *ngIf="menuAbierto" (click)="menuAbierto = false"></div>
 
   <app-sidebar-admin [class.active]="menuAbierto"></app-sidebar-admin>
 
@@ -19,11 +12,7 @@
       <h1 class="titulo">Gestión de Agentes de Tránsito</h1>
       <label>Buscar agente por número de placa</label>
       <div class="busqueda">
-        <input
-          type="text"
-          placeholder="Ej: AT-123"
-          [(ngModel)]="placaBuscada"
-        />
+        <input type="text" placeholder="Ej: AT-123" [(ngModel)]="placaBuscada" />
         <button (click)="buscarAgente()">Buscar</button>
       </div>
       <p class="error" *ngIf="error">{{ error }}</p>
@@ -44,13 +33,13 @@
         <p><strong>Nombre:</strong> {{ agente.nombre }}</p>
         <p><strong>Placa:</strong> {{ agente.placa }}</p>
         <p><strong>Documento:</strong> {{ agente.documento }}</p>
-        <p>
-          <strong>Estado actual:</strong>
-          <span class="estado" [ngClass]="agente.estado.toLowerCase()">{{
-            agente.estado
-          }}</span>
-        </p>
         <p><strong>Teléfono:</strong> {{ agente.telefono }}</p>
+        <p class="estado-container">
+          <strong>Estado actual:</strong>
+          <span class="estado" [ngClass]="getClaseEstado(agente.estado)">
+            {{ agente.estado }}
+          </span>
+        </p>
       </div>
     </div>
 
@@ -59,11 +48,10 @@
       <div class="info-grid">
         <div>
           <label>Título</label>
-          <input
-            type="text"
-            [(ngModel)]="titulo"
-            placeholder="Ej: Control de tráfico"
-          />
+          <input type="text" [(ngModel)]="titulo" placeholder="Ej: Control de tráfico" maxlength="20" />
+          <small *ngIf="titulo.length > 0" [style.color]="titulo.length === 20 ? 'red' : 'gray'">
+            {{ titulo.length }}/20
+          </small>
         </div>
 
         <div>
@@ -112,76 +100,52 @@
           <tr class="Info-tarea" *ngFor="let tarea of tareas">
             <td data-label="Título">{{ tarea.titulo }}</td>
             <td data-label="Fecha">{{ tarea.fecha }}</td>
-              
+
             <td data-label="Hora">{{ tarea.hora }}</td>
             <td data-label="Descripción" class="td-descripcion">
               <div class="descripcion-contenido">
                 <span class="descripcion-texto">{{ tarea.descripcion }}</span>
-                <button
-                  *ngIf="tarea.descripcion.length > 5"
-                  class="ver-mas"
-                  (click)="abrirModalDescripcion(tarea.descripcion)"
-                >
+                <button *ngIf="tarea.descripcion.length >=10" class="ver-mas"
+                  (click)="abrirModalDescripcion(tarea.descripcion)">
                   Ver más
                 </button>
               </div>
             </td>
             <td data-label="Estado">
-              <span
-                class="badge-estado"
-                [ngClass]="{
+              <span class="badge-estado" [ngClass]="{
                   'bg-rechazado': tarea.estado === 'RECHAZADO',
                   'bg-proceso': tarea.estado === 'EN PROCESO',
                   'bg-finalizado': tarea.estado === 'FINALIZADO',
                   'bg-pendiente': !tarea.estado || tarea.estado === 'PENDIENTE',
-                }"
-                >{{ tarea.estado || "PENDIENTE" }}</span
-              >
+                }">{{ tarea.estado || "PENDIENTE" }}</span>
             </td>
             <td data-label="Prioridad">
-              <span
-                class="prioridad"
-                [ngClass]="tarea.prioridad.toLowerCase()"
-                >{{ tarea.prioridad }}</span
-              >
+              <span class="prioridad" [ngClass]="tarea.prioridad.toLowerCase()">{{ tarea.prioridad }}</span>
             </td>
             <td data-label="Acción">
-              <button
-                *ngIf="
+              <button *ngIf="
                   tarea.estado !== 'EN PROCESO' && tarea.estado !== 'FINALIZADO'
-                "
-                class="btn-eliminar"
-                (click)="abrirModalEliminar(tarea)"
-              >
+                " class="btn-eliminar" (click)="abrirModalEliminar(tarea)">
                 Eliminar
               </button>
             </td>
           </tr>
         </tbody>
       </table>
-      <p *ngIf="tareas.length === 0">No hay tareas asignadas.</p>
+      <p class="mensaje-vacio" *ngIf="tareas.length === 0">No hay tareas asignadas.</p>
     </div>
 
     <div class="card" *ngIf="agente">
       <div class="header-historial">
         <h2>Historial de Reportes y Tareas</h2>
         <div class="filtros-container">
-          <button
-            [class.activo]="filtroSeleccionado === 'TODOS'"
-            (click)="filtroSeleccionado = 'TODOS'"
-          >
+          <button [class.activo]="filtroSeleccionado === 'TODOS'" (click)="filtroSeleccionado = 'TODOS'">
             Todos
           </button>
-          <button
-            [class.activo]="filtroSeleccionado === 'TAREAS'"
-            (click)="filtroSeleccionado = 'TAREAS'"
-          >
+          <button [class.activo]="filtroSeleccionado === 'TAREAS'" (click)="filtroSeleccionado = 'TAREAS'">
             Tareas Finalizadas
           </button>
-          <button
-            [class.activo]="filtroSeleccionado === 'REPORTES'"
-            (click)="filtroSeleccionado = 'REPORTES'"
-          >
+          <button [class.activo]="filtroSeleccionado === 'REPORTES'" (click)="filtroSeleccionado = 'REPORTES'">
             Reportes
           </button>
         </div>
@@ -211,19 +175,16 @@
             </tr>
           </tbody>
         </table>
-        <p *ngIf="tareasFinalizadas.length === 0">
+        <p class="mensaje-vacio" *ngIf="tareasFinalizadas.length === 0">
           No hay tareas finalizadas para mostrar.
         </p>
       </ng-container>
 
-      <hr
-        class="divisor"
-        *ngIf="
+      <hr class="divisor" *ngIf="
           filtroSeleccionado === 'TODOS' &&
           tareasFinalizadas.length > 0 &&
           reportes.length > 0
-        "
-      />
+        " />
 
       <ng-container *ngIf="filtroSeleccionado !== 'TAREAS'">
         <h3 class="subtitulo-seccion" *ngIf="filtroSeleccionado === 'TODOS'">
@@ -240,14 +201,14 @@
           </thead>
           <tbody>
             <tr *ngFor="let reporte of reportes">
-              <td data-label="Fecha">{{ reporte.fecha }}</td>
-              <td data-label="Hora">{{ reporte.hora }}</td>
-              <td data-label="Ubicación">{{ reporte.ubicacion }}</td>
-              <td data-label="Incidente">{{ reporte.tipoIncidente }}</td>
+              <td data-label="Fecha">{{ reporte.fechaIncidente }}</td>
+              <td data-label="Hora">{{ reporte.horaIncidente }}</td>
+              <td data-label="Ubicación">{{ reporte.direccion }}</td>
+              <td data-label="Incidente">{{ reporte.tipoInfraccion }}</td>
             </tr>
           </tbody>
         </table>
-        <p *ngIf="reportes.length === 0">No hay reportes registrados.</p>
+        <p class="mensaje-vacio" *ngIf="reportes.length === 0">No hay reportes registrados.</p>
       </ng-container>
     </div>
   </div>
@@ -268,11 +229,7 @@
   </div>
 </div>
 
-<div
-  class="modal-backdrop"
-  *ngIf="modalDescripcion"
-  (click)="cerrarModalDescripcion()"
-></div>
+<div class="modal-backdrop" *ngIf="modalDescripcion" (click)="cerrarModalDescripcion()"></div>
 
 <div class="modal-descripcion" *ngIf="modalDescripcion">
   <div class="modal-contenido">

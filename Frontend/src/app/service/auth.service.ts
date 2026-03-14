@@ -47,7 +47,11 @@ export class AuthService {
   register(data: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/register`, data, {
       withCredentials: true,
-    });
+    }).pipe(
+      tap(() => {
+        this.refreshUser().subscribe();
+      }),
+    );
   }
 
   logout(): Observable<any> {
@@ -59,6 +63,7 @@ export class AuthService {
         }),
       );
   }
+  
 
   // =========================
   // REFRESCAR USUARIO DESDE COOKIE (/me)

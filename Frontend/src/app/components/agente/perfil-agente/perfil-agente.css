@@ -34,6 +34,11 @@
   height: 28px;
 }
 
+input.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .switch input {
   opacity: 0;
   width: 0;
@@ -132,7 +137,7 @@ input:checked + .slider:before {
 
 /*Estados*/
 
-.estado-badge.libre {
+.estado-badge.disponible {
   background: #16a34a;
 }
 .estado-badge.ocupado {

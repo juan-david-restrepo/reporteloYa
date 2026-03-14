@@ -21,9 +21,10 @@ export class PerfilAgente {
  correo:string;
 };
 
-  @Input() estadoAgente!: 'LIBRE'|'OCUPADO'|'FUERA_SERVICIO';
+  @Input() estadoAgente!: 'DISPONIBLE'|'OCUPADO'|'FUERA_SERVICIO';
+  @Input() bloquearCambioEstado: boolean = false;
 
-  @Output() estadoChange = new EventEmitter<'LIBRE'|'FUERA_SERVICIO'>();
+  @Output() estadoChange = new EventEmitter<'DISPONIBLE'|'FUERA_SERVICIO'>();
 
 
   cambiarEstado(event: any){
@@ -37,7 +38,7 @@ export class PerfilAgente {
     const activo = event.target.checked;
 
     if (activo) {
-      this.estadoChange.emit('LIBRE');
+      this.estadoChange.emit('DISPONIBLE');
     } else {
       this.estadoChange.emit('FUERA_SERVICIO');
     }

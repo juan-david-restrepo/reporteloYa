@@ -94,7 +94,7 @@ public class AuthController {
 
         ResponseCookie cookie = ResponseCookie.from("jwt", "")
                 .httpOnly(true)
-                .secure(false) // true en producción
+                .secure(true) // true en producción
                 .path("/")
                 .maxAge(0)
                 .sameSite("Lax")
@@ -106,27 +106,27 @@ public class AuthController {
     }
 
 
+            // =========================
+        // GET CURRENT USER
         // =========================
-    // GET CURRENT USER
-    // =========================
-    @GetMapping("/me")
-    public ResponseEntity<?> getCurrentUser() {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        @GetMapping("/me")
+        public ResponseEntity<?> getCurrentUser() {
+            var authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            if (authentication == null || !authentication.isAuthenticated()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+
+            Usuario usuario = (Usuario) authentication.getPrincipal();
+
+            return ResponseEntity.ok(
+                    AuthResponse.builder()
+                            .userId(usuario.getId())
+                            .email(usuario.getEmail())
+                            .role(usuario.getRole())
+                            .build()
+            );
         }
-
-        Usuario usuario = (Usuario) authentication.getPrincipal();
-
-        return ResponseEntity.ok(
-                AuthResponse.builder()
-                        .userId(usuario.getId())
-                        .email(usuario.getEmail())
-                        .role(usuario.getRole())
-                        .build()
-        );
-    }
 
     // =========================
     // COOKIE HELPER
@@ -134,7 +134,7 @@ public class AuthController {
     private void setJwtCookie(HttpServletResponse response, String token) {
         ResponseCookie cookie = ResponseCookie.from("jwt", token)
                 .httpOnly(true)
-                .secure(false) // true en producción con HTTPS
+                .secure(true) // true en producción con HTTPS
                 .path("/")
                 .maxAge(20 * 60) // 20 minutos
                 .sameSite("Lax")

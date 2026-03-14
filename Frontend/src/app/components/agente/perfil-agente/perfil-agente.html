@@ -8,6 +8,7 @@
       <label class="switch">
         <input type="checkbox"
           [checked]="estadoAgente !== 'FUERA_SERVICIO'"
+          [disabled]="bloquearCambioEstado"
           (change)="toggleServicio($event)">
         
         <span class="slider"></span>
@@ -15,7 +16,7 @@
 
       <span class="switch-label">
         {{ estadoAgente === 'FUERA_SERVICIO'
-          ? 'Fuera de servicio'
+          ? 'FUERA_SERVICIO'
           : 'En servicio' }}
       </span>
 
@@ -35,11 +36,11 @@
       <h3 class="ciudad">{{agente?.placa}}</h3>
 
       <span class="estado-badge"
-        [class.libre]="estadoAgente === 'LIBRE'"
+        [class.disponible]="estadoAgente === 'DISPONIBLE'"
         [class.ocupado]="estadoAgente === 'OCUPADO'"
         [class.off]="estadoAgente === 'FUERA_SERVICIO'">
          {{ estadoAgente === 'FUERA_SERVICIO'
-          ? 'Fuera de servicio'
+          ? 'FUERA_SERVICIO'
           : estadoAgente === 'OCUPADO'
             ? 'Ocupado'
             : 'Disponible' }}

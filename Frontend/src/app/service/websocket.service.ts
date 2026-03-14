@@ -10,21 +10,22 @@ export class WebsocketService {
 
   private stompClient!: Client;
 
-  /** Subjects para emitir tareas y reportes a los componentes interesados */
-
+  // Subjects existentes
   private tareasSubject = new Subject<any>();
   public tareas$ = this.tareasSubject.asObservable();
 
   private reportesSubject = new Subject<any>();
   public reportes$ = this.reportesSubject.asObservable();
 
-  /* para manejar el tema de los estados del agente */
   private estadosAgentesSubject = new Subject<any>();
   public estadosAgentes$ = this.estadosAgentesSubject.asObservable();
 
-  /* para actualizar el estado de la tarea */
   private tareaEstadoSubject = new Subject<any>();
   public tareaEstado$ = this.tareaEstadoSubject.asObservable();
+
+  // ✅ NUEVO: Subject para recibir reportes asignados como compañero
+  private reporteAsignadoSubject = new Subject<any>();
+  public reporteAsignado$ = this.reporteAsignadoSubject.asObservable();
 
   connect(placa: string) {
 
@@ -37,49 +38,48 @@ export class WebsocketService {
 
     this.stompClient.onConnect = () => {
 
-      console.log('Conectado al WebSocket');
+      console.log('✅ WebSocket conectado');
 
-      /** 🔔 Suscripción a reportes (para el admin o dashboard) */
+      
+
+      // Reportes globales (nuevos y actualizaciones de estado)
       this.stompClient.subscribe('/topic/reportes', (msg) => {
-
-        console.log("Reporte recibido:", msg.body);
-
         const reporte = JSON.parse(msg.body);
-
         this.reportesSubject.next(reporte);
-
       });
 
-      /** 📌 Suscripción a tareas específicas del agente */
+      // Tareas específicas del agente
       this.stompClient.subscribe(`/topic/tareas/${placa}`, (msg) => {
-
-        console.log("Nueva tarea recibida:", msg.body);
-
         const tarea = JSON.parse(msg.body);
-
         this.tareasSubject.next(tarea);
-
       });
 
+      // Estado de agentes (para el mapa del admin)
       this.stompClient.subscribe('/topic/estado-agentes', (msg) => {
-
         const estado = JSON.parse(msg.body);
-
-        console.log("Estado agente:", estado);
-
         this.estadosAgentesSubject.next(estado);
-
       });
 
+      // Actualización de estado de tarea
       this.stompClient.subscribe('/topic/tarea-estado', (msg) => {
-
         const tarea = JSON.parse(msg.body);
-
-        console.log("Estado tarea actualizado:", tarea);
-
         this.tareaEstadoSubject.next(tarea);
-
       });
+
+      // ✅ NUEVO: Canal personal del agente para recibir reportes como compañero
+      this.stompClient.subscribe(`/topic/reporte-asignado/${placa}`, (msg) => {
+        const reporte = JSON.parse(msg.body);
+        console.log('📌 Reporte asignado como compañero:', reporte);
+        this.reporteAsignadoSubject.next(reporte);
+      });
+
+       this.stompClient.subscribe('/topic/reportes', (message) => {
+         const reporte = JSON.parse(message.body);
+
+         console.log('Reporte recibido:', reporte);
+
+         this.reportesSubject.next(reporte);
+       });
 
     };
 
@@ -89,8 +89,7 @@ export class WebsocketService {
   disconnect() {
     if (this.stompClient) {
       this.stompClient.deactivate();
-      console.log("WebSocket desconectado");
+      console.log('WebSocket desconectado');
     }
   }
-
 }

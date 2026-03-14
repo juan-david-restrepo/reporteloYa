@@ -26,6 +26,11 @@
   gap: 14px;
 }
 
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .hora{
   display: flex;
   flex-direction: row;
@@ -72,7 +77,7 @@ h3 {
   background-color: #5fe671;
   color: rgb(48, 47, 47);
   border-radius: 12px;
-  width: 140px;
+  width: 100%;
   border: none;
   height: 35px; 
   margin-top: 10px;
@@ -157,6 +162,7 @@ h3 {
   display: flex;
   flex-direction: row;
   gap: 10px;
+  width: 100%;
 }
 
 .info-label {
@@ -255,11 +261,14 @@ h3 {
 ========================= */
 
 .detalle-header,
-.orden-box,
 .btn-accion {
   max-width: 700px;
   margin-left: auto;
   margin-right: auto;
+}
+
+.orden-box{
+  width: 100%;
 }
 
 /* =========================
@@ -304,6 +313,7 @@ h3 {
 .estado.proceso {
   background: #dbeafe;
   color: #1e3a8a;
+  width: 100%;
 }
 
 .estado.ok {
@@ -414,6 +424,20 @@ h3 {
 
 .resumen-box p {
   background: white;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  color: #374151;
+  max-height: 120px;
+  overflow-y: auto;
+  word-break: break-word;
+}
+
+.resumen-lectura {
+  max-height: 120px;
+  overflow-y: auto;
+  word-break: break-word;
+  background: #f8fafc;
   padding: 12px;
   border-radius: 10px;
   border: 1px solid #cbd5e1;
@@ -542,11 +566,11 @@ h3 {
   animation: fadeSlide .3s ease;
 }
 
-.info-actual,
 .info-tarea {
   display: flex;
   gap: 10px;
-  flex-wrap: wrap;
+  flex-direction: row;
+  width: 100%;
 }
 
 .info-box {
@@ -570,9 +594,6 @@ h3 {
   box-shadow: 0 20px 45px rgba(34,197,94,.25);
 }
 
-.estado-final{
-  margin-left: 20px;
-}
 
 
 @media (max-width: 480px) {

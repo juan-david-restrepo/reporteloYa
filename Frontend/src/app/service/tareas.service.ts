@@ -16,7 +16,7 @@ export class TareasService {
   }
 
   asignarTarea(placa: string, tarea: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/${placa}/tareas`, tarea, { withCredentials: true });
+    return this.http.post(`${this.apiUrl}/${placa}/tareas`, tarea, { withCredentials: true, responseType: 'text' });
   }
 
   eliminarTarea(idTarea: number): Observable<any> {
