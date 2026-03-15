@@ -12,6 +12,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.reporteloya.backend.dto.AgenteDisponibleDTO;
 import com.reporteloya.backend.dto.ReporteSocketDTO;
+import com.reporteloya.backend.dto.EstadisticasDashboardDTO;
+import com.reporteloya.backend.dto.EstadisticasCompletasDTO;
 import com.reporteloya.backend.entity.Reporte;
 import com.reporteloya.backend.service.ReporteService;
 
@@ -206,6 +208,41 @@ public class ReporteController {
             @RequestParam(defaultValue = "6") int size) {
 
         return reporteService.obtenerReportes(prioridad, page, size);
+    }
+
+    // ================================
+    // ESTADÍSTICAS PARA DASHBOARD DEL AGENTE
+    // ================================
+    @GetMapping("/estadisticas")
+    public ResponseEntity<?> obtenerEstadisticasDashboard(
+            @RequestParam(required = false) String fechaInicio,
+            @RequestParam(required = false) String fechaFin) {
+
+        try {
+            return ResponseEntity.ok(
+                reporteService.obtenerEstadisticasDashboard(fechaInicio, fechaFin)
+            );
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    // ================================
+    // ESTADÍSTICAS COMPLETAS (TARJETAS + GRÁFICAS)
+    // ================================
+    @GetMapping("/estadisticas-completas")
+    public ResponseEntity<?> obtenerEstadisticasCompletas(
+            @RequestParam(required = false) String fechaInicio,
+            @RequestParam(required = false) String fechaFin,
+            Authentication authentication) {
+
+        try {
+            return ResponseEntity.ok(
+                reporteService.obtenerEstadisticasCompletas(authentication.getName(), fechaInicio, fechaFin)
+            );
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @GetMapping("/debug")

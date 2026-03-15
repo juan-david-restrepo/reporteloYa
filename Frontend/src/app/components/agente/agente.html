@@ -95,9 +95,12 @@
       *ngIf="vistaActual === 'dashboard'"
       [estadoAgente]="estadoAgente"
       [reiniciarCronometro$]="reiniciarCronometroSignal"
+      [tareas]="tareasAdmin"
       (irHistorial)="abrirHistorial()"
       (irReportes)="cambiarVista('reportes')"
       (irResueltos)="abrirHistorialResueltos()"
+      (irRechazados)="abrirHistorialRechazados()"
+      (irActividad)="navegarAActividad($event)"
     >
     </app-dashboard>
 
@@ -128,6 +131,7 @@
       *ngIf="vistaActual === 'tareas'"
       [tareas]="tareasAdmin"
       [puedeAccion]="puedeComenzarTarea"
+      [filtroInicial]="filtroTareas"
       (comenzar)="comenzarTarea($event)"
       (finalizar)="finalizarTarea($event)"
     >

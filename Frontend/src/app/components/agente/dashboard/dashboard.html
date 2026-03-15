@@ -11,24 +11,15 @@
 
       <!-- FILTROS -->
       <div class="chart-filtros">
-        <button
-          (click)="cambiarModoGrafica('SEMANA')"
-          [class.active]="modoGrafica === 'SEMANA'"
-        >
+        <button (click)="cambiarModoGrafica('SEMANA')" [class.active]="modoGrafica === 'SEMANA'">
           Semana
         </button>
 
-        <button
-          (click)="cambiarModoGrafica('ANIO')"
-          [class.active]="modoGrafica === 'ANIO'"
-        >
+        <button (click)="cambiarModoGrafica('ANIO')" [class.active]="modoGrafica === 'ANIO'">
           Año
         </button>
 
-        <button
-          (click)="cambiarModoGrafica('DIA')"
-          [class.active]="modoGrafica === 'DIA'"
-        >
+        <button (click)="cambiarModoGrafica('DIA')" [class.active]="modoGrafica === 'DIA'">
           Día
         </button>
       </div>
@@ -40,60 +31,70 @@
     </div>
 
     <!-- ================= TARJETAS ================= -->
+    <!-- Las tarjetas se actualizan con los filtros de fecha (fechaInicio/fechaFin) -->
     <div class="dashboard-cards mt-4">
-      <div class="dash-card" (click)="irHistorial.emit()">
+      <!-- Reportes hoy: reportes que han llegado en el día -->
+      <div class="dash-card" (click)="irReportes.emit()">
         <div class="icono-titulo">
-          <i class="fa-solid fa-camera"></i>
+          <i class="fa-solid fa-bell"></i>
           <span>Reportes hoy</span>
         </div>
-        <h2>12</h2>
+        <!-- Reportes que han llegado hoy (datos reales desde el backend) -->
+        <h2>{{ reportesHoy }}</h2>
       </div>
 
+      <!-- Pendientes: reportes en estado pendiente -->
       <div class="dash-card" (click)="irReportes.emit()">
         <div class="icono-titulo">
           <i class="fa-solid fa-clock"></i>
           <span>Pendientes</span>
         </div>
-        <h2>4</h2>
+        <!-- Reportes pendientes (datos reales desde el backend) -->
+        <h2>{{ reportesPendientes }}</h2>
       </div>
 
+      <!-- Resueltos: reportes finalizados en el rango de fechas -->
       <div class="dash-card" (click)="irResueltos.emit()">
         <div class="icono-titulo">
           <i class="fa-solid fa-check-circle"></i>
           <span>Resueltos</span>
         </div>
-        <h2>8</h2>
+        <!-- Total de reportes resueltos (datos reales desde el backend) -->
+        <h2>{{ reportesResueltos }}</h2>
       </div>
 
+      <!-- Rechazados: reportes rechazados en el rango de fechas -->
+      <div class="dash-card" (click)="irRechazados.emit()">
+        <div class="icono-titulo">
+          <i class="fa-solid fa-times-circle"></i>
+          <span>Rechazados</span>
+        </div>
+        <!-- Total de reportes rechazados (datos reales desde el backend) -->
+        <h2>{{ reportesRechazados }}</h2>
+      </div>
+
+      <!-- Tiempo activo: tiempo de sesión del agente -->
       <div class="dash-card">
         <div class="icono-titulo">
           <i class="fa-solid fa-stopwatch"></i>
           <span>Tiempo activo</span>
         </div>
+        <!-- Tiempo de sesión del agente (cronómetro real) -->
         <h2>{{ tiempoFormateado }}</h2>
       </div>
     </div>
 
     <!-- ================= BOTONES TIPO GRAFICA ================= -->
     <div class="botones-grafica">
-      <button
-        (click)="cambiarTipoGrafica('bar')"
-        [class.activo]="tipoGrafica === 'bar'"
-      >
+      <button (click)="cambiarTipoGrafica('bar')" [class.activo]="tipoGrafica === 'bar'">
         Barras
       </button>
 
-      <button
-        (click)="cambiarTipoGrafica('line')"
-        [class.activo]="tipoGrafica === 'line'"
-      >
+      <button (click)="cambiarTipoGrafica('line')" [class.activo]="tipoGrafica === 'line'">
         Línea
       </button>
 
-      <button
-        (click)="cambiarTipoGrafica('pie')"
-        [class.activo]="tipoGrafica === 'pie'"
-      >
+      <button (click)="cambiarTipoGrafica('pie')" [class.activo]="tipoGrafica === 'pie'">
         Pastel
       </button>
     </div>
@@ -107,29 +108,36 @@
     <div class="actividad-card">
       <div class="actividad-header">
         <h3>Actividad reciente</h3>
-        <span class="contador">2 nuevos</span>
+        <!-- Contador de actividades -->
+        <span class="contador">Últimas 3</span>
       </div>
 
+      <!-- Lista de actividad reciente (datos reales desde el backend) -->
       <div class="actividad-lista">
-        <div class="actividad-item">
-          <div class="actividad-icon success">
-            <i class="fa-solid fa-check"></i>
+        <!-- Si hay actividad, mostrarla; si no, mostrar mensaje -->
+        <ng-container *ngIf="actividadReciente.length > 0; else sinActividad">
+          <div class="actividad-item" *ngFor="let item of actividadReciente" (click)="navegarAActividad(item)">
+            <!-- Icono según tipo: R verde para reportes, T amarillo para tareas -->
+            <div class="actividad-icon-reporte" *ngIf="item.tipo === 'Reporte completado'">
+              <span class="icono-letra">R</span>
+            </div>
+            <div class="actividad-icon-tarea" *ngIf="item.tipo === 'Tarea completada'">
+              <span class="icono-letra">T</span>
+            </div>
+            <div class="actividad-info">
+              <h4>{{ item.tipo }}</h4>
+              <p>{{ item.texto }} • {{ item.hora }}</p>
+            </div>
           </div>
-          <div class="actividad-info">
-            <h4>Reporte aceptado</h4>
-            <p>Carrera 15 • Hace 5 minutos</p>
+        </ng-container>
+        <!-- Template alternativo cuando no hay actividad -->
+        <ng-template #sinActividad>
+          <div class="actividad-item">
+            <div class="actividad-info">
+              <p>No hay actividad reciente</p>
+            </div>
           </div>
-        </div>
-
-        <div class="actividad-item">
-          <div class="actividad-icon pending">
-            <i class="fa-solid fa-clock"></i>
-          </div>
-          <div class="actividad-info">
-            <h4>Tarea en proceso</h4>
-            <p>Control vehicular • Hace 12 minutos</p>
-          </div>
-        </div>
+        </ng-template>
       </div>
     </div>
   </div>
