@@ -342,13 +342,51 @@ p {
 
 /* =========================
    MAPA
-========================= */
+ ========================= */
 
 .detalle-mapa {
   margin-top: 20px;
   border-radius: 24px;
   overflow: hidden;
   box-shadow: 0 8px 25px rgba(0,0,0,.1);
+  background: var(--card);
+}
+
+.mapa-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 20px;
+  background: var(--card);
+  color: var(--text);
+  border-bottom: 1px solid rgba(0,0,0,.05);
+  font-weight: 600;
+}
+
+.mapa-header i {
+  color: #ef4444;
+}
+
+.mapa-container {
+  width: 100%;
+  height: 360px;
+  border: none;
+}
+
+.sin-coordenadas {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 60px 20px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.sin-coordenadas i {
+  font-size: 48px;
+  color: #cbd5e1;
 }
 
 .detalle-mapa iframe {
@@ -356,16 +394,6 @@ p {
   height: 360px;
   border: none;
   pointer-events: none;
-}
-
-.detalle-mapa::before {
-  content: "Ubicación del reporte";
-  display: block;
-  background: var(--card);
-  color: var(--text);
-  border-bottom: 1px solid rgba(0,0,0,.05);
-  padding: 10px 16px;
-  font-weight: 600;
 }
 
 /* =========================
@@ -781,6 +809,10 @@ small{
   .detalle-mapa iframe {
     height: 300px;
   }
+
+  .mapa-container {
+    height: 280px;
+  }
 }
 
 /* =========================================
@@ -866,6 +898,10 @@ small{
 
   /* Mapa */
   .detalle-mapa iframe {
+    height: 220px;
+  }
+
+  .mapa-container {
     height: 220px;
   }
 

@@ -98,6 +98,23 @@ export class Agente implements OnInit, OnDestroy {
     this.vistaActual = 'historial';
   }
 
+  abrirHistorialRechazados() {
+    this.filtroHistorial = 'RECHAZADOS';
+    this.vistaActual = 'historial';
+  }
+
+  navegarAActividad(evento: { tipo: string; id: number }) {
+    if (evento.tipo === 'Reporte completado') {
+      const reporte = this.historialReportes.find(r => r.id === evento.id);
+      if (reporte) {
+        this.verDetalleHist(reporte);
+      }
+    } else if (evento.tipo === 'Tarea completada') {
+      this.filtroTareas = 'HECHAS';
+      this.cambiarVista('tareas');
+    }
+  }
+
   EstadoReporte = EstadoReporte;
   reporteDesdeHistorial: Reporte | null = null;
   origenDetalle: 'historial' | 'reportes' = 'reportes';
@@ -122,6 +139,7 @@ export class Agente implements OnInit, OnDestroy {
   reportesEntrantes: Reporte[] = [];
 
   tareasAdmin: Tarea[] = [];
+  filtroTareas: 'PENDIENTES' | 'HECHAS' | 'TODAS' = 'PENDIENTES';
   notificaciones: Notificacion[] = [];
 
   perfilAgente: {
@@ -455,6 +473,9 @@ export class Agente implements OnInit, OnDestroy {
     this.vistaActual           = v;
     this.reporteDesdeHistorial = null;
     this.origenDetalle         = 'reportes';
+    if (v !== 'tareas' || this.filtroTareas !== 'HECHAS') {
+      this.filtroTareas = 'PENDIENTES';
+    }
     if (v === 'historial') this.cargarHistorialDesdeBD();
     if (v === 'perfil') this.cargarPerfilDesdeBD();
   }
@@ -517,7 +538,9 @@ export class Agente implements OnInit, OnDestroy {
             this.tareasAdmin = tareas.map(t => ({
               id: t.id, titulo: t.titulo, descripcion: t.descripcion,
               admin: 'Administrador', estado: t.estado,
-              hora: t.hora, fecha: t.fecha, prioridad: t.prioridad
+              hora: t.hora, fecha: t.fecha, prioridad: t.prioridad,
+              fechaInicio: t.fechaInicio ? new Date(t.fechaInicio) : undefined,
+              fechaFin: t.fechaFin ? new Date(t.fechaFin) : undefined
             }));
           },
           error: (err) => { if (err.status === 401) this.router.navigate(['/login']); }
@@ -557,7 +580,9 @@ export class Agente implements OnInit, OnDestroy {
       const t: Tarea = {
         id: tb.id, titulo: tb.titulo, descripcion: tb.descripcion,
         admin: 'Administrador', estado: tb.estado,
-        hora: tb.hora, fecha: tb.fecha, prioridad: tb.prioridad
+        hora: tb.hora, fecha: tb.fecha, prioridad: tb.prioridad,
+        fechaInicio: tb.fechaInicio ? new Date(tb.fechaInicio) : undefined,
+        fechaFin: tb.fechaFin ? new Date(tb.fechaFin) : undefined
       };
       this.tareasAdmin.unshift(t);
       this.notificaciones.unshift({
