@@ -138,7 +138,9 @@ public class ReporteService {
         Reporte guardado = reporteRepository.save(reporte);
         guardarEvidencias(archivos, guardado);
 
-        ReporteSocketDTO dto = convertirADTO(guardado);
+        // Recargar para obtener las evidencias asociadas
+        Reporte reporteCompleto = reporteRepository.findById(guardado.getId()).orElse(guardado);
+        ReporteSocketDTO dto = convertirADTO(reporteCompleto);
         messagingTemplate.convertAndSend("/topic/reportes", dto);
 
         return guardado;

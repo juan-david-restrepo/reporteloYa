@@ -12,6 +12,11 @@ export interface Usuario {
   telefono: string;
   placa?: string;
   estado: 'DISPONIBLE' | 'OCUPADO' | 'FUERA_SERVICIO';
+  foto?: string;
+  resumenProfesional1?: string;
+  resumenProfesional2?: string;
+  resumenProfesional3?: string;
+  resumenProfesional4?: string;
 }
 
 //  NUEVO: DTO que devuelve el backend al buscar compañero
@@ -36,6 +41,28 @@ export class AgenteServiceTs {
   // =============================
   getPerfil(): Observable<Usuario> {
     return this.http.get<Usuario>(`${this.apiAgente}/perfil`, {
+      withCredentials: true
+    });
+  }
+
+  actualizarPerfil(datos: {
+    placa?: string;
+    telefono?: string;
+    nombre?: string;
+    documento?: string;
+    correo?: string;
+    resumenProfesional1?: string;
+    resumenProfesional2?: string;
+    resumenProfesional3?: string;
+    resumenProfesional4?: string;
+  }): Observable<any> {
+    return this.http.put(`${this.apiAgente}/perfil`, datos, {
+      withCredentials: true
+    });
+  }
+
+  actualizarFotoPerfil(foto: string): Observable<any> {
+    return this.http.put(`${this.apiAgente}/perfil/foto`, { foto }, {
       withCredentials: true
     });
   }

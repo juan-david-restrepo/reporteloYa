@@ -44,6 +44,7 @@ export interface Reporte {
   acompanado?: boolean;
   placaCompanero?: string;
   nombreCompanero?: string;
+  placaAgente?: string;
   esCompanero?: boolean;
 }
 
@@ -66,6 +67,7 @@ export interface Notificacion {
   texto: string;
   hora: string;
   data?: any;
+  leida: boolean;
 }
 
 type VistaAgente =
@@ -145,6 +147,10 @@ export class Agente implements OnInit, OnDestroy {
   perfilAgente: {
     nombre: string; placa: string; documento: string;
     telefono: string; correo: string; foto: string;
+    resumenProfesional1?: string;
+    resumenProfesional2?: string;
+    resumenProfesional3?: string;
+    resumenProfesional4?: string;
   } = {
     nombre: '', placa: '', documento: '',
     telefono: '', correo: '', foto: ''
@@ -368,6 +374,10 @@ export class Agente implements OnInit, OnDestroy {
   // MAPEO BACKEND → Reporte
   // ================================
   _mapearReporte(r: any): Reporte {
+    const placaActual = this.perfilAgente.placa?.toUpperCase() || '';
+    const placaCompanero = r.placaCompanero?.toUpperCase() || '';
+    const placaAgente = r.placaAgente?.toUpperCase() || '';
+    
     return {
       id:               r.id,
       tipoInfraccion:   r.tipoInfraccion,
@@ -388,7 +398,9 @@ export class Agente implements OnInit, OnDestroy {
       resumenOperativo: r.resumenOperativo,
       acompanado:       r.acompanado ?? false,
       placaCompanero:   r.placaCompanero,
-      nombreCompanero:  r.nombreCompanero
+      nombreCompanero:  r.nombreCompanero,
+      placaAgente:      r.placaAgente,
+      esCompanero:      r.acompanado && placaCompanero === placaActual && placaAgente !== placaActual
     };
   }
 
@@ -398,6 +410,8 @@ export class Agente implements OnInit, OnDestroy {
   private _manejarReporteWebSocket(rb: any) {
     const nuevo = this._mapearReporte(rb);
     const idx   = this.reportesEntrantes.findIndex(r => r.id === nuevo.id);
+
+    console.log('🔍 Procesando reporte:', nuevo.estado, 'idx:', idx, 'id:', nuevo.id);
 
     switch (nuevo.estado) {
 
@@ -419,15 +433,19 @@ export class Agente implements OnInit, OnDestroy {
         break;
 
       case EstadoReporte.PENDIENTE:
+        console.log('📝 Es PENDIENTE, idx:', idx);
         // Reporte nuevo
         if (idx === -1) {
+          console.log('➕ Agregando reporte y creando notificación');
           this.reportesEntrantes.unshift(nuevo);
           this.notificaciones.unshift({
             tipo:  'REPORTE',
             texto: `Nuevo reporte en ${nuevo.direccion}`,
             hora:  new Date().toLocaleTimeString(),
-            data:  nuevo
+            data:  nuevo,
+            leida: false
           });
+          this._ordenarNotificaciones();
         }
         break;
     }
@@ -485,9 +503,28 @@ export class Agente implements OnInit, OnDestroy {
     this.vistaActual           = origen;
   }
 
-  toggleNotificaciones() { this.mostrarNotificaciones = !this.mostrarNotificaciones; }
+  toggleNotificaciones() {
+    if (!this.mostrarNotificaciones) {
+      this.notificaciones.forEach(n => n.leida = true);
+    }
+    this.mostrarNotificaciones = !this.mostrarNotificaciones;
+  }
+
+  get notificacionesNoLeidas(): number {
+    return this.notificaciones.filter(n => !n.leida).length;
+  }
+
+  private _ordenarNotificaciones() {
+    this.notificaciones.sort((a, b) => {
+      if (a.leida !== b.leida) return a.leida ? 1 : -1;
+      if (a.tipo === 'TAREA' && b.tipo !== 'TAREA') return -1;
+      if (a.tipo !== 'TAREA' && b.tipo === 'TAREA') return 1;
+      return 0;
+    });
+  }
 
   abrirNotif(n: any) {
+    n.leida = true;
     if (n.tipo === 'REPORTE') this.vistaActual = 'reportes';
     if (n.tipo === 'TAREA')   this.vistaActual = 'tareas';
     this.mostrarNotificaciones = false;
@@ -528,7 +565,11 @@ export class Agente implements OnInit, OnDestroy {
           correo:    data.email,
           placa:     data.placa || 'N/A',
           telefono:  data.telefono || 'N/A',
-          foto:      'https://randomuser.me/api/portraits/men/32.jpg'
+          foto:      data.foto || 'https://randomuser.me/api/portraits/men/32.jpg',
+          resumenProfesional1: data.resumenProfesional1 || '',
+          resumenProfesional2: data.resumenProfesional2 || '',
+          resumenProfesional3: data.resumenProfesional3 || '',
+          resumenProfesional4: data.resumenProfesional4 || ''
         };
         this.estadoAgente = data.estado || 'DISPONIBLE';
         if (data.placa) this.websocketService.connect(data.placa);
@@ -558,7 +599,10 @@ export class Agente implements OnInit, OnDestroy {
     this.cargarHistorialDesdeBD();
 
     // 3. WS — cambios de estado de reportes
-    this.websocketService.reportes$.subscribe((rb: any) => this._manejarReporteWebSocket(rb));
+    this.websocketService.reportes$.subscribe((rb: any) => {
+      console.log('📥 WS: Reporte recibido en agente:', rb.estado, rb.direccion);
+      this._manejarReporteWebSocket(rb);
+    });
 
     // 4. WS — asignado como compañero
     this.websocketService.reporteAsignado$.subscribe((rb: any) => {
@@ -570,8 +614,9 @@ export class Agente implements OnInit, OnDestroy {
         this.notificaciones.unshift({
           tipo:  'REPORTE',
           texto: `Fuiste asignado como compañero en: ${r.direccion}`,
-          hora:  new Date().toLocaleTimeString(), data: r
+          hora:  new Date().toLocaleTimeString(), data: r, leida: false
         });
+        this._ordenarNotificaciones();
       }
     });
 
@@ -587,8 +632,9 @@ export class Agente implements OnInit, OnDestroy {
       this.tareasAdmin.unshift(t);
       this.notificaciones.unshift({
         tipo: 'TAREA', texto: `Nueva tarea: ${t.titulo}`,
-        hora: new Date().toLocaleTimeString(), data: t
+        hora: new Date().toLocaleTimeString(), data: t, leida: false
       });
+      this._ordenarNotificaciones();
     });
   }
 

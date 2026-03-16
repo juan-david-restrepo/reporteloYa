@@ -111,9 +111,18 @@ input:checked + .slider:before {
   background: #e5e7eb;
 }
 
+.header-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
 .header-info h2 {
   margin: 0;
   font-size: 26px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .rango {
@@ -124,8 +133,12 @@ input:checked + .slider:before {
 .ciudad {
   font-size: 13px;
   opacity: 0.8;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
+/* ESTADO BADGE */
 .estado-badge {
   display: inline-block;
   margin-top: 10px;
@@ -177,6 +190,157 @@ color: rgb(73, 73, 73);
   align-items: center;
   position: relative;
   z-index: 10;
+}
+
+/* BOTONES DE EDICIÓN */
+.btn-edit {
+  background: rgba(255,255,255,0.2);
+  border: none;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-left: 8px;
+  transition: 0.2s;
+}
+
+.btn-edit:hover {
+  background: rgba(255,255,255,0.4);
+}
+
+.btn-edit-small {
+  background: #e2e8f0;
+  border: none;
+  color: #64748b;
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  margin-left: 6px;
+  transition: 0.2s;
+}
+
+.btn-edit-small:hover {
+  background: #cbd5e1;
+  color: #334155;
+}
+
+/* EDICIÓN EN LÍNEA */
+.edit-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.edit-input {
+  padding: 6px 10px;
+  border: 2px solid #3b82f6;
+  border-radius: 8px;
+  font-size: 14px;
+  width: 150px;
+}
+
+.edit-input:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+.btn-save {
+  background: #22c55e;
+  border: none;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.btn-save:hover {
+  background: #16a34a;
+}
+
+.btn-save:disabled {
+  background: #86efac;
+  cursor: not-allowed;
+}
+
+.btn-cancel {
+  background: #ef4444;
+  border: none;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.btn-cancel:hover {
+  background: #dc2626;
+}
+
+/* INFO ROW */
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-value-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* RESUMEN PROFESIONAL */
+.no-resumen {
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.edit-resumen {
+  margin-top: 10px;
+}
+
+.edit-textarea {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid #3b82f6;
+  border-radius: 8px;
+  font-size: 14px;
+  resize: none;
+  height: 60px;
+  font-family: inherit;
+}
+
+.edit-textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+.contador {
+  text-align: right;
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+.edit-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.edit-buttons .btn-save,
+.edit-buttons .btn-cancel {
+  padding: 8px 14px;
+  font-size: 13px;
 }
 
 
