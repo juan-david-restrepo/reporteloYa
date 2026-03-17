@@ -729,27 +729,10 @@ public class ReporteService {
 
         List<EstadisticaGraficaDTO.StatItem> result = new ArrayList<>();
         for (String etiqueta : etiquetasDefault) {
-            result.add(new EstadisticasCompletasDTO.StatItem(etiqueta, mapa.getOrDefault(etiqueta, 0)));
+            result.add(new EstadisticaGraficaDTO.StatItem(etiqueta, mapa.getOrDefault(etiqueta, 0)));
         }
         return result;
     }
-
-    private List<EstadisticaGraficaDTO.StatItem> obtenerStatsDesdeBD(String placa, String periodo, String[] etiquetasDefault) {
-        List<EstadisticaAgente> statsBD = estadisticaAgenteRepository.buscarPorPlacaYPeriodo(placa, periodo);
-
-        Map<String, Integer> mapa = new HashMap<>();
-        for (EstadisticaAgente stat : statsBD) {
-            String key = stat.getEtiqueta();
-            mapa.put(key, mapa.getOrDefault(key, 0) + stat.getCantidad());
-        }
-
-        List<EstadisticaGraficaDTO.StatItem> result = new ArrayList<>();
-        for (String etiqueta : etiquetasDefault) {
-            result.add(new EstadisticasCompletasDTO.StatItem(etiqueta, mapa.getOrDefault(etiqueta, 0)));
-        }
-        return result;
-    }
-}
 
     private List<EstadisticaGraficaDTO.StatItem> obtenerStatsDesdeBD(String placa, String periodo, String[] etiquetasDefault) {
         List<EstadisticaAgente> statsBD = estadisticaAgenteRepository.buscarPorPlacaYPeriodo(placa, periodo);
@@ -767,3 +750,4 @@ public class ReporteService {
         return result;
     }
 }
+

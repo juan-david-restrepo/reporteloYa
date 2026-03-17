@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SidebarAgente } from './sidebar-agente/sidebar-agente';
@@ -144,6 +144,8 @@ export class Agente implements OnInit, OnDestroy {
   filtroTareas: 'PENDIENTES' | 'HECHAS' | 'TODAS' = 'PENDIENTES';
   notificaciones: Notificacion[] = [];
 
+  @ViewChild(Reportes) reportesComponente!: Reportes;
+
   perfilAgente: {
     nombre: string; placa: string; documento: string;
     telefono: string; correo: string; foto: string;
@@ -160,7 +162,8 @@ export class Agente implements OnInit, OnDestroy {
     private agenteService: AgenteServiceTs,
     private websocketService: WebsocketService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   // ================================
@@ -399,7 +402,7 @@ export class Agente implements OnInit, OnDestroy {
       acompanado:       r.acompanado ?? false,
       placaCompanero:   r.placaCompanero,
       nombreCompanero:  r.nombreCompanero,
-      placaAgente:      r.placaAgente,
+      placaAgente:      r.placaAgente?.toUpperCase() || '',
       esCompanero:      r.acompanado && placaCompanero === placaActual && placaAgente !== placaActual
     };
   }
@@ -420,15 +423,62 @@ export class Agente implements OnInit, OnDestroy {
         if (idx !== -1) {
           this.reportesEntrantes.splice(idx, 1);
           this.estadoAgente = 'DISPONIBLE';
+          
+          // También eliminar de reportesScroll (el hijo) si está disponible
+          if (this.reportesComponente?.eliminarReportePorId) {
+            this.reportesComponente.eliminarReportePorId(nuevo.id);
+          }
+          
+          this.cdr.detectChanges();
           // Recargar historial para incluir el nuevo reporte finalizado
           this.cargarHistorialDesdeBD();
         }
         break;
 
       case EstadoReporte.EN_PROCESO:
-        // Lo tomó otro agente — quitar de la lista de pendientes
-        if (idx !== -1 && this.reportesEntrantes[idx].estado !== EstadoReporte.EN_PROCESO) {
-          this.reportesEntrantes.splice(idx, 1);
+        console.log('📝 WS: Reporte EN_PROCESO recibido. Placa agente:', nuevo.placaAgente, 'Mi placa:', this.perfilAgente.placa);
+        
+        // Determinar si fue otro agente quien lo aceptó
+        const placaAgente = nuevo.placaAgente?.toUpperCase() || '';
+        const placaActual = this.perfilAgente.placa?.toUpperCase() || '';
+        const fueOtroAgente = placaAgente !== placaActual;
+        
+        // Solo procesar si fue otro agente (no el actual)
+        if (fueOtroAgente) {
+          console.log('📝 WS: Eliminando reporte (otro agente lo aceptó)');
+          
+          // 1. Eliminar de reportesEntrantes si estaba ahí
+          if (idx !== -1) {
+            this.reportesEntrantes.splice(idx, 1);
+          }
+          
+          // 2. Eliminar de reportesScroll (el hijo) si estaba solo ahí
+          // Esto cubre el caso donde el reporte se cargó dinámicamente por scroll
+          if (this.reportesComponente?.eliminarReportePorId) {
+            const eliminadoDelScroll = this.reportesComponente.eliminarReportePorId(nuevo.id);
+            console.log('📝 WS: Eliminado de reportesScroll:', eliminadoDelScroll);
+          }
+          
+          this.cdr.detectChanges();
+        } else {
+          console.log('📝 WS: NO eliminar - YO fui quien lo aceptó');
+          // Actualizar el estado en reportesEntrantes si existe
+          if (idx !== -1) {
+            this.reportesEntrantes[idx] = {
+              ...this.reportesEntrantes[idx],
+              ...nuevo,
+              estado: EstadoReporte.EN_PROCESO
+            };
+            // También actualizar en el hijo
+            if (this.reportesComponente?.eliminarReportePorId) {
+              this.reportesComponente.eliminarReportePorId(nuevo.id);
+              // Agregar a la lista como EN_PROCESO
+              this.reportesComponente.reportesScroll.unshift({
+                ...nuevo,
+                estado: EstadoReporte.EN_PROCESO
+              });
+            }
+          }
         }
         break;
 
@@ -446,6 +496,7 @@ export class Agente implements OnInit, OnDestroy {
             leida: false
           });
           this._ordenarNotificaciones();
+          this.cdr.detectChanges();
         }
         break;
     }

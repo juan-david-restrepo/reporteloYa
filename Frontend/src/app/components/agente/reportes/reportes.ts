@@ -896,4 +896,20 @@ export class Reportes implements OnChanges, OnDestroy {
     if (this.zoomScale < 1) this.zoomScale = 1;
     if (this.zoomScale > 3) this.zoomScale = 3;
   }
+
+  // ================================
+  // ELIMINAR REPORTE DESDE EL PADRE
+  // (cuando otro agente acepta un reporte que estaba solo en reportesScroll)
+  // ================================
+  eliminarReportePorId(id: number): boolean {
+    const idx = this.reportesScroll.findIndex(r => r.id === id);
+    if (idx !== -1) {
+      this.reportesScroll.splice(idx, 1);
+      if (this.reporteSeleccionado?.id === id) {
+        this.reporteSeleccionado = null;
+      }
+      return true;
+    }
+    return false;
+  }
 }

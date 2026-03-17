@@ -43,7 +43,7 @@ export class WebsocketService {
       // Reportes globales (nuevos y actualizaciones de estado)
       this.stompClient.subscribe('/topic/reportes', (msg) => {
         const reporte = JSON.parse(msg.body);
-        console.log('📨 Reporte recibido del topic /topic/reportes:', reporte.estado, reporte.direccion);
+        console.log('📨 WS Service: Reporte recibido del topic /topic/reportes:', reporte.estado, 'ID:', reporte.id, 'PlacaAgente:', reporte.placaAgente);
         this.reportesSubject.next(reporte);
       });
 

@@ -108,13 +108,16 @@ public class AgenteController {
 
             tarea.setEstado(nuevoEstado);
 
+            // ← AÑADIR ESTO
+            if ("FINALIZADO".equals(nuevoEstado)) {
+                tarea.setFechaFin(java.time.LocalDateTime.now());
+            } else if ("EN PROCESO".equals(nuevoEstado)) {
+                tarea.setFechaInicio(java.time.LocalDateTime.now());
+            }
+
             tareaRepository.save(tarea);
 
-            // enviar websocket
-            messagingTemplate.convertAndSend(
-                "/topic/tarea-estado",
-                tarea
-            );
+            messagingTemplate.convertAndSend("/topic/tarea-estado", tarea);
 
             return ResponseEntity.ok(tarea);
 

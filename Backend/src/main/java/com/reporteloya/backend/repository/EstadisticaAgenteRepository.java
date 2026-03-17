@@ -23,7 +23,7 @@ public interface EstadisticaAgenteRepository extends JpaRepository<EstadisticaAg
     @Query("SELECT e FROM EstadisticaAgente e WHERE e.agente.placa = :placa AND e.periodo = :periodo AND e.tipo = :tipo ORDER BY e.etiqueta")
     List<EstadisticaAgente> buscarPorPlacaPeriodoYTipo(@Param("placa") String placa, @Param("periodo") String periodo, @Param("tipo") String tipo);
 
-    @Query("SELECT e FROM EstadisticaAgente e WHERE e.agente.placa = :placa AND e.periodo = :periodo AND e.fecha BETWEEN :fechaInicio AND :fechaFin ORDER BY e.etiqueta")
+    @Query("SELECT e FROM EstadisticaAgente e WHERE e.agente.placa = :placa AND e.periodo = :periodo AND e.createdAt BETWEEN :fechaInicio AND :fechaFin ORDER BY e.etiqueta")
     List<EstadisticaAgente> buscarPorPlacaPeriodoYFechaBetween(
         @Param("placa") String placa, 
         @Param("periodo") String periodo,

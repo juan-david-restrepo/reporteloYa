@@ -1,4 +1,4 @@
-package com.reporteloya.backend.entity;
+gipackage com.reporteloya.backend.entity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
