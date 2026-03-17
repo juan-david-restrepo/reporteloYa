@@ -56,11 +56,10 @@ export class Admin implements OnInit, AfterViewInit, OnDestroy {
     const isDark = localStorage.getItem('darkMode') === 'true';
     if (isDark) document.body.classList.add('dark-mode');
 
-    const isColorBlind = localStorage.getItem('colorBlind') === 'true';
-    if (isColorBlind) document.body.classList.add('color-blind');
-
-    const savedSize = localStorage.getItem('fontSize') || 'normal';
-    document.body.classList.add(`font-${savedSize}`);
+    const savedSize = localStorage.getItem('fontSize');
+    if (savedSize) {
+      document.body.style.setProperty('--admin-font-size', savedSize + 'px');
+    }
   }
 
   ngOnInit(): void {

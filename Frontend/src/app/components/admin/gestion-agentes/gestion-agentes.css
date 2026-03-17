@@ -775,7 +775,7 @@ table td {
   font-weight: bold;
   display: inline; /* Cambiado a inline para que no salte de línea */
   text-transform: uppercase;
-  font-size: 0.9rem;
+  font-size: 11px !important;
   margin-left: 5px; /* Espacio respecto al label */
 }
 
@@ -1049,7 +1049,7 @@ table td {
      display: inline-block;
     padding: 6px 14px;
     border-radius: 999px;
-    font-size: 11px;
+    font-size: 11px !important;
     font-weight: 800;
     text-transform: uppercase;
     min-width: 80px;
@@ -1455,4 +1455,118 @@ table td {
 ::ng-deep body.dark-mode .tabla-tareas td[data-label="Hora"] {
   color: #60a5fa !important;
   font-weight: 600 !important;
+}
+
+/* ====================================================
+    👁️ MODO DALTONISMO
+    ==================================================== */
+/* Protanopía */
+::ng-deep body.protanopia .estado.disponible,
+::ng-deep body.protanopia .badge-estado.bg-pendiente,
+::ng-deep body.protanopia .estado.pendiente,
+::ng-deep body.protanopia .badge-estado.pendiente {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+}
+
+::ng-deep body.protanopia .estado.ocupado,
+::ng-deep body.protanopia .badge-estado.bg-proceso,
+::ng-deep body.protanopia .estado.en-proceso,
+::ng-deep body.protanopia .badge-estado.proceso {
+  background-color: #0000FF !important;
+  color: #ffffff !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+::ng-deep body.protanopia .estado.fuera-de-servicio,
+::ng-deep body.protanopia .badge-estado.bg-rechazado,
+::ng-deep body.protanopia .estado.rechazado,
+::ng-deep body.protanopia .badge-estado.rechazado {
+  background-color: #FF0000 !important;
+  color: #ffffff !important;
+  border: 2px solid #000000 !important;
+}
+
+::ng-deep body.protanopia .badge-estado.bg-finalizado,
+::ng-deep body.protanopia .estado.finalizado,
+::ng-deep body.protanopia .badge-estado.finalizado {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border: 2px solid #000000 !important;
+  text-decoration: underline !important;
+}
+
+/* Deuteranopía */
+::ng-deep body.deuteranopia .estado.disponible,
+::ng-deep body.deuteranopia .badge-estado.bg-pendiente,
+::ng-deep body.deuteranopia .estado.pendiente,
+::ng-deep body.deuteranopia .badge-estado.pendiente {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+}
+
+::ng-deep body.deuteranopia .estado.ocupado,
+::ng-deep body.deuteranopia .badge-estado.bg-proceso,
+::ng-deep body.deuteranopia .estado.en-proceso,
+::ng-deep body.deuteranopia .badge-estado.proceso {
+  background-color: #0000FF !important;
+  color: #ffffff !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+::ng-deep body.deuteranopia .estado.fuera-de-servicio,
+::ng-deep body.deuteranopia .badge-estado.bg-rechazado,
+::ng-deep body.deuteranopia .estado.rechazado,
+::ng-deep body.deuteranopia .badge-estado.rechazado {
+  background-color: #FF0000 !important;
+  color: #ffffff !important;
+  border: 2px solid #000000 !important;
+}
+
+::ng-deep body.deuteranopia .badge-estado.bg-finalizado,
+::ng-deep body.deuteranopia .estado.finalizado,
+::ng-deep body.deuteranopia .badge-estado.finalizado {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border: 2px solid #000000 !important;
+  text-decoration: underline !important;
+}
+
+/* Tritanopía */
+::ng-deep body.tritanopia .estado.disponible,
+::ng-deep body.tritanopia .badge-estado.bg-pendiente,
+::ng-deep body.tritanopia .estado.pendiente,
+::ng-deep body.tritanopia .badge-estado.pendiente {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+}
+
+::ng-deep body.tritanopia .estado.ocupado,
+::ng-deep body.tritanopia .badge-estado.bg-proceso,
+::ng-deep body.tritanopia .estado.en-proceso,
+::ng-deep body.tritanopia .badge-estado.proceso {
+  background-color: #0000FF !important;
+  color: #ffffff !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+::ng-deep body.tritanopia .estado.fuera-de-servicio,
+::ng-deep body.tritanopia .badge-estado.bg-rechazado,
+::ng-deep body.tritanopia .estado.rechazado,
+::ng-deep body.tritanopia .badge-estado.rechazado {
+  background-color: #FF0000 !important;
+  color: #ffffff !important;
+  border: 2px solid #000000 !important;
+}
+
+::ng-deep body.tritanopia .badge-estado.bg-finalizado,
+::ng-deep body.tritanopia .estado.finalizado,
+::ng-deep body.tritanopia .badge-estado.finalizado {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border: 2px solid #000000 !important;
+  text-decoration: underline !important;
 }

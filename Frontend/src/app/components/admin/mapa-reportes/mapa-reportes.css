@@ -326,3 +326,120 @@ app-sidebar-admin {
 ::ng-deep body.dark-mode .mobile-menu-btn {
   background-color: #334155 !important;
 }
+
+/* ====================================================
+    👁️ MODO DALTONISMO
+    ==================================================== */
+/* Protanopía */
+::ng-deep body.protanopia .stat-card.pendiente span,
+::ng-deep body.protanopia .pendiente,
+::ng-deep body.protanopia .PENDIENTE,
+::ng-deep body.protanopia .status.pendiente,
+::ng-deep body.protanopia .status-badge.pending {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+}
+
+::ng-deep body.protanopia .stat-card.proceso span,
+::ng-deep body.protanopia .en-proceso,
+::ng-deep body.protanopia .ENPROCESO,
+::ng-deep body.protanopia .proceso,
+::ng-deep body.protanopia .PROCESO {
+  background-color: #0000FF !important;
+  color: #ffffff !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+::ng-deep body.protanopia .rechazado,
+::ng-deep body.protanopia .RECHAZADO {
+  background-color: #FF0000 !important;
+  color: #ffffff !important;
+  border: 2px solid #000000 !important;
+}
+
+::ng-deep body.protanopia .finalizado,
+::ng-deep body.protanopia .FINALIZADO,
+::ng-deep body.protanopia .resuelto,
+::ng-deep body.protanopia .RESUELTO {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border: 2px solid #000000 !important;
+  text-decoration: underline !important;
+}
+
+/* Deuteranopía */
+::ng-deep body.deuteranopia .stat-card.pendiente span,
+::ng-deep body.deuteranopia .pendiente,
+::ng-deep body.deuteranopia .PENDIENTE,
+::ng-deep body.deuteranopia .status.pendiente,
+::ng-deep body.deuteranopia .status-badge.pending {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+}
+
+::ng-deep body.deuteranopia .stat-card.proceso span,
+::ng-deep body.deuteranopia .en-proceso,
+::ng-deep body.deuteranopia .ENPROCESO,
+::ng-deep body.deuteranopia .proceso,
+::ng-deep body.deuteranopia .PROCESO {
+  background-color: #0000FF !important;
+  color: #ffffff !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+::ng-deep body.deuteranopia .rechazado,
+::ng-deep body.deuteranopia .RECHAZADO {
+  background-color: #FF0000 !important;
+  color: #ffffff !important;
+  border: 2px solid #000000 !important;
+}
+
+::ng-deep body.deuteranopia .finalizado,
+::ng-deep body.deuteranopia .FINALIZADO,
+::ng-deep body.deuteranopia .resuelto,
+::ng-deep body.deuteranopia .RESUELTO {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border: 2px solid #000000 !important;
+  text-decoration: underline !important;
+}
+
+/* Tritanopía */
+::ng-deep body.tritanopia .stat-card.pendiente span,
+::ng-deep body.tritanopia .pendiente,
+::ng-deep body.tritanopia .PENDIENTE,
+::ng-deep body.tritanopia .status.pendiente,
+::ng-deep body.tritanopia .status-badge.pending {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+}
+
+::ng-deep body.tritanopia .stat-card.proceso span,
+::ng-deep body.tritanopia .en-proceso,
+::ng-deep body.tritanopia .ENPROCESO,
+::ng-deep body.tritanopia .proceso,
+::ng-deep body.tritanopia .PROCESO {
+  background-color: #0000FF !important;
+  color: #ffffff !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+::ng-deep body.tritanopia .rechazado,
+::ng-deep body.tritanopia .RECHAZADO {
+  background-color: #FF0000 !important;
+  color: #ffffff !important;
+  border: 2px solid #000000 !important;
+}
+
+::ng-deep body.tritanopia .finalizado,
+::ng-deep body.tritanopia .FINALIZADO,
+::ng-deep body.tritanopia .resuelto,
+::ng-deep body.tritanopia .RESUELTO {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border: 2px solid #000000 !important;
+  text-decoration: underline !important;
+}
