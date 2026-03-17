@@ -1,5 +1,6 @@
 package com.reporteloya.backend.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,6 +22,13 @@ public interface EstadisticaAgenteRepository extends JpaRepository<EstadisticaAg
 
     @Query("SELECT e FROM EstadisticaAgente e WHERE e.agente.placa = :placa AND e.periodo = :periodo AND e.tipo = :tipo ORDER BY e.etiqueta")
     List<EstadisticaAgente> buscarPorPlacaPeriodoYTipo(@Param("placa") String placa, @Param("periodo") String periodo, @Param("tipo") String tipo);
+
+    @Query("SELECT e FROM EstadisticaAgente e WHERE e.agente.placa = :placa AND e.periodo = :periodo AND e.fecha BETWEEN :fechaInicio AND :fechaFin ORDER BY e.etiqueta")
+    List<EstadisticaAgente> buscarPorPlacaPeriodoYFechaBetween(
+        @Param("placa") String placa, 
+        @Param("periodo") String periodo,
+        @Param("fechaInicio") LocalDateTime fechaInicio,
+        @Param("fechaFin") LocalDateTime fechaFin);
 
     @Query("SELECT COALESCE(SUM(e.cantidad), 0) FROM EstadisticaAgente e WHERE e.agente.placa = :placa AND e.tipo = :tipo")
     int contarPorPlacaYTipo(@Param("placa") String placa, @Param("tipo") String tipo);

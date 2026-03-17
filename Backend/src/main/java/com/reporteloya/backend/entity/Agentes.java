@@ -16,6 +16,7 @@ public class Agentes extends Usuario {
     private String documento;
     private String telefono;
     private String estado;
+    @Column(length = 1000)
     private String foto;
     
     @Column(length = 40)

@@ -16,6 +16,12 @@
   margin-bottom: 30px;
 }
 
+span{
+  color: rgb(126, 125, 125);
+}
+
+
+
 /* SWITCH POSICIONADO */
 .perfil-switch {
   position: absolute;
@@ -76,6 +82,7 @@ input:checked + .slider:before {
 
 .switch-label {
   font-size: 13px;
+  color: white;
 }
 
 .avatar-section {
@@ -141,11 +148,14 @@ input:checked + .slider:before {
 /* ESTADO BADGE */
 .estado-badge {
   display: inline-block;
+  max-width: 130px;
   margin-top: 10px;
   background: #16a34a;
   padding: 5px 12px;
+  text-align: center;
   border-radius: 20px;
   font-size: 12px;
+  color: white;
 }
 
 /*Estados*/

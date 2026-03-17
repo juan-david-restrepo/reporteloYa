@@ -674,31 +674,82 @@ public class ReporteService {
         LocalDateTime finDia = hoy.plusDays(1).atStartOfDay().minusSeconds(1);
         int reportesHoy = reporteRepository.countByCreatedAtBetween(inicioDia, finDia);
 
-        // Obtener resueltos y rechazados desde la tabla de estadísticas (por agente)
-        // Solo contamos los de período SEMANA para evitar duplicados (cada reporte genera 3 registros)
-        int reportesResueltos = estadisticaAgenteRepository.contarPorPlacaPeriodoYTipo(placa, "SEMANA", "FINALIZADO");
-        int reportesRechazados = estadisticaAgenteRepository.contarPorPlacaPeriodoYTipo(placa, "SEMANA", "RECHAZADO");
+        // Determinar rango de fechas para filtrar
+        LocalDate fechaIni = (fechaInicio != null && !fechaInicio.isBlank()) 
+            ? LocalDate.parse(fechaInicio) 
+            : LocalDate.now().minusDays(7);
+        LocalDate fechaF = (fechaFin != null && !fechaFin.isBlank()) 
+            ? LocalDate.parse(fechaFin) 
+            : LocalDate.now();
+        
+        LocalDateTime fechaInicioDateTime = fechaIni.atStartOfDay();
+        LocalDateTime fechaFinDateTime = fechaF.plusDays(1).atStartOfDay().minusSeconds(1);
 
-        // Obtener estadísticas de gráficas desde la BD (solo FINALIZADO)
-        List<EstadisticaGraficaDTO.StatItem> statsSemana = obtenerStatsDesdeBD(placa, "SEMANA", 
-            new String[]{"Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom"});
-        List<EstadisticaGraficaDTO.StatItem> statsAnio = obtenerStatsDesdeBD(placa, "ANIO",
-            new String[]{"Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"});
-        List<EstadisticaGraficaDTO.StatItem> statsDia = obtenerStatsDesdeBD(placa, "DIA",
-            new String[]{"00-06", "06-12", "12-18", "18-24"});
+        // Obtener resueltos y rechazados en el rango de fechas seleccionado
+        int reportesResueltos = reporteRepository.countByAgentePlacaAndEstadoAndFechaFinalizadoBetween(
+            placa, "FINALIZADO", fechaInicioDateTime, fechaFinDateTime);
+        int reportesRechazados = reporteRepository.countByAgentePlacaAndEstadoAndFechaRechazadoBetween(
+            placa, "RECHAZADO", fechaInicioDateTime, fechaFinDateTime);
+
+        // Obtener estadísticas de gráficas filtradas por rango de fechas
+        List<EstadisticaGraficaDTO.StatItem> statsSemana = obtenerStatsDesdeBDPorFechas(
+            placa, "SEMANA", 
+            new String[]{"Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom"},
+            fechaInicioDateTime, fechaFinDateTime);
+        List<EstadisticaGraficaDTO.StatItem> statsAnio = obtenerStatsDesdeBDPorFechas(
+            placa, "ANIO",
+            new String[]{"Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"},
+            fechaInicioDateTime, fechaFinDateTime);
+        List<EstadisticaGraficaDTO.StatItem> statsDia = obtenerStatsDesdeBDPorFechas(
+            placa, "DIA",
+            new String[]{"00-06", "06-12", "12-18", "18-24"},
+            fechaInicioDateTime, fechaFinDateTime);
 
         return new EstadisticasCompletasDTO(
             totalPendientes,
             reportesHoy,
             reportesResueltos,
             reportesRechazados,
-            fechaInicio != null ? fechaInicio : LocalDate.now().toString(),
-            fechaFin != null ? fechaFin : LocalDate.now().toString(),
+            fechaIni.toString(),
+            fechaF.toString(),
             statsSemana,
             statsAnio,
             statsDia
         );
     }
+
+    private List<EstadisticaGraficaDTO.StatItem> obtenerStatsDesdeBDPorFechas(String placa, String periodo, String[] etiquetasDefault, LocalDateTime fechaInicio, LocalDateTime fechaFin) {
+        List<EstadisticaAgente> statsBD = estadisticaAgenteRepository.buscarPorPlacaPeriodoYFechaBetween(placa, periodo, fechaInicio, fechaFin);
+
+        Map<String, Integer> mapa = new HashMap<>();
+        for (EstadisticaAgente stat : statsBD) {
+            String key = stat.getEtiqueta();
+            mapa.put(key, mapa.getOrDefault(key, 0) + stat.getCantidad());
+        }
+
+        List<EstadisticaGraficaDTO.StatItem> result = new ArrayList<>();
+        for (String etiqueta : etiquetasDefault) {
+            result.add(new EstadisticasCompletasDTO.StatItem(etiqueta, mapa.getOrDefault(etiqueta, 0)));
+        }
+        return result;
+    }
+
+    private List<EstadisticaGraficaDTO.StatItem> obtenerStatsDesdeBD(String placa, String periodo, String[] etiquetasDefault) {
+        List<EstadisticaAgente> statsBD = estadisticaAgenteRepository.buscarPorPlacaYPeriodo(placa, periodo);
+
+        Map<String, Integer> mapa = new HashMap<>();
+        for (EstadisticaAgente stat : statsBD) {
+            String key = stat.getEtiqueta();
+            mapa.put(key, mapa.getOrDefault(key, 0) + stat.getCantidad());
+        }
+
+        List<EstadisticaGraficaDTO.StatItem> result = new ArrayList<>();
+        for (String etiqueta : etiquetasDefault) {
+            result.add(new EstadisticasCompletasDTO.StatItem(etiqueta, mapa.getOrDefault(etiqueta, 0)));
+        }
+        return result;
+    }
+}
 
     private List<EstadisticaGraficaDTO.StatItem> obtenerStatsDesdeBD(String placa, String periodo, String[] etiquetasDefault) {
         List<EstadisticaAgente> statsBD = estadisticaAgenteRepository.buscarPorPlacaYPeriodo(placa, periodo);

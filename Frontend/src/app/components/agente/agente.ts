@@ -359,7 +359,7 @@ export class Agente implements OnInit, OnDestroy {
           correo:    data.email ?? '',
           placa:     data.placa ?? 'N/A',
           telefono:  data.telefono ?? 'N/A',
-          foto:      'https://randomuser.me/api/portraits/men/32.jpg'
+          foto:      data.foto || 'https://randomuser.me/api/portraits/men/32.jpg'
         };
         this.estadoAgente = data.estado || 'DISPONIBLE';
       },
@@ -543,7 +543,6 @@ export class Agente implements OnInit, OnDestroy {
   cerrarSesion() {
     this.reiniciarCronometroSignal++;
     setTimeout(() => {
-      localStorage.removeItem('agente_tiempo_activo_inicio');
       this.authService.logout().subscribe({
         next:  () => { this.websocketService.disconnect(); this.router.navigate(['/login']); },
         error: () => { this.router.navigate(['/login']); }

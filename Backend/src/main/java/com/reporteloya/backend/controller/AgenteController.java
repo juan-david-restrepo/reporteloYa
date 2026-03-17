@@ -7,6 +7,7 @@ import com.reporteloya.backend.entity.Tarea;
 import com.reporteloya.backend.repository.TareaRepository;
 import com.reporteloya.backend.service.AgenteService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +23,12 @@ import java.util.UUID;
 @RequestMapping("/agente")
 @CrossOrigin(origins = {"http://localhost:4200"})
 public class AgenteController {
+
+    @Value("${app.upload.dir}")
+    private String uploadDir;
+
+    @Value("${app.base-url}")
+    private String baseUrl;
 
     @Autowired
     private TareaRepository tareaRepository;
@@ -196,58 +203,59 @@ public class AgenteController {
             return ResponseEntity.badRequest().build();
         }
 
-        return agenteService.buscarPorEmail(email)
-                .map(agente -> {
-                    try {
-                        String extension = ".png";
-                        if (fotoBase64.contains("image/jpeg")) {
-                            extension = ".jpg";
-                        } else if (fotoBase64.contains("image/webp")) {
-                            extension = ".webp";
-                        }
+        var agenteOpt = agenteService.buscarPorEmail(email);
+        if (agenteOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
 
-                        String base64Data = fotoBase64.contains(",") 
-                            ? fotoBase64.split(",")[1] 
-                            : fotoBase64;
+        var agente = agenteOpt.get();
+        try {
+            String extension = ".png";
+            if (fotoBase64.contains("image/jpeg")) {
+                extension = ".jpg";
+            } else if (fotoBase64.contains("image/webp")) {
+                extension = ".webp";
+            }
 
-                        byte[] imageBytes = Base64.getDecoder().decode(base64Data);
+            String base64Data = fotoBase64.contains(",") 
+                ? fotoBase64.split(",")[1] 
+                : fotoBase64;
 
-                        String fileName = "perfil_" + agente.getId() + "_" + UUID.randomUUID() + extension;
-                        
-                        String uploadDir = System.getProperty("user.dir") + "/uploads/perfiles/";
-                        File dir = new File(uploadDir);
-                        if (!dir.exists()) {
-                            dir.mkdirs();
-                        }
+            byte[] imageBytes = Base64.getDecoder().decode(base64Data);
 
-                        File file = new File(uploadDir + fileName);
-                        java.nio.file.Files.write(file.toPath(), imageBytes);
+            String fileName = "perfil_" + agente.getId() + "_" + UUID.randomUUID() + extension;
+            
+            String uploadPath = uploadDir + "/perfiles/";
+            File dir = new File(uploadPath);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
 
-                        String baseUrl = "http://localhost:8080";
-                        agente.setFoto(baseUrl + "/uploads/perfiles/" + fileName);
+            File file = new File(uploadPath + fileName);
+            java.nio.file.Files.write(file.toPath(), imageBytes);
 
-                        agenteService.guardar(agente);
+            agente.setFoto(baseUrl + "/uploads/perfiles/" + fileName);
 
-                        PerfilAgenteDTO dto = new PerfilAgenteDTO(
-                                agente.getNombreCompleto(),
-                                agente.getNumeroDocumento(),
-                                agente.getEmail(),
-                                agente.getPlaca(),
-                                agente.getTelefono(),
-                                agente.getEstado(),
-                                agente.getFoto(),
-                                agente.getResumenProfesional1(),
-                                agente.getResumenProfesional2(),
-                                agente.getResumenProfesional3(),
-                                agente.getResumenProfesional4()
-                        );
-                        return ResponseEntity.ok(dto);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        return ResponseEntity.internalServerError().build();
-                    }
-                })
-                .orElse(ResponseEntity.notFound().build());
+            agenteService.guardar(agente);
+
+            PerfilAgenteDTO dto = new PerfilAgenteDTO(
+                    agente.getNombreCompleto(),
+                    agente.getNumeroDocumento(),
+                    agente.getEmail(),
+                    agente.getPlaca(),
+                    agente.getTelefono(),
+                    agente.getEstado(),
+                    agente.getFoto(),
+                    agente.getResumenProfesional1(),
+                    agente.getResumenProfesional2(),
+                    agente.getResumenProfesional3(),
+                    agente.getResumenProfesional4()
+            );
+            return ResponseEntity.ok(dto);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
     }
    
 }
