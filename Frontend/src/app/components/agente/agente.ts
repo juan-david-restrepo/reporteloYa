@@ -58,7 +58,7 @@ export interface Tarea {
   prioridad: 'BAJA' | 'MEDIA' | 'ALTA';
   fechaInicio?: Date;
   fechaFin?: Date;
-  resumen?: string;
+  resumenOperativo?: string;
 }
 
 export interface Notificacion {
@@ -173,11 +173,20 @@ export class Agente implements OnInit, OnDestroy {
   }
 
   finalizarTarea(t: Tarea) {
-    this.agenteService.actualizarEstadoTarea(t.id, 'FINALIZADO').subscribe(() => {
-      t.estado = 'FINALIZADO';
-      t.fechaFin = new Date();
-      this.estadoAgente = 'DISPONIBLE';
-      this.agenteService.actualizarEstado('DISPONIBLE').subscribe();
+    console.log('=== FINALIZAR TAREA ===');
+    console.log('Tarea ID:', t.id);
+    console.log('Resumen operativo:', t.resumenOperativo);
+    console.log('========================');
+    
+    this.agenteService.actualizarEstadoTarea(t.id, 'FINALIZADO', t.resumenOperativo || '').subscribe({
+      next: (res) => {
+        console.log('Respuesta backend:', res);
+        t.estado = 'FINALIZADO';
+        t.fechaFin = new Date();
+        this.estadoAgente = 'DISPONIBLE';
+        this.agenteService.actualizarEstado('DISPONIBLE').subscribe();
+      },
+      error: (err) => console.error('Error:', err)
     });
   }
 

@@ -104,8 +104,8 @@
             <td data-label="Hora">{{ tarea.hora }}</td>
             <td data-label="Descripción" class="td-descripcion">
               <div class="descripcion-contenido">
-                <span class="descripcion-texto">{{ tarea.descripcion }}</span>
-                <button *ngIf="tarea.descripcion.length >=10" class="ver-mas"
+                <span class="descripcion-texto">{{ tarea.descripcion || '-' }}</span>
+                <button *ngIf="tarea.descripcion && tarea.descripcion.length >= 10" class="ver-mas"
                   (click)="abrirModalDescripcion(tarea.descripcion)">
                   Ver más
                 </button>
@@ -161,6 +161,7 @@
               <th>Fecha</th>
               <th>Hora</th>
               <th>Descripción</th>
+              <th>Resumen</th>
               <th>Estado</th>
             </tr>
           </thead>
@@ -168,7 +169,18 @@
             <tr *ngFor="let tarea of tareasFinalizadas">
               <td data-label="Fecha">{{ tarea.fecha }}</td>
               <td data-label="Hora">{{ tarea.hora }}</td>
-              <td data-label="Descripción">{{ tarea.descripcion }}</td>
+              <td data-label="Descripción">
+                <span *ngIf="!tarea.descripcion || tarea.descripcion.length < 20">{{ tarea.descripcion || '-' }}</span>
+                <button *ngIf="tarea.descripcion && tarea.descripcion.length >= 20" class="ver-mas" (click)="abrirModalDescripcion(tarea.descripcion)">
+                  Ver más
+                </button>
+              </td>
+              <td data-label="Resumen">
+                <span *ngIf="!tarea.resumenOperativo || tarea.resumenOperativo.length <= 20">{{ tarea.resumenOperativo || '-' }}</span>
+                <button *ngIf="tarea.resumenOperativo && tarea.resumenOperativo.length >= 20" class="ver-mas" (click)="abrirModalDescripcion(tarea.resumenOperativo)">
+                  Ver más
+                </button>
+              </td>
               <td data-label="Estado">
                 <span class="badge-estado bg-finalizado">FINALIZADO</span>
               </td>
@@ -197,6 +209,8 @@
               <th>Hora</th>
               <th>Ubicación</th>
               <th>Incidente</th>
+              <th>Descripción</th>
+              <th>Resumen</th>
             </tr>
           </thead>
           <tbody>
@@ -205,6 +219,19 @@
               <td data-label="Hora">{{ reporte.horaIncidente }}</td>
               <td data-label="Ubicación">{{ reporte.direccion }}</td>
               <td data-label="Incidente">{{ reporte.tipoInfraccion }}</td>
+              <td data-label="Descripción">
+                <span *ngIf="!reporte.descripcion || reporte.descripcion.length === 0">-</span>
+                <span *ngIf="reporte.descripcion && reporte.descripcion.length < 20">{{ reporte.descripcion }}</span>
+                <button *ngIf="reporte.descripcion && reporte.descripcion.length >= 20" class="ver-mas" (click)="abrirModalDescripcion(reporte.descripcion)">
+                  Ver más
+                </button>
+              </td>
+              <td data-label="Resumen">
+                <span *ngIf="!reporte.resumenOperativo || reporte.resumenOperativo.length < 20">{{ reporte.resumenOperativo || '-' }}</span>
+                <button *ngIf="reporte.resumenOperativo && reporte.resumenOperativo.length >= 20" class="ver-mas" (click)="abrirModalDescripcion(reporte.resumenOperativo)">
+                  Ver más
+                </button>
+              </td>
             </tr>
           </tbody>
         </table>

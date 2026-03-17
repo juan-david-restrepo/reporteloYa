@@ -54,7 +54,7 @@ export class Tareas {
       return;
     }
 
-    this.tareaSeleccionada.resumen = this.resumenTexto.trim();
+    this.tareaSeleccionada.resumenOperativo = this.resumenTexto.trim();
 
     this.finalizar.emit(this.tareaSeleccionada);
 

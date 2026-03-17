@@ -146,7 +146,15 @@ public class AdminController {
 
         if (agenteOpt.isPresent()) {
             Agentes agente = agenteOpt.get();
-            return ResponseEntity.ok(agente.getListaTareas());
+            List<Tarea> tareas = agente.getListaTareas();
+            System.out.println("=== TAREAS DEBUG ===");
+            System.out.println("Placa: " + placa);
+            System.out.println("Cantidad tareas: " + tareas.size());
+            for (Tarea t : tareas) {
+                System.out.println("Tarea ID: " + t.getId() + " - Resumen: " + t.getResumenOperativo());
+            }
+            System.out.println("=====================");
+            return ResponseEntity.ok(tareas);
         }
 
         return ResponseEntity.notFound().build();

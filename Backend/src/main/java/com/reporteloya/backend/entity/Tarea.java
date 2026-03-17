@@ -18,6 +18,8 @@ public class Tarea {
     private Long id;
     private String titulo;
     private String descripcion;
+    @Column(name = "resumen_operativo")
+    private String resumenOperativo;
     private String fecha;
     private String hora;
     private String prioridad;

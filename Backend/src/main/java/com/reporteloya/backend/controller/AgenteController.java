@@ -90,10 +90,22 @@ public class AgenteController {
             @RequestBody Map<String,String> body){
 
         String nuevoEstado = body.get("estado");
+        String resumenOperativo = body.get("resumenOperativo");
+        
+        System.out.println("=== ACTUALIZAR TAREA ===");
+        System.out.println("ID: " + id);
+        System.out.println("Estado: " + nuevoEstado);
+        System.out.println("Resumen Operativo: " + resumenOperativo);
+        System.out.println("========================");
 
         return tareaRepository.findById(id).map(tarea -> {
 
             tarea.setEstado(nuevoEstado);
+            
+            if (resumenOperativo != null && !resumenOperativo.isEmpty()) {
+                System.out.println("Guardando resumen: " + resumenOperativo);
+                tarea.setResumenOperativo(resumenOperativo);
+            }
 
             tareaRepository.save(tarea);
 
