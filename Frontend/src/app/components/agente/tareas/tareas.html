@@ -39,8 +39,8 @@
         class="estado"
         [ngClass]="{
           pendiente: t.estado === 'PENDIENTE',
-          proceso: t.estado === 'EN_PROCESO',
-          ok: t.estado === 'FINALIZADA',
+          proceso: t.estado === 'EN PROCESO',
+          ok: t.estado === 'FINALIZADO',
         }"
       >
         {{ t.estado }}
@@ -67,7 +67,7 @@
 
   <div
     class="card detalle-card"
-    [ngClass]="{ finalizada: tareaSeleccionada.estado === 'FINALIZADA' }"
+    [ngClass]="{ finalizada: tareaSeleccionada.estado === 'FINALIZADO' }"
   >
     <!-- HEADER -->
     <div class="detalle-header">
@@ -77,8 +77,8 @@
         class="estado-badge"
         [ngClass]="{
           pendiente: tareaSeleccionada.estado === 'PENDIENTE',
-          proceso: tareaSeleccionada.estado === 'EN_PROCESO',
-          ok: tareaSeleccionada.estado === 'FINALIZADA',
+          proceso: tareaSeleccionada.estado === 'EN PROCESO',
+          ok: tareaSeleccionada.estado === 'FINALIZADO',
         }"
       >
         {{ tareaSeleccionada.estado }}
@@ -109,7 +109,7 @@
         </div>
       </div>
 
-      <div class="info-tarea" *ngIf="tareaSeleccionada.estado === 'FINALIZADA'">
+      <div class="info-tarea" *ngIf="tareaSeleccionada.estado === 'FINALIZADO'">
         <div class="info-box">
           <span class="info-label">Inicio</span>
           <span class="info-value">
@@ -144,7 +144,7 @@
 
     <!-- HISTORIAL SI ESTÁ FINALIZADA -->
     <!-- BOTÓN VER RESUMEN -->
-    <div *ngIf="tareaSeleccionada.estado === 'FINALIZADA'" class="estado-final">
+    <div *ngIf="tareaSeleccionada.estado === 'FINALIZADO'" class="estado-final">
       <h4>Resumen de la tarea</h4>
       <button class="btn-resumen" (click)="abrirModalResumen()">
         Ver resumen de la tarea
@@ -177,6 +177,7 @@
     <button
       *ngIf="tareaSeleccionada.estado === 'PENDIENTE'"
       class="btnTareas btn-accion"
+      [disabled]="!puedeAccion"
       (click)="comenzarClick(tareaSeleccionada); $event.stopPropagation()"
     >
       Comenzar tarea
@@ -184,7 +185,7 @@
 
     <!-- EN PROCESO -->
     <button
-      [hidden]="tareaSeleccionada.estado !== 'EN_PROCESO'"
+      [hidden]="tareaSeleccionada.estado !== 'EN PROCESO'"
       class="btn-finalizar"
       (click)="abrirModalFinalizar(); $event.stopPropagation()"
     >

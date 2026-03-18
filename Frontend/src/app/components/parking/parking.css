@@ -39,6 +39,7 @@ html, body {
 .sidebar.closed .sidebar-header {
   background: #1d4ed8;
   border-top: none;
+  overflow-y: none;
 }
 
 /* HEADER */

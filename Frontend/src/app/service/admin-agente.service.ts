@@ -26,15 +26,16 @@ export class AdminService {
   // BUSCAR POR PLACA
   // ===============================
   obtenerAgentePorPlaca(placa: string): Observable<Agente> {
+    const normalizada = (placa ?? '').trim().toUpperCase();
     return this.http.get<Agente>(
-      `${this.apiUrl}/${placa}`,
+      `${this.apiUrl}/${encodeURIComponent(normalizada)}`,
       { withCredentials: true }
     );
   }
 
   actualizarEstado(
     placa: string,
-    estado: 'DISPONIBLE' | 'OCUPADO' | 'AUSENTE'
+    estado: 'DISPONIBLE' | 'OCUPADO' | 'FUERA_SERVICIO'
   ): Observable<any> {
     return this.http.patch(
       `${this.apiUrl}/${placa}`,

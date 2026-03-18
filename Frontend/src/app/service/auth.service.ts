@@ -30,61 +30,63 @@ export class AuthService {
     this.refreshUser().subscribe(() => this.loading.next(false));
   }
 
-
-login(email: string, password: string): Observable<any> {
-  return this.http.post(
-    `${this.apiUrl}/login`,
-    { email, password },
-    { withCredentials: true }
-  ).pipe(
-    tap(() => {
-      this.refreshUser().subscribe();
-    })
-  );
-}
+  login(email: string, password: string): Observable<any> {
+    return this.http
+      .post(
+        `${this.apiUrl}/login`,
+        { email, password },
+        { withCredentials: true },
+      )
+      .pipe(
+        tap(() => {
+          this.refreshUser().subscribe();
+        }),
+      );
+  }
 
   register(data: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/register`, data, {
       withCredentials: true,
-    });
+    }).pipe(
+      tap(() => {
+        this.refreshUser().subscribe();
+      }),
+    );
   }
 
-logout(): Observable<any> {
-  return this.http
-    .post(`${this.apiUrl}/logout`, {}, { withCredentials: true })
-    .pipe(
-      tap(() => {
-        this.clearUserState(); // 🔥 ESTA ES LA CLAVE
-      })
-    );
-}
-
-
+  logout(): Observable<any> {
+    return this.http
+      .post(`${this.apiUrl}/logout`, {}, { withCredentials: true })
+      .pipe(
+        tap(() => {
+          this.clearUserState(); // 🔥 ESTA ES LA CLAVE
+        }),
+      );
+  }
+  
 
   // =========================
   // REFRESCAR USUARIO DESDE COOKIE (/me)
   // =========================
   refreshUser(): Observable<AuthUser | null> {
-    return this.http.get<AuthUser>(`${this.apiUrl}/me`, { withCredentials: true }).pipe(
-      tap(user => {
-        if (user && user.userId) {
-          this.currentUser.next(user);
-          this.authState.next(true);
-
-          // 🔹 Guardar solo para UI/localStorage, no JWT
-          localStorage.setItem('userId', user.userId);
-          localStorage.setItem('email', user.email);
-          localStorage.setItem('role', user.role);
-        } else {
+    return this.http
+      .get<AuthUser>(`${this.apiUrl}/me`, { withCredentials: true })
+      .pipe(
+        tap((user) => {
+          if (user && user.userId) {
+            // Guardar solo en memoria
+            this.currentUser.next(user);
+            this.authState.next(true);
+          } else {
+            this.clearUserState();
+          }
+        }),
+        catchError((err) => {
+          console.error('refreshUser error', err);
           this.clearUserState();
-        }
-      }),
-      catchError(err => {
-        console.error('refreshUser error', err);
-        this.clearUserState();
-        return of(null);
-      })
-    );
+          return of(null);
+        }),
+      );
   }
 
   // =========================
@@ -96,7 +98,6 @@ logout(): Observable<any> {
     });
   }
 
-
   getUserId(): string | null {
     return this.currentUser.value?.userId || null;
   }
@@ -105,25 +106,17 @@ logout(): Observable<any> {
     return this.currentUser.value?.role || null;
   }
 
-
   // =========================
 
-    setAuthenticated(isAuth: boolean) {
+  setAuthenticated(isAuth: boolean) {
     this.authState.next(isAuth);
   }
-
 
   // =========================
   // LIMPIAR ESTADO DE USUARIO
   // =========================
-  private clearUserState() {
+  private clearUserState(): void {
     this.currentUser.next(null);
     this.authState.next(false);
-    localStorage.removeItem('userId');
-    localStorage.removeItem('email');
-    localStorage.removeItem('role');
   }
-
-
-  
 }

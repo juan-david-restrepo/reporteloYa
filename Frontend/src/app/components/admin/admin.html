@@ -10,24 +10,44 @@
       <h2>Dashboard General</h2>
     </div>
 
+<div class="charts-grid container-fluid mt-4">
+  <div class="card-dashboard">
+    <div class="card-header-pro">
+      <div class="header-main">
+        <h6 class="chart-title" (click)="abrirModalBarras()">
+          Distribución de Reportes
+        </h6>
+        <p class="chart-subtitle">Análisis estadístico de reportes realizados</p>
+      </div>
 
+      <div class="controls-wrapper">
+        <div class="filter-group">
+          <label>PERIODO</label>
+          <select class="custom-select-pro" (change)="filtrarPorTiempo($event)">
+            <option value="hoy">Hoy</option>
+            <option value="semana">Semana</option>
+            <option value="mes" selected>Mes</option>
+            <option value="anio">Año</option>
+          </select>
+        </div>
 
-
-
-
-    <div class="charts-grid container-fluid mt-4">
-      <div class="card shadow-sm border-0 chart-card">
-        <div class="card-body">
-          <h4 class="card-title mb-4 clickable text-primary fw-bold" (click)="abrirModalBarras()">
-            <i class="bi bi-bar-chart-fill me-2"></i>Distribución de Infracciones
-          </h4>
-          <div class="canvas-container" style="position: relative; height:250px; width:100%;">
-            <canvas id="barChart"></canvas>
-          </div>
+        <div class="filter-group">
+          <label>INFRACCIÓN</label>
+          <select class="custom-select-pro" (change)="filtrarPorTipo($event)">
+            <option value="todos">Todos</option>
+            <option *ngFor="let tipo of tiposInfracciones" [value]="tipo">{{ tipo }}</option>
+          </select>
         </div>
       </div>
     </div>
 
+    <div class="chart-body">
+      <div class="canvas-container">
+        <canvas id="barChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
 
 
 
@@ -36,14 +56,7 @@
 
 
 
-
-
-
-
-
-
-
-
+  
 
 
 
@@ -61,19 +74,33 @@
 
 
     <div class="table-section">
-      <div class="table-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-        <h3>Infracciones Recientes</h3>
+      <div class="table-header"
+        style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h3>Reportes</h3>
         <select (change)="aplicarFiltro($event)" style="padding:8px; border-radius:8px; border:1px solid #e2e8f0;">
           <option value="">Todos los estados</option>
           <option value="PENDIENTE">PENDIENTE</option>
-          <option value="EN PROCESO">EN PROCESO</option>
+          <option value="EN_PROCESO">EN PROCESO</option>
           <option value="FINALIZADO">FINALIZADO</option>
           <option value="RECHAZADO">RECHAZADO</option>
         </select>
       </div>
 
-      <div class="table-responsive">
-        <table class="data-table">
+      <!-- Indicador de carga -->
+      <div *ngIf="cargando" style="text-align:center; padding:40px;">
+        <i class="fa-solid fa-spinner fa-spin" style="font-size:24px; color:#3b82f6;"></i>
+        <p>Cargando reportes...</p>
+      </div>
+
+      <!-- Mensaje de error -->
+      <div *ngIf="errorCarga && !cargando" style="text-align:center; padding:40px; color:#dc2626;">
+        <i class="fa-solid fa-circle-exclamation" style="font-size:24px;"></i>
+        <p>{{ errorCarga }}</p>
+      </div>
+
+      <!-- Tabla de reportes -->
+      <div class="table-responsive" *ngIf="!cargando && !errorCarga">
+        <table class="data-table" *ngIf="infraccionesAMostrar.length > 0; else sinDatos">
           <thead>
             <tr>
               <th>#</th>
@@ -95,6 +122,12 @@
             </tr>
           </tbody>
         </table>
+        <ng-template #sinDatos>
+          <div style="text-align:center; padding:40px; color:#6b7280;">
+            <i class="fa-solid fa-inbox" style="font-size:48px; margin-bottom:10px;"></i>
+            <p>No hay reportes disponibles</p>
+          </div>
+        </ng-template>
       </div>
     </div>
   </main>
@@ -127,11 +160,18 @@
       </div>
       <div *ngIf="tipoModalActivo === 'infraccion' && infraccionSeleccionada" class="detalle-infraccion-container">
         <div class="detalle-grid">
-          <div class="detalle-item"><label>Referencia</label><p>{{ infraccionSeleccionada.ref }}</p></div>
-          <div class="detalle-item"><label>Tipo</label><p>{{ infraccionSeleccionada.tipo }}</p></div>
-          <div class="detalle-item"><label>Agente</label><p>{{ infraccionSeleccionada.agente }}</p></div>
+          <div class="detalle-item"><label>Referencia</label>
+            <p>{{ infraccionSeleccionada.ref }}</p>
+          </div>
+          <div class="detalle-item"><label>Tipo</label>
+            <p>{{ infraccionSeleccionada.tipo }}</p>
+          </div>
+          <div class="detalle-item"><label>Agente</label>
+            <p>{{ infraccionSeleccionada.agente }}</p>
+          </div>
           <div class="detalle-item"><label>Estado</label>
-            <p><span class="status-badge" [ngClass]="getClaseEstado(infraccionSeleccionada.estado)">{{ infraccionSeleccionada.estado }}</span></p>
+            <p><span class="status-badge" [ngClass]="getClaseEstado(infraccionSeleccionada.estado)">{{
+                infraccionSeleccionada.estado }}</span></p>
           </div>
         </div>
       </div>

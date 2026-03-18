@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges } from '@angular/core';
 import { Tarea } from '../agente';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -12,11 +12,13 @@ import { FormsModule } from '@angular/forms';
 })  
 
 
-export class Tareas {
+export class Tareas implements OnChanges {
 
 
 
   @Input() tareas!: Tarea[];   // 🔥 ARREGLADO
+  @Input() puedeAccion: boolean = true; // Para deshabilitar botones
+  @Input() filtroInicial?: 'PENDIENTES' | 'HECHAS' | 'TODAS';
 
   @Output() comenzar = new EventEmitter<Tarea>();
   @Output() finalizar = new EventEmitter<Tarea>();
@@ -28,6 +30,12 @@ export class Tareas {
     mostrarModal = false;
     mostrarModalResumen = false;
     resumenTexto = '';
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['filtroInicial'] && this.filtroInicial) {
+      this.filtro = this.filtroInicial;
+    }
+  }
 
   abrir(t: Tarea){
     this.tareaSeleccionada = t;
@@ -64,11 +72,11 @@ export class Tareas {
   get tareasFiltradas(){
 
     if(this.filtro === 'PENDIENTES'){
-      return this.tareas.filter(t => t.estado !== 'FINALIZADA');
+      return this.tareas.filter(t => t.estado !== 'FINALIZADO');
     }
 
     if(this.filtro === 'HECHAS'){
-      return this.tareas.filter(t => t.estado === 'FINALIZADA');
+      return this.tareas.filter(t => t.estado === 'FINALIZADO');
     }
 
     return this.tareas;

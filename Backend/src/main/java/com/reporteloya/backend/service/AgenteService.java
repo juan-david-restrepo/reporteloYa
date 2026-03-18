@@ -21,8 +21,7 @@ public class AgenteService {
     }
 
     public Agentes guardar(Agentes agente) {
-        return agenteRepository.save(agente); // Esto es lo que inserta en MySQL
-
+        return agenteRepository.saveAndFlush(agente);
     }
 
     public Optional<Agentes> buscarPorEmail(String email) {

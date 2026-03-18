@@ -3,6 +3,9 @@ import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import * as L from 'leaflet';
 import { SidebarAdmin } from '../sidebar-admin/sidebar-admin';
+import { ReportesService } from '../../../service/reportes.service';
+import { WebsocketService } from '../../../service/websocket';
+
 
 interface Reporte {
   id: number;
@@ -10,8 +13,9 @@ interface Reporte {
   descripcion: string;
   latitud: number;
   longitud: number;
-  fecha: Date | string;
-  estado: 'pendiente' | 'en_proceso' | 'resuelto';
+  fechaIncidente: Date ;
+  horaIncidente: Date ;
+  estado: 'PENDIENTE' | 'EN_PROCESO' | 'FINALIZADO';
   agente?: string;
   foto?: string;
   direccion?: string;
@@ -22,21 +26,18 @@ interface Reporte {
   standalone: true,
   templateUrl: './mapa-reportes.html',
   styleUrls: ['./mapa-reportes.css'],
-  imports: [RouterModule, CommonModule, SidebarAdmin]
+  imports: [RouterModule, CommonModule, SidebarAdmin],
 })
 export class MapaReportesComponent implements AfterViewInit, OnInit, OnDestroy {
-
   // --- Propiedades Privadas ---
   private map!: L.Map;
   private markersLayer = L.layerGroup();
   private socket?: WebSocket;
   private mapaListo = false;
-  private modoDemo = false;
+ 
   private intervaloNuevos?: any;
   private intervaloCambios?: any;
-  private agentesDemo = [
-    'Unidad Móvil 12', 'Patrulla Vial 7', 'Agente Ramírez', 'Agente Torres', 'Grúa Municipal', 'Motorizado 3'
-  ];
+ 
 
   // --- Propiedades Públicas ---
   menuAbierto: boolean = false; // 🔹 Control del Sidebar Responsive
@@ -47,12 +48,51 @@ export class MapaReportesComponent implements AfterViewInit, OnInit, OnDestroy {
   reporteSeleccionado?: Reporte;
   mostrarDetalle = false;
 
-  constructor(private router: Router, private zone: NgZone) { }
+  constructor(
+    private router: Router,
+    private zone: NgZone,
+    private reportesService: ReportesService,
+    private websocketService: WebsocketService,
+  ) {}
+
+  private loadSettings() {
+    const isDark = localStorage.getItem('darkMode') === 'true';
+    if (isDark) document.body.classList.add('dark-mode');
+
+    const isColorBlind = localStorage.getItem('colorBlind') === 'true';
+    if (isColorBlind) document.body.classList.add('color-blind');
+
+    const savedSize = localStorage.getItem('fontSize') || 'normal';
+    document.body.classList.add(`font-${savedSize}`);
+  }
 
   // --- Ciclo de Vida ---
   ngOnInit(): void {
+
+    // 1️⃣ cargar reportes existentes desde la API
+
+    this.loadSettings();
+
     this.cargarReportesIniciales();
-    this.escucharTiempoReal();
+
+    // 2️⃣ conectar al websocket
+    this.websocketService.connect();
+
+    
+  this.websocketService.reportes$.subscribe((reporte) => {
+    if (!reporte) return;
+
+     console.log('Reporte en tiempo real:', reporte);
+
+    const existe = this.reportes.find((r) => r.id === reporte.id);
+
+
+    if (existe) {
+      this.actualizarReporte(reporte);
+    } else {
+      this.agregarReporte(reporte);
+    }
+  });
   }
 
   ngAfterViewInit(): void {
@@ -70,56 +110,71 @@ export class MapaReportesComponent implements AfterViewInit, OnInit, OnDestroy {
 
   // --- Gestión de Datos ---
   private cargarReportesIniciales(): void {
-    fetch('http://localhost:8080/reportes')
-      .then(res => res.json())
-      .then((data: Reporte[]) => {
-        this.reportes = data.map(r => ({ ...r, fecha: new Date(r.fecha) }));
-        this.actualizarContadores();
-        if (this.mapaListo) this.refrescarMapa();
-      })
-      .catch(() => this.activarSimulador());
-  }
+    this.reportesService.obtenerReportes().then((data: any) => {
+      console.log('Reportes recibidos:', data);
 
-  private escucharTiempoReal(): void {
-    try {
-      this.socket = new WebSocket('ws://localhost:8080');
-      this.socket.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        if (data.tipo === 'nuevo_reporte') this.agregarReporte(data.reporte);
-        if (data.tipo === 'actualizar_reporte') this.actualizarReporte(data.reporte);
-      };
-      this.socket.onclose = () => this.activarSimulador();
-    } catch { this.activarSimulador(); }
+      this.reportes = data.content.map((r: any) => ({
+        id: r.id,
+        tipo: r.tipoInfraccion,
+        descripcion: r.descripcion,
+        latitud: r.latitud,
+        longitud: r.longitud,
+        fechaIncidente: new Date(r.fechaIncidente),
+        horaIncidente: new Date(r.horaIncidente),
+        estado: r.estado.toUpperCase(),
+      }));
+
+      this.actualizarContadores();
+
+      if (this.mapaListo) {
+        this.refrescarMapa();
+      }
+    });
   }
 
   private agregarReporte(reporte: Reporte): void {
-    reporte.fecha = new Date(reporte.fecha);
+    reporte.fechaIncidente = new Date(reporte.fechaIncidente);
     this.reportes.push(reporte);
     if (this.mapaListo) this.crearMarcador(reporte);
     this.actualizarContadores();
   }
 
-  private actualizarReporte(reporteActualizado: Reporte): void {
-    const index = this.reportes.findIndex(r => r.id === reporteActualizado.id);
-    if (index === -1) return;
-    reporteActualizado.fecha = new Date(reporteActualizado.fecha);
-    this.reportes[index] = reporteActualizado;
-    if (this.mapaListo) this.refrescarMapa();
-    this.actualizarContadores();
-  }
+private actualizarReporte(reporteActualizado: Reporte): void {
+  const index = this.reportes.findIndex(r => r.id === reporteActualizado.id);
+  if (index === -1) return;
+
+  this.reportes[index] = {
+    ...this.reportes[index],
+    ...reporteActualizado,
+    fechaIncidente: new Date(reporteActualizado.fechaIncidente)
+  };
+
+  if (this.mapaListo) this.refrescarMapa();
+  this.actualizarContadores();
+}
 
   private actualizarContadores(): void {
-    this.pendientes = this.reportes.filter(r => r.estado === 'pendiente').length;
-    this.enProceso = this.reportes.filter(r => r.estado === 'en_proceso').length;
-    this.resueltos = this.reportes.filter(r => r.estado === 'resuelto').length;
+    this.pendientes = this.reportes.filter(
+      (r) => r.estado === 'PENDIENTE',
+    ).length;
+    this.enProceso = this.reportes.filter(
+      (r) => r.estado === 'EN_PROCESO',
+    ).length;
+    this.resueltos = this.reportes.filter(
+      (r) => r.estado === 'FINALIZADO',
+    ).length;
   }
 
   // --- Lógica del Mapa (Leaflet) ---
   private initMap(): void {
     this.map = L.map('map', { center: [4.5339, -75.6811], zoom: 15 });
 
-    const satelite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}');
-    const etiquetas = L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}');
+    const satelite = L.tileLayer(
+      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    );
+    const etiquetas = L.tileLayer(
+      'https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
+    );
 
     satelite.addTo(this.map);
     etiquetas.addTo(this.map);
@@ -132,41 +187,61 @@ export class MapaReportesComponent implements AfterViewInit, OnInit, OnDestroy {
 
   private mostrarUbicacionActual(): void {
     if (!navigator.geolocation) return;
-    navigator.geolocation.getCurrentPosition(pos => {
-      const lat = pos.coords.latitude, lng = pos.coords.longitude;
-      L.circleMarker([lat, lng], { radius: 8, fillColor: '#007bff', color: '#fff', weight: 2, fillOpacity: 1 })
-        .addTo(this.map).bindPopup('<b>Tu ubicación</b>');
+    navigator.geolocation.getCurrentPosition((pos) => {
+      const lat = pos.coords.latitude,
+        lng = pos.coords.longitude;
+      L.circleMarker([lat, lng], {
+        radius: 8,
+        fillColor: '#007bff',
+        color: '#fff',
+        weight: 2,
+        fillOpacity: 1,
+      })
+        .addTo(this.map)
+        .bindPopup('<b>Tu ubicación</b>');
     });
   }
 
   private refrescarMapa(): void {
     this.markersLayer.clearLayers();
-    this.reportes.forEach(r => this.crearMarcador(r));
+    this.reportes.forEach((r) => this.crearMarcador(r));
   }
 
   private crearMarcador(reporte: Reporte): void {
     const marker = L.circleMarker([reporte.latitud, reporte.longitud], {
-      radius: 8, fillColor: this.getColorEstado(reporte.estado), color: '#fff', weight: 2, fillOpacity: 1
+      radius: 8,
+      fillColor: this.getColorEstado(reporte.estado),
+      color: '#fff',
+      weight: 2,
+      fillOpacity: 1,
     });
 
     const div = document.createElement('div');
-    div.innerHTML = `<b>${reporte.tipo}</b><br>${new Date(reporte.fecha).toLocaleTimeString()}<br><button class='detalle-btn'>Ver detalles</button>`;
+    div.innerHTML = `<b>${reporte.tipo}</b><br>${new Date(reporte.fechaIncidente).toLocaleTimeString()}<br><button class='detalle-btn'>Ver detalles</button>`;
 
     const btn = div.querySelector('.detalle-btn') as HTMLButtonElement;
     btn.onclick = () => this.zone.run(() => this.abrirDetalle(reporte));
 
     marker.bindPopup(div);
-    marker.on('click', () => this.map.flyTo([reporte.latitud, reporte.longitud], 17, { duration: 0.5 }));
+    marker.on('click', () =>
+      this.map.flyTo([reporte.latitud, reporte.longitud], 17, {
+        duration: 0.5,
+      }),
+    );
 
     marker.addTo(this.markersLayer);
   }
 
   private getColorEstado(estado: string): string {
     switch (estado) {
-      case 'pendiente': return '#ffc107';
-      case 'en_proceso': return '#fd7e14';
-      case 'resuelto': return '#28a745';
-      default: return '#6c757d';
+      case 'PENDIENTE':
+        return '#ffc107';
+      case 'EN_PROCESO':
+        return '#fd7e14';
+      case 'FINALIZADO':
+        return '#28a745';
+      default:
+        return '#6c757d';
     }
   }
 
@@ -185,39 +260,5 @@ export class MapaReportesComponent implements AfterViewInit, OnInit, OnDestroy {
     this.router.navigate(['/admin/reporte', id]);
   }
 
-  // --- Simulador Demo ---
-  private activarSimulador(): void {
-    if (this.modoDemo) return;
-    this.modoDemo = true;
-    this.intervaloNuevos = setInterval(() => this.agregarReporte(this.generarReporteFake()), 4500);
-    this.intervaloCambios = setInterval(() => this.simularCambioEstado(), 6000);
-  }
-
-  private generarReporteFake(): Reporte {
-    const tipos = ['Accidente de tránsito', 'Semáforo dañado', 'Vehículo abandonado', 'Congestión vial', 'Hueco peligroso', 'Inundación'];
-    const latBase = 4.5339, lngBase = -75.6811;
-    return {
-      id: Date.now(),
-      tipo: tipos[Math.floor(Math.random() * tipos.length)],
-      descripcion: 'Demo',
-      latitud: latBase + (Math.random() - 0.5) * 0.02,
-      longitud: lngBase + (Math.random() - 0.5) * 0.02,
-      fecha: new Date(),
-      estado: 'pendiente',
-      direccion: 'Ubicación simulada'
-    };
-  }
-
-  private simularCambioEstado(): void {
-    const candidatos = this.reportes.filter(r => r.estado !== 'resuelto');
-    if (!candidatos.length) return;
-    const r = candidatos[Math.floor(Math.random() * candidatos.length)];
-    if (r.estado === 'pendiente') {
-      r.estado = 'en_proceso';
-      r.agente = this.agentesDemo[Math.floor(Math.random() * this.agentesDemo.length)];
-    } else {
-      r.estado = 'resuelto';
-    }
-    this.actualizarReporte(r);
-  }
+ 
 }

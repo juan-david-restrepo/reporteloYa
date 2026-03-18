@@ -8,9 +8,8 @@
   border-radius: 20px;
   color: var(--text);
   font-size: 1em;
+  
 }
-
-
 
 .chart-header,
 .chart-calendar,
@@ -29,18 +28,39 @@
 /* ---------- FECHAS ---------- */
 .chart-calendar {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
   background: var(--bg);
   background-color: none;
   color: var(--text);
   border: 1px solid var(--border);
+  padding: 8px 12px;
+  border-radius: 10px;
 }
 
-.chart-calendar input {
+.chart-calendar label {
+  font-weight: 500;
+  color: var(--text);
+}
+
+.chart-calendar .fecha-input {
   padding: 6px 10px;
   border-radius: 8px;
   border: 1px solid #d1d5db;
+  background: var(--card, #fff);
+  color: var(--text);
+}
+
+.chart-calendar .separador {
+  color: var(--text);
+  opacity: 0.6;
+}
+
+.chart-calendar .rango-seleccionado {
+  font-size: 0.85em;
+  color: #3b82f6;
+  font-weight: 500;
+  margin-left: 5px;
 }
 
 .chart-calendar button {
@@ -96,6 +116,7 @@
   border-radius: 18px;
   box-shadow: 0 10px 30px rgba(0,0,0,.1);
   transition: transform .2s ease;
+  cursor: pointer;
 }
 
 .dash-card:hover {
@@ -232,6 +253,36 @@ h4{
 
 .actividad-icon.pending {
   background: #f59e0b;
+}
+
+/* Icono para reportes - círculo verde con R */
+.actividad-icon-reporte {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #22c55e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.icono-letra {
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+/* Icono para tareas - círculo amarillo con T */
+.actividad-icon-tarea {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #f59e0b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .actividad-info h4 {

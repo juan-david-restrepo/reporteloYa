@@ -10,6 +10,8 @@
 
 }
 
+
+
 /* ===============================
    CONTENIDO PRINCIPAL
 ================================ */
@@ -188,29 +190,44 @@
    ESTADO AGENTE
 ================================ */
 
-.estado {
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 800;
-  text-transform: uppercase;
-  padding: 6px 12px;
-  white-space: nowrap;
-}
-
 
 .estado.disponible {
   background: #dcfce7;
   color: #166534;
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    min-width: 80px;
+    text-align: center;
 }
 
 .estado.ocupado {
   background: #fee2e2;
-  color: #991b1b;
+  color: #ffc70f;
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    min-width: 80px;
+    text-align: center;   
 }
 
-.estado.ausente {
-  background: #fef3c7;
+.estado.fuera-servicio {
+  background: #f51d0e;
   color: #92400e;
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    min-width: 80px;
+    text-align: center;
 }
 
 /* ===============================
@@ -240,7 +257,7 @@ table thead th {
   text-transform: uppercase;
   font-size: 13px;
   letter-spacing: 0.5px;
-  text-align: left;
+  text-align: center;
 }
 
 /* CUERPO */
@@ -542,7 +559,7 @@ table td {
 
 .tabla-tareas th {
   padding: 12px 10px;
-  text-align: left;
+  text-align: center;
   font-weight: 600;
   font-size: 14px;
 }
@@ -558,41 +575,53 @@ table td {
 /* ===== ANCHOS ESPECÍFICOS PARA 6 COLUMNAS ===== */
 .tabla-tareas th:nth-child(1),
 .tabla-tareas td:nth-child(1) {
-  width: 110px;
+  width: 130px;
+  text-align: center;
 }
 
 /* Fecha */
 .tabla-tareas th:nth-child(2),
 .tabla-tareas td:nth-child(2) {
   width: 80px;
+   text-align: center;
 }
 
 /* Hora */
 .tabla-tareas th:nth-child(3),
 .tabla-tareas td:nth-child(3) {
-  width: auto;
+  width: 80px;
+   text-align: center;
 }
 
 /* Descripción */
 .tabla-tareas th:nth-child(4),
 .tabla-tareas td:nth-child(4) {
-  width: 125px;
+  width: 120px;
+   text-align: center;
 }
 
 /* Estado (NUEVA) */
 .tabla-tareas th:nth-child(5),
 .tabla-tareas td:nth-child(5) {
   width: 110px;
+   text-align: center;
 }
 
 /* Prioridad */
 .tabla-tareas th:nth-child(6),
 .tabla-tareas td:nth-child(6) {
-  width: 100px;
+  width: 95px;
   text-align: center;
 }
 
 /* Acción */
+.tabla-tareas th:nth-child(7),
+.tabla-tareas td:nth-child(7) {
+  width: 90px;
+  text-align: center;
+}
+
+
 
 
 /* columna descripción limpia */
@@ -606,7 +635,6 @@ table td {
 .descripcion-contenido {
   display: flex;
   align-items: center;
-  gap: 8px;
 }
 
 /* texto preview */
@@ -739,46 +767,30 @@ table td {
   background: #1e3a8a;
 }
 
-/* ================= COLORES DE ESTADOS ACTUALIZADOS ================= */
-.badge-estado {
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-weight: 800;
-  font-size: 10px;
-  color: #fff;
+/* Estilo base - Ajustado para no romper el layout */
+.estado {
+  padding: 2px 8px; /* Padding pequeño para que no crezca mucho */
+  border-radius: 4px;
+  color: white !important;
+  font-weight: bold;
+  display: inline; /* Cambiado a inline para que no salte de línea */
   text-transform: uppercase;
-  display: inline-block;
-  min-width: 95px;
-  text-align: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-size: 0.9rem;
+  margin-left: 5px; /* Espacio respecto al label */
 }
 
-/* Pendiente -> Amarillo */
-.bg-pendiente {
-  background-color: #ffb921e0 !important;
-  color: #f7f7f7 !important;
+/* Colores por estado */
+.disponible {
+  background-color: #28a745 !important;
 }
 
-/* En Proceso -> Azul */
-.bg-proceso {
-  background-color: #3b82f6 !important;
-  color: #fff !important;
+.ocupado {
+  background-color: #ffda06 !important;
 }
 
-/* Finalizado -> Verde */
-.bg-finalizado {
-  background-color: #2ecc71 !important;
-  color: #fff !important;
+.fuera-de-servicio {
+  background-color: #dc3545 !important;
 }
-
-/* Rechazado (por si lo usas) -> Rojo */
-.bg-rechazado {
-  background-color: #e63946 !important;
-  color: #fff !important;
-}
-
-
-
 
 /* =========================================
    ESTILOS NUEVOS: HISTORIAL Y FILTROS
@@ -860,14 +872,35 @@ table td {
   border: 1px solid #e5e7eb;
 }
 
+.tabla-reportes tbody{
+  text-align: center;
+}
+
 /* Mensajes cuando no hay datos en el historial */
-.card p {
+.card p:not(.mensaje-vacio) {
   margin-top: 15px;
   padding: 10px;
   background: #f8fafc;
   border-radius: 8px;
   text-align: center;
   font-style: italic;
+}
+
+/* Mensaje vacío - estilo base */
+.mensaje-vacio {
+  margin-top: 15px;
+  padding: 10px;
+  background: #f8fafc;
+  border-radius: 8px;
+  text-align: center;
+  font-style: italic;
+}
+
+/* Modo oscuro - mensajes vacíos */
+::ng-deep body.dark-mode .mensaje-vacio {
+  background-color: #1e293b !important;
+  color: #94a3b8 !important;
+  border: 1px solid #334155 !important;
 }
 
 
@@ -898,9 +931,9 @@ table td {
 }
 
 /* =========================================
-   MEDIA QUERY: TABLETS Y MÓVILES
+   MEDIA QUERY
    ========================================= */
-@media (max-width: 992px) {
+@media (max-width: 1120px) {
   .mobile-menu-btn {
     display: block;
   }
@@ -927,9 +960,9 @@ table td {
 }
 
 /* =========================================
-   MEDIA QUERY: MÓVILES PEQUEÑOS (HASTA 340px)
+   MEDIA QUERY
    ========================================= */
-@media (max-width: 768px) {
+@media (max-width: 820px) {
 
   /* Convertir tablas en formato lista/card */
   table,
@@ -1008,4 +1041,418 @@ table td {
 
 
 
+}
+
+
+/* EL ESTILO DE ESTADO (Badges sólidos) */
+.badge-estado {
+     display: inline-block;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    min-width: 80px;
+    text-align: center;
+}
+
+/* Colores específicos */
+.bg-pendiente { background-color: #FFB300; color: white;} /* Amarillo vibrante */
+.bg-proceso { background-color: #00B8D4; color: white; }   /* Azul claro sólido */
+.bg-finalizado { background-color: #2E7D32; color: #ffffff; } /* Verde bosque */
+.bg-rechazado { background-color: #C62828; color: #ffffff; }  /* Rojo intenso */
+
+/* ====================================================
+   🌙 MODO OSCURO
+   ==================================================== */
+::ng-deep body.dark-mode .admin-container {
+  background-color: #0f172a !important;
+}
+
+::ng-deep body.dark-mode .admin-content {
+  background-color: #0f172a !important;
+}
+
+::ng-deep body.dark-mode .card {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+::ng-deep body.dark-mode .card h2,
+::ng-deep body.dark-mode .titulo {
+  color: #f8fafc !important;
+}
+
+::ng-deep body.dark-mode .buscador label,
+::ng-deep body.dark-mode .card label {
+  color: #f8fafc !important;
+}
+
+::ng-deep body.dark-mode .busqueda input {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+::ng-deep body.dark-mode .busqueda button {
+  background-color: #334155 !important;
+}
+
+::ng-deep body.dark-mode .busqueda button:hover {
+  background-color: #475569 !important;
+}
+
+::ng-deep body.dark-mode .info-grid p {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+::ng-deep body.dark-mode table thead {
+  background: linear-gradient(90deg, #1e293b, #334155) !important;
+}
+
+::ng-deep body.dark-mode table thead th {
+  color: #f8fafc !important;
+}
+
+::ng-deep body.dark-mode table tbody tr:nth-child(even) {
+  background-color: #1e293b !important;
+}
+
+::ng-deep body.dark-mode table tbody tr:hover {
+  background-color: #334155 !important;
+}
+
+::ng-deep body.dark-mode table td {
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+::ng-deep body.dark-mode .tabla-reportes td:nth-child(1),
+::ng-deep body.dark-mode .tabla-reportes td:nth-child(2) {
+  color: #f8fafc !important;
+}
+
+::ng-deep body.dark-mode .card input,
+::ng-deep body.dark-mode .card select {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+::ng-deep body.dark-mode .card p,
+::ng-deep body.dark-mode .error,
+::ng-deep body.dark-mode .cargando,
+::ng-deep body.dark-mode .mensaje-ok {
+  color: #f8fafc !important;
+}
+
+/* Mensaje de éxito con fondo apropiado en modo oscuro */
+::ng-deep body.dark-mode .mensaje-ok {
+  background-color: #052e16 !important;
+  border: 1px solid #166534 !important;
+  padding: 10px !important;
+  border-radius: 8px !important;
+}
+
+::ng-deep body.dark-mode .estado-inicial {
+  background-color: #1e293b !important;
+}
+
+::ng-deep body.dark-mode .modal-backdrop {
+  background: rgba(0, 0, 0, 0.7) !important;
+}
+
+::ng-deep body.dark-mode .modal-box {
+  background-color: #1e293b !important;
+}
+
+::ng-deep body.dark-mode .modal-box h3,
+::ng-deep body.dark-mode .modal-box p {
+  color: #f8fafc !important;
+}
+
+::ng-deep body.dark-mode .btn-cancelar {
+  background-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+::ng-deep body.dark-mode .modal-descripcion {
+  background-color: rgba(0, 0, 0, 0.8) !important;
+}
+
+::ng-deep body.dark-mode .modal-contenido {
+  background-color: #1e293b !important;
+}
+
+::ng-deep body.dark-mode .modal-header {
+  background-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+::ng-deep body.dark-mode .modal-body {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+::ng-deep body.dark-mode .modal-footer {
+  background-color: #334155 !important;
+}
+
+::ng-deep body.dark-mode .btn-cerrar {
+  background-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+::ng-deep body.dark-mode .filtros-container {
+  background-color: #1e293b !important;
+}
+
+::ng-deep body.dark-mode .filtros-container button {
+  color: #94a3b8 !important;
+}
+
+::ng-deep body.dark-mode .filtros-container button.activo {
+  background-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+::ng-deep body.dark-mode .subtitulo-seccion {
+  color: #60a5fa !important;
+}
+
+::ng-deep body.dark-mode .subtitulo-seccion::before {
+  background: #60a5fa !important;
+}
+
+::ng-deep body.dark-mode .divisor {
+  border-color: #334155 !important;
+}
+
+::ng-deep body.dark-mode .mobile-menu-btn {
+  background-color: #334155 !important;
+}
+
+/* ====================================================
+   🌙 MODO OSCURO - DETALLES ADICIONALES
+   ==================================================== */
+
+/* Estado inicial - contenedor al inicio */
+::ng-deep body.dark-mode .estado-inicial h2 {
+  color: #f8fafc !important;
+}
+
+::ng-deep body.dark-mode .estado-inicial p {
+  color: #94a3b8 !important;
+}
+
+/* Badges de estado del agente */
+::ng-deep body.dark-mode .estado.disponible {
+  background-color: #166534 !important;
+  color: #ffffff !important;
+}
+
+::ng-deep body.dark-mode .estado.ocupado {
+  background-color: #ffda08 !important;
+  color: #ffffff !important;
+}
+
+::ng-deep body.dark-mode .estado.ausente {
+  background-color: #92400e !important;
+  color: #ffffff !important;
+}
+
+/* Badges de prioridad tareas */
+::ng-deep body.dark-mode .prioridad.baja {
+  background-color: #1e3a5f !important;
+  color: #60a5fa !important;
+}
+
+::ng-deep body.dark-mode .prioridad.media {
+  background-color: #451a03 !important;
+  color: #fbbf24 !important;
+}
+
+::ng-deep body.dark-mode .prioridad.alta {
+  background-color: #450a0a !important;
+  color: #f87171 !important;
+}
+
+/* Badges de estado en tablas */
+::ng-deep body.dark-mode .badge-estado {
+  color: #ffffff !important;
+}
+
+/* Botón ver más */
+::ng-deep body.dark-mode .ver-mas {
+  color: #60a5fa !important;
+}
+
+::ng-deep body.dark-mode .ver-mas:hover {
+  background-color: #1e293b !important;
+}
+
+/* Tabla tareas - filas alternas y hover */
+::ng-deep body.dark-mode .tabla-tareas tbody tr:nth-child(even) {
+  background-color: #1e293b !important;
+}
+
+::ng-deep body.dark-mode .tabla-tareas tbody tr:hover {
+  background-color: #334155 !important;
+}
+
+::ng-deep body.dark-mode .tabla-tareas td {
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+::ng-deep body.dark-mode .tabla-tareas th {
+  color: #f8fafc !important;
+}
+
+/* Botón eliminar tarea */
+::ng-deep body.dark-mode .btn-eliminar {
+  background-color: #991b1b !important;
+}
+
+/* Descripción en tabla */
+::ng-deep body.dark-mode .descripcion-texto {
+  color: #f8fafc !important;
+}
+
+/* Info grid - strong labels */
+::ng-deep body.dark-mode .info-grid p strong {
+  color: #94a3b8 !important;
+}
+
+/* Contador de caracteres en inputs */
+::ng-deep body.dark-mode small {
+  color: #94a3b8 !important;
+}
+
+/* Cerrar modal */
+::ng-deep body.dark-mode .cerrar {
+  color: #f8fafc !important;
+}
+
+/* Confirmar eliminar */
+::ng-deep body.dark-mode .btn-confirmar {
+  background-color: #dc2626 !important;
+  color: #ffffff !important;
+}
+
+/* Contenedor buscador - label específico */
+::ng-deep body.dark-mode .buscador > label {
+  color: #f8fafc !important;
+}
+
+/* Placeholder del input */
+::ng-deep body.dark-mode .busqueda input::placeholder {
+  color: #64748b !important;
+}
+
+/* Estado inicial - contenedor blanco que no se ve */
+::ng-deep body.dark-mode .estado-inicial {
+  background-color: #1e293b !important;
+  border: 1px solid #334155 !important;
+  color: #f8fafc !important;
+}
+
+::ng-deep body.dark-mode .estado-inicial h2 {
+  color: #f8fafc !important;
+}
+
+::ng-deep body.dark-mode .estado-inicial p {
+  color: #94a3b8 !important;
+  background-color: transparent !important;
+}
+
+/* Información del agente - estilo mejorado */
+::ng-deep body.dark-mode .agente-info .info-grid p {
+  background-color: #0f172a !important;
+  border: 1px solid #334155 !important;
+  padding: 16px 18px !important;
+  border-radius: 12px !important;
+  color: #f8fafc !important;
+  transition: all 0.3s ease !important;
+}
+
+::ng-deep body.dark-mode .agente-info .info-grid p:hover {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15) !important;
+}
+
+::ng-deep body.dark-mode .agente-info .info-grid strong {
+  color: #60a5fa !important;
+  font-size: 12px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+::ng-deep body.dark-mode .agente-info .info-grid span:not(.estado) {
+  color: #f8fafc !important;
+  font-weight: 600 !important;
+  font-size: 15px !important;
+}
+
+/* Estado del agente */
+::ng-deep body.dark-mode .estado-container {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 8px !important;
+}
+
+::ng-deep body.dark-mode .estado-container strong {
+  margin-bottom: 0 !important;
+}
+
+::ng-deep body.dark-mode .estado {
+  margin-left: 0 !important;
+  margin-top: 4px !important;
+}
+
+/* Tabla reportes realizados */
+::ng-deep body.dark-mode .tabla-reportes {
+  background-color: #1e293b !important;
+  border: 1px solid #334155 !important;
+}
+
+::ng-deep body.dark-mode .tabla-reportes thead {
+  background: linear-gradient(90deg, #1e293b, #334155) !important;
+}
+
+::ng-deep body.dark-mode .tabla-reportes thead th {
+  color: #f8fafc !important;
+  border-bottom: 2px solid #3b82f6 !important;
+}
+
+::ng-deep body.dark-mode .tabla-reportes tbody tr {
+  background-color: #1e293b !important;
+}
+
+::ng-deep body.dark-mode .tabla-reportes tbody tr:nth-child(even) {
+  background-color: #0f172a !important;
+}
+
+::ng-deep body.dark-mode .tabla-reportes tbody tr:hover {
+  background-color: #334155 !important;
+}
+
+::ng-deep body.dark-mode .tabla-reportes td {
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+::ng-deep body.dark-mode .tabla-reportes td[data-label="Fecha"],
+::ng-deep body.dark-mode .tabla-reportes td[data-label="Hora"] {
+  color: #60a5fa !important;
+  font-weight: 600 !important;
+}
+
+/* Tareas finalizadas - fecha y hora en azul */
+::ng-deep body.dark-mode .tabla-tareas td[data-label="Fecha"],
+::ng-deep body.dark-mode .tabla-tareas td[data-label="Hora"] {
+  color: #60a5fa !important;
+  font-weight: 600 !important;
 }

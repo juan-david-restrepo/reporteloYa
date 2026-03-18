@@ -35,14 +35,14 @@
 
           <div
             class="estado-card"
-            [class.libre]="estadoAgente === 'LIBRE'"
+            [class.disponible]="estadoAgente === 'DISPONIBLE'"
             [class.ocupado]="estadoAgente === 'OCUPADO'"
             [class.off]="estadoAgente === 'FUERA_SERVICIO'"
           >
             <i
               class="fa-solid"
               [ngClass]="{
-                'fa-circle-check': estadoAgente === 'LIBRE',
+                'fa-circle-check': estadoAgente === 'DISPONIBLE',
                 'fa-circle-pause': estadoAgente === 'OCUPADO',
                 'fa-circle-xmark': estadoAgente === 'FUERA_SERVICIO',
               }"
@@ -52,7 +52,7 @@
             <span class="estado-text">
               {{
                 estadoAgente === "FUERA_SERVICIO"
-                  ? "Fuera de servicio"
+                  ? "FUERA_SERVICIO"
                   : estadoAgente === "OCUPADO"
                     ? "Ocupado"
                     : "Disponible"
@@ -65,23 +65,43 @@
           <div
             class="notif-icon"
             (click)="toggleNotificaciones()"
-            [class.ring]="notificaciones.length > 0"
+            [class.ring]="notificacionesNoLeidas > 0"
           >
             <i class="fa-solid fa-bell"></i>
 
-            <span class="notif-count" *ngIf="notificaciones.length > 0">
-              {{ notificaciones.length }}
+            <span class="notif-count" *ngIf="notificacionesNoLeidas > 0">
+              {{ notificacionesNoLeidas }}
             </span>
           </div>
 
           <div class="notif-dropdown" *ngIf="mostrarNotificaciones">
-            <div
-              class="notif-item"
-              *ngFor="let n of notificaciones"
-              (click)="abrirNotif(n)"
-            >
-              <strong>{{ n.tipo }}</strong>
-              <p>{{ n.texto }}</p>
+            <div class="notif-header">
+              <span>Notificaciones</span>
+              <button class="notif-clear" (click)="notificaciones = []; $event.stopPropagation()">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+            <div class="notif-list">
+              <div
+                class="notif-item"
+                [class.no-leida]="!n.leida"
+                *ngFor="let n of notificaciones"
+                (click)="abrirNotif(n)"
+              >
+                <div class="notif-icon-tipo">
+                  <i class="fa-solid" [class.fa-flag]="n.tipo === 'TAREA'" [class.fa-bell]="n.tipo === 'REPORTE'" [class.tarea-icon]="n.tipo === 'TAREA'" [class.reporte-icon]="n.tipo === 'REPORTE'"></i>
+                </div>
+                <div class="notif-content">
+                  <strong>{{ n.tipo }}</strong>
+                  <p>{{ n.texto }}</p>
+                  <span class="notif-hora">{{ n.hora }}</span>
+                </div>
+                <div class="notif-unread-dot" *ngIf="!n.leida"></div>
+              </div>
+              <div class="notif-empty" *ngIf="notificaciones.length === 0">
+                <i class="fa-solid fa-bell-slash"></i>
+                <p>Sin notificaciones</p>
+              </div>
             </div>
           </div>
         </div>
@@ -94,6 +114,13 @@
     <app-dashboard
       *ngIf="vistaActual === 'dashboard'"
       [estadoAgente]="estadoAgente"
+      [reiniciarCronometro$]="reiniciarCronometroSignal"
+      [tareas]="tareasAdmin"
+      (irHistorial)="abrirHistorial()"
+      (irReportes)="cambiarVista('reportes')"
+      (irResueltos)="abrirHistorialResueltos()"
+      (irRechazados)="abrirHistorialRechazados()"
+      (irActividad)="navegarAActividad($event)"
     >
     </app-dashboard>
 
@@ -104,6 +131,7 @@
       [reporteInicial]="reporteDesdeHistorial"
       [modoLectura]="reporteDesdeHistorial !== null"
       [origen]="origenDetalle"
+      [puedeAccion]="puedeAceptarReportes"
       (volver)="volverDesdeDetalle($event)"
       (aceptar)="aceptarReporte($event)"
       (rechazar)="rechazarReporte($event)"
@@ -114,6 +142,7 @@
     <app-historial
       *ngIf="vistaActual === 'historial'"
       [historial]="historialReportes"
+      [filtroInicial]="filtroHistorial"
       (verDetalle)="verDetalleHist($event)"
     >
     </app-historial>
@@ -121,6 +150,8 @@
     <app-tareas
       *ngIf="vistaActual === 'tareas'"
       [tareas]="tareasAdmin"
+      [puedeAccion]="puedeComenzarTarea"
+      [filtroInicial]="filtroTareas"
       (comenzar)="comenzarTarea($event)"
       (finalizar)="finalizarTarea($event)"
     >
@@ -130,6 +161,7 @@
       *ngIf="vistaActual === 'perfil'"
       [agente]="perfilAgente"
       [estadoAgente]="estadoAgente"
+      [bloquearCambioEstado]="estadoAgente === 'OCUPADO' || hayEnProceso"
       (estadoChange)="toggleServicio($event)"
     >
     </app-perfil-agente>

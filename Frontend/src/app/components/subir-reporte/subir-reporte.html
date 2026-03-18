@@ -16,7 +16,8 @@
               </div>
             </div>
             <div *ngIf="mostrarCampoOtros" class="campo-otros mt-2">
-              <input type="text" name="detalleOtro" [(ngModel)]="detalleOtroIncidente" placeholder="Especifica el tipo" required />
+              <input type="text" name="detalleOtro" [(ngModel)]="detalleOtroIncidente" placeholder="Especifica el tipo"
+                required />
             </div>
           </div>
 
@@ -57,37 +58,30 @@
             </div>
 
             <div class="preview-container" *ngIf="fileList.length > 0">
-        <div class="preview-item" *ngFor="let file of fileList; let i = index">
-    
-    <button type="button" class="remove-btn" (click)="removeFile(i)">
-        <i class="fas fa-times"></i>
-    </button>
+              <div class="preview-item" *ngFor="let file of fileList; let i = index">
 
-    <!-- IMAGEN -->
-    <img 
-        *ngIf="file.type.startsWith('image')" 
-        [src]="previewUrls[i]" 
-        (click)="abrirModal(file)" 
-        class="img-clickable" 
-    />
+                <button type="button" class="remove-btn" (click)="removeFile(i)">
+                  <i class="fas fa-times"></i>
+                </button>
 
-    <!-- VIDEO -->
-    <video 
-        *ngIf="file.type.startsWith('video')" 
-        [src]="previewUrls[i]" 
-        controls>
-    </video>
+                <!-- IMAGEN -->
+                <img *ngIf="file.type.startsWith('image')" [src]="previewUrls[i]" (click)="abrirModal(file)"
+                  class="img-clickable" />
 
-</div>
+                <!-- VIDEO -->
+                <video *ngIf="file.type.startsWith('video')" [src]="previewUrls[i]" controls>
+                </video>
+
+              </div>
             </div>
           </div>
 
           <div class="seccion ubicacion-seccion">
             <div class="ubicacion-header">
-               <button type="button" class="btn-secundario" (click)="obtenerUbicacion()">
-                 <i class="fas fa-location-dot"></i> Obtener ubicación
-               </button>
-               <p class="texto-direccion" *ngIf="direccion">{{ direccion }}</p>
+              <button type="button" class="btn-secundario" (click)="obtenerUbicacion()">
+                <i class="fas fa-location-dot"></i> Obtener ubicación
+              </button>
+              <p class="texto-direccion" *ngIf="direccion">{{ direccion }}</p>
             </div>
             <div id="map" class="mapa-compacto"></div>
           </div>
@@ -107,7 +101,7 @@
     <button class="close-modal" (click)="cerrarModal()" title="Cerrar">
       <i class="fas fa-times"></i>
     </button>
-    
+
     <img [src]="urlImagenModal" alt="Evidencia ampliada">
   </div>
 </div>
