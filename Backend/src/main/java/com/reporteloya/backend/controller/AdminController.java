@@ -15,6 +15,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import com.reporteloya.backend.entity.Tarea;
 import com.reporteloya.backend.entity.Agentes;
+import com.reporteloya.backend.entity.Reporte;
 import com.reporteloya.backend.dto.AdminAgenteDTO;
 import com.reporteloya.backend.dto.ReporteSocketDTO;
 import com.reporteloya.backend.service.AgenteService;
@@ -164,6 +165,7 @@ public class AdminController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
 
 
 }

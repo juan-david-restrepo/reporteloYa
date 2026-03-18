@@ -524,6 +524,14 @@ public class ReporteService {
     }
 
     // ================================
+    // OBTENER TODOS LOS REPORTES (para dashboard admin)
+    // ================================
+    public Page<Reporte> obtenerTodosLosReportes(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        return reporteRepository.findAll(pageable);
+    }
+ 
+    // ================================
     // ESTADÍSTICAS PARA DASHBOARD DEL AGENTE
     // ================================
     public EstadisticasDashboardDTO obtenerEstadisticasDashboard(String fechaInicio, String fechaFin) {
@@ -534,7 +542,7 @@ public class ReporteService {
         // Si no hay fechas, usar el día de hoy por defecto
         if (fechaInicio == null || fechaInicio.isEmpty() || fechaFin == null || fechaFin.isEmpty()) {
             LocalDate hoy = LocalDate.now();
-            inicio = hoy.atStartOfDay();
+            inicio = hoy.atStartOfDay();    
             fin = hoy.plusDays(1).atStartOfDay().minusSeconds(1);
         } else {
             inicio = LocalDate.parse(fechaInicio).atStartOfDay();
