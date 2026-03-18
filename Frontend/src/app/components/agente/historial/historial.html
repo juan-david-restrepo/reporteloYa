@@ -45,7 +45,7 @@
       <!-- ✅ Mostrar si fue con compañero -->
       <p class="hist-companero" *ngIf="h.acompanado">
         <i class="fa-solid fa-user-group"></i>
-        Acompañado por: {{ h.nombreCompanero || h.placaCompanero }}
+        Acompañado por: {{ h.esCompanero ? (h.placaAgente | uppercase) : (h.nombreCompanero || h.placaCompanero) }}
       </p>
     </div>
 

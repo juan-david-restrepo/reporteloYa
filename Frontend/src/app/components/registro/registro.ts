@@ -116,16 +116,6 @@ export class Registro {
               this.redirigirSegunRol(user.role);
             });
 
-            // Guardar info de usuario en localStorage
-            localStorage.setItem('userId', user.userId);
-            localStorage.setItem('email', user.email);
-            localStorage.setItem('role', user.role);
-
-            // Cargar avatar
-            this.avatarService.loadAvatarForUser(user.userId);
-
-
-
             // Cancelamos la suscripción para no escuchar más cambios
             sub.unsubscribe();
           },

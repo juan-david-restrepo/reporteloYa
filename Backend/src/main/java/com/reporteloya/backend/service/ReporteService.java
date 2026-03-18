@@ -12,18 +12,26 @@ import com.reporteloya.backend.entity.Reporte;
 import com.reporteloya.backend.dto.ReporteSocketDTO;
 import com.reporteloya.backend.dto.AgenteDisponibleDTO;
 import com.reporteloya.backend.dto.EstadoAgenteDTO;
+import com.reporteloya.backend.dto.EstadisticasDashboardDTO;
+import com.reporteloya.backend.dto.EstadisticasCompletasDTO;
 import com.reporteloya.backend.entity.Agentes;
 import com.reporteloya.backend.entity.Evidencia;
 import com.reporteloya.backend.entity.Prioridad;
-
+import com.reporteloya.backend.entity.EstadisticaAgente;
+import com.reporteloya.backend.dto.EstadisticaGraficaDTO;
 import com.reporteloya.backend.repository.ReporteRepository;
 import com.reporteloya.backend.repository.AgenteRepository;
 import com.reporteloya.backend.repository.EvidenciaRepository;
+import com.reporteloya.backend.repository.EstadisticaAgenteRepository;
 
 import java.time.LocalDateTime;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.DayOfWeek;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 import java.io.IOException;
 import java.util.Optional;
 
@@ -36,6 +44,7 @@ public class ReporteService {
     private final EvidenciaRepository evidenciaRepository;
     private final FileStorageService fileStorageService;
     private final SimpMessagingTemplate messagingTemplate;
+    private final EstadisticaAgenteRepository estadisticaAgenteRepository;
 
     public ReporteService(
             ReporteRepository reporteRepository,
@@ -43,7 +52,8 @@ public class ReporteService {
             EvidenciaRepository evidenciaRepository,
             FileStorageService fileStorageService,
             ImageValidationService imageValidationService,
-            SimpMessagingTemplate messagingTemplate) {
+            SimpMessagingTemplate messagingTemplate,
+            EstadisticaAgenteRepository estadisticaAgenteRepository) {
 
         this.reporteRepository = reporteRepository;
         this.agenteRepository = agenteRepository;
@@ -51,6 +61,7 @@ public class ReporteService {
         this.fileStorageService = fileStorageService;
         this.imageValidationService = imageValidationService;
         this.messagingTemplate = messagingTemplate;
+        this.estadisticaAgenteRepository = estadisticaAgenteRepository;
     }
 
     // ================================
@@ -127,7 +138,9 @@ public class ReporteService {
         Reporte guardado = reporteRepository.save(reporte);
         guardarEvidencias(archivos, guardado);
 
-        ReporteSocketDTO dto = convertirADTO(guardado);
+        // Recargar para obtener las evidencias asociadas
+        Reporte reporteCompleto = reporteRepository.findById(guardado.getId()).orElse(guardado);
+        ReporteSocketDTO dto = convertirADTO(reporteCompleto);
         messagingTemplate.convertAndSend("/topic/reportes", dto);
 
         return guardado;
@@ -359,6 +372,10 @@ public class ReporteService {
         reporte.setResumenOperativo(null);
 
         Reporte actualizado = reporteRepository.save(reporte);
+
+        // Guardar estadísticas de rechazo
+        guardarEstadisticasReporte(actualizado);
+
         messagingTemplate.convertAndSend("/topic/reportes", convertirADTO(actualizado));
 
         return actualizado;
@@ -381,6 +398,9 @@ public class ReporteService {
         reporte.setFechaFinalizado(LocalDateTime.now());
 
         Reporte finalizado = reporteRepository.save(reporte);
+
+        // Guardar estadísticas para las gráficas
+        guardarEstadisticasReporte(finalizado);
 
         // ✅ Liberar al agente principal
         if (reporte.getAgente() != null) {
@@ -502,4 +522,240 @@ public class ReporteService {
 
         return reporteRepository.findByEstado("PENDIENTE", pageable);
     }
+
+    // ================================
+    // OBTENER TODOS LOS REPORTES (para dashboard admin)
+    // ================================
+    public Page<Reporte> obtenerTodosLosReportes(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        return reporteRepository.findAll(pageable);
+    }
+ 
+    // ================================
+    // ESTADÍSTICAS PARA DASHBOARD DEL AGENTE
+    // ================================
+    public EstadisticasDashboardDTO obtenerEstadisticasDashboard(String fechaInicio, String fechaFin) {
+        
+        LocalDateTime inicio;
+        LocalDateTime fin;
+        
+        // Si no hay fechas, usar el día de hoy por defecto
+        if (fechaInicio == null || fechaInicio.isEmpty() || fechaFin == null || fechaFin.isEmpty()) {
+            LocalDate hoy = LocalDate.now();
+            inicio = hoy.atStartOfDay();    
+            fin = hoy.plusDays(1).atStartOfDay().minusSeconds(1);
+        } else {
+            inicio = LocalDate.parse(fechaInicio).atStartOfDay();
+            fin = LocalDate.parse(fechaFin).plusDays(1).atStartOfDay().minusSeconds(1);
+        }
+
+        // Contar pendientes (todos los reportes en estado PENDIENTE)
+        int totalPendientes = reporteRepository.countByEstado("PENDIENTE");
+
+        // Contar reportes de hoy (creados entre inicio y fin del día)
+        LocalDate hoy = LocalDate.now();
+        LocalDateTime inicioDia = hoy.atStartOfDay();
+        LocalDateTime finDia = hoy.plusDays(1).atStartOfDay().minusSeconds(1);
+        int reportesHoy = reporteRepository.countByCreatedAtBetween(inicioDia, finDia);
+
+        // Contar resueltos en el rango de fechas
+        int reportesResueltos = reporteRepository.countFinalizadosEntre(inicio, fin);
+
+        // Contar rechazados en el rango de fechas
+        int reportesRechazados = reporteRepository.countRechazadosEntre(inicio, fin);
+
+        return new EstadisticasDashboardDTO(
+            totalPendientes,
+            reportesHoy,
+            reportesResueltos,
+            reportesRechazados,
+            fechaInicio != null ? fechaInicio : LocalDate.now().toString(),
+            fechaFin != null ? fechaFin : LocalDate.now().toString()
+        );
+    }
+
+    // ================================
+    // GUARDAR ESTADÍSTICAS AL FINALIZAR REPORTE
+    // ================================
+    public void guardarEstadisticasReporte(Reporte reporte) {
+        String tipo = "FINALIZADO";
+        LocalDateTime fecha = reporte.getFechaFinalizado();
+        if (fecha == null) {
+            fecha = reporte.getFechaRechazado();
+            tipo = "RECHAZADO";
+        }
+        if (fecha == null) return;
+
+        int anio = fecha.getYear();
+        int mes = fecha.getMonthValue();
+        int diaSemana = fecha.getDayOfWeek().getValue();
+        int hora = fecha.getHour();
+
+        // Guardar estadísticas para el agente principal
+        if (reporte.getAgente() != null) {
+            String placa = reporte.getAgente().getPlaca();
+            guardarStat(placa, "SEMANA", getEtiquetaDiaSemana(diaSemana), anio, mes, diaSemana, null, tipo);
+            guardarStat(placa, "ANIO", getEtiquetaMes(mes), anio, mes, null, null, tipo);
+            guardarStat(placa, "DIA", getEtiquetaFranjaHoraria(hora), anio, mes, diaSemana, hora, tipo);
+        }
+
+        // Guardar estadísticas para el agente compañero si existe (solo para FINALIZADO)
+        if (reporte.getAgenteCompanero() != null && "FINALIZADO".equals(tipo)) {
+            String placaCompanero = reporte.getAgenteCompanero().getPlaca();
+            guardarStat(placaCompanero, "SEMANA", getEtiquetaDiaSemana(diaSemana), anio, mes, diaSemana, null, tipo);
+            guardarStat(placaCompanero, "ANIO", getEtiquetaMes(mes), anio, mes, null, null, tipo);
+            guardarStat(placaCompanero, "DIA", getEtiquetaFranjaHoraria(hora), anio, mes, diaSemana, hora, tipo);
+        }
+    }
+
+    private void guardarStat(String placa, String periodo, String etiqueta, Integer anio, Integer mes, Integer diaSemana, Integer hora, String tipo) {
+        Agentes agente = agenteRepository.findByPlacaIgnoreCase(placa).orElse(null);
+        if (agente == null) return;
+
+        EstadisticaAgente stat = new EstadisticaAgente();
+        stat.setAgente(agente);
+        stat.setPeriodo(periodo);
+        stat.setEtiqueta(etiqueta);
+        stat.setCantidad(1);
+        stat.setAnio(anio);
+        stat.setMes(mes);
+        stat.setDiaSemana(diaSemana);
+        stat.setHoraDia(hora);
+        stat.setTipo(tipo);
+
+        estadisticaAgenteRepository.save(stat);
+    }
+
+    private String getEtiquetaDiaSemana(int diaSemana) {
+        return switch (diaSemana) {
+            case 1 -> "Lun";
+            case 2 -> "Mar";
+            case 3 -> "Mie";
+            case 4 -> "Jue";
+            case 5 -> "Vie";
+            case 6 -> "Sab";
+            case 7 -> "Dom";
+            default -> "";
+        };
+    }
+
+    private String getEtiquetaMes(int mes) {
+        return switch (mes) {
+            case 1 -> "Ene";
+            case 2 -> "Feb";
+            case 3 -> "Mar";
+            case 4 -> "Abr";
+            case 5 -> "May";
+            case 6 -> "Jun";
+            case 7 -> "Jul";
+            case 8 -> "Ago";
+            case 9 -> "Sep";
+            case 10 -> "Oct";
+            case 11 -> "Nov";
+            case 12 -> "Dic";
+            default -> "";
+        };
+    }
+
+    private String getEtiquetaFranjaHoraria(int hora) {
+        if (hora >= 0 && hora < 6) return "00-06";
+        if (hora >= 6 && hora < 12) return "06-12";
+        if (hora >= 12 && hora < 18) return "12-18";
+        return "18-24";
+    }
+
+    // ================================
+    // OBTENER ESTADÍSTICAS COMPLETAS (TARJETAS + GRÁFICAS)
+    // ================================
+    public EstadisticasCompletasDTO obtenerEstadisticasCompletas(String emailAgente, String fechaInicio, String fechaFin) {
+        Agentes agente = agenteRepository.findByEmail(emailAgente)
+                .orElseThrow(() -> new RuntimeException("Agente no encontrado"));
+
+        String placa = agente.getPlaca();
+
+        // Obtener reportes pendientes (global)
+        int totalPendientes = reporteRepository.countByEstado("PENDIENTE");
+
+        // Contar reportes de hoy (creados hoy)
+        LocalDate hoy = LocalDate.now();
+        LocalDateTime inicioDia = hoy.atStartOfDay();
+        LocalDateTime finDia = hoy.plusDays(1).atStartOfDay().minusSeconds(1);
+        int reportesHoy = reporteRepository.countByCreatedAtBetween(inicioDia, finDia);
+
+        // Determinar rango de fechas para filtrar
+        LocalDate fechaIni = (fechaInicio != null && !fechaInicio.isBlank()) 
+            ? LocalDate.parse(fechaInicio) 
+            : LocalDate.now().minusDays(7);
+        LocalDate fechaF = (fechaFin != null && !fechaFin.isBlank()) 
+            ? LocalDate.parse(fechaFin) 
+            : LocalDate.now();
+        
+        LocalDateTime fechaInicioDateTime = fechaIni.atStartOfDay();
+        LocalDateTime fechaFinDateTime = fechaF.plusDays(1).atStartOfDay().minusSeconds(1);
+
+        // Obtener resueltos y rechazados en el rango de fechas seleccionado
+        int reportesResueltos = reporteRepository.countByAgentePlacaAndEstadoAndFechaFinalizadoBetween(
+            placa, "FINALIZADO", fechaInicioDateTime, fechaFinDateTime);
+        int reportesRechazados = reporteRepository.countByAgentePlacaAndEstadoAndFechaRechazadoBetween(
+            placa, "RECHAZADO", fechaInicioDateTime, fechaFinDateTime);
+
+        // Obtener estadísticas de gráficas filtradas por rango de fechas
+        List<EstadisticaGraficaDTO.StatItem> statsSemana = obtenerStatsDesdeBDPorFechas(
+            placa, "SEMANA", 
+            new String[]{"Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom"},
+            fechaInicioDateTime, fechaFinDateTime);
+        List<EstadisticaGraficaDTO.StatItem> statsAnio = obtenerStatsDesdeBDPorFechas(
+            placa, "ANIO",
+            new String[]{"Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"},
+            fechaInicioDateTime, fechaFinDateTime);
+        List<EstadisticaGraficaDTO.StatItem> statsDia = obtenerStatsDesdeBDPorFechas(
+            placa, "DIA",
+            new String[]{"00-06", "06-12", "12-18", "18-24"},
+            fechaInicioDateTime, fechaFinDateTime);
+
+        return new EstadisticasCompletasDTO(
+            totalPendientes,
+            reportesHoy,
+            reportesResueltos,
+            reportesRechazados,
+            fechaIni.toString(),
+            fechaF.toString(),
+            statsSemana,
+            statsAnio,
+            statsDia
+        );
+    }
+
+    private List<EstadisticaGraficaDTO.StatItem> obtenerStatsDesdeBDPorFechas(String placa, String periodo, String[] etiquetasDefault, LocalDateTime fechaInicio, LocalDateTime fechaFin) {
+        List<EstadisticaAgente> statsBD = estadisticaAgenteRepository.buscarPorPlacaPeriodoYFechaBetween(placa, periodo, fechaInicio, fechaFin);
+
+        Map<String, Integer> mapa = new HashMap<>();
+        for (EstadisticaAgente stat : statsBD) {
+            String key = stat.getEtiqueta();
+            mapa.put(key, mapa.getOrDefault(key, 0) + stat.getCantidad());
+        }
+
+        List<EstadisticaGraficaDTO.StatItem> result = new ArrayList<>();
+        for (String etiqueta : etiquetasDefault) {
+            result.add(new EstadisticaGraficaDTO.StatItem(etiqueta, mapa.getOrDefault(etiqueta, 0)));
+        }
+        return result;
+    }
+
+    private List<EstadisticaGraficaDTO.StatItem> obtenerStatsDesdeBD(String placa, String periodo, String[] etiquetasDefault) {
+        List<EstadisticaAgente> statsBD = estadisticaAgenteRepository.buscarPorPlacaYPeriodo(placa, periodo);
+
+        Map<String, Integer> mapa = new HashMap<>();
+        for (EstadisticaAgente stat : statsBD) {
+            String key = stat.getEtiqueta();
+            mapa.put(key, mapa.getOrDefault(key, 0) + stat.getCantidad());
+        }
+
+        List<EstadisticaGraficaDTO.StatItem> result = new ArrayList<>();
+        for (String etiqueta : etiquetasDefault) {
+            result.add(new EstadisticaGraficaDTO.StatItem(etiqueta, mapa.getOrDefault(etiqueta, 0)));
+        }
+        return result;
+    }
 }
+

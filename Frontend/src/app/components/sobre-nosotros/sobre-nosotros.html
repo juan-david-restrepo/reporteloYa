@@ -1,0 +1,126 @@
+<app-nav></app-nav>
+
+<div class="sobre-nosotros-container">
+  <button class="back-home-btn" routerLink="/home">
+    <i class="fa-solid fa-arrow-left"></i> Volver al Inicio
+  </button>
+
+  <div class="header-section" data-aos="fade-down">
+    <h1>Sobre Nosotros</h1>
+    <p>Conoce más sobre Reportelo Ya y nuestra misión de mejorar la vialidad en Quindío</p>
+  </div>
+
+  <div class="tabs-container" data-aos="fade-up">
+    <a 
+      class="tab-btn" 
+      [class.active]="activeTab === 'mision'"
+      [routerLink]="['/sobre-nosotros']"
+      [fragment]="'mision'"
+      (click)="setActiveTab('mision')"
+    >
+      <i class="fa-solid fa-bullseye"></i> Misión
+    </a>
+    <a 
+      class="tab-btn" 
+      [class.active]="activeTab === 'vision'"
+      [routerLink]="['/sobre-nosotros']"
+      [fragment]="'vision'"
+      (click)="setActiveTab('vision')"
+    >
+      <i class="fa-solid fa-eye"></i> Visión
+    </a>
+    <a 
+      class="tab-btn" 
+      [class.active]="activeTab === 'equipo'"
+      [routerLink]="['/sobre-nosotros']"
+      [fragment]="'equipo'"
+      (click)="setActiveTab('equipo')"
+    >
+      <i class="fa-solid fa-users"></i> Equipo
+    </a>
+  </div>
+
+  <div class="content-area">
+    <!-- MISIÓN -->
+    <div class="tab-content" *ngIf="activeTab === 'mision'" data-aos="fade-up">
+      <div class="content-card">
+        <div class="icon-wrapper">
+          <i class="fa-solid fa-bullseye"></i>
+        </div>
+        <h2>Nuestra Misión</h2>
+        <p>
+          Brindar a los ciudadanos de Armenia y el Quindío una plataforma digital 
+          innovadora y accesible para el reporte de infracciones de tránsito, 
+          contribuyendo a mejorar la seguridad vial y la movilidad en nuestra región. 
+          Facilitamos la comunicación entre ciudadanos y autoridades de tránsito 
+          para crear comunidades más seguras y responsables.
+        </p>
+        <div class="highlight-box">
+          <i class="fa-solid fa-quote-left"></i>
+          <span>Transformamos la manera de Reportar, Participar y Mejorar tu ciudad.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- VISIÓN -->
+    <div class="tab-content" *ngIf="activeTab === 'vision'" data-aos="fade-up">
+      <div class="content-card">
+        <div class="icon-wrapper">
+          <i class="fa-solid fa-eye"></i>
+        </div>
+        <h2>Nuestra Visión</h2>
+        <p>
+          Ser la plataforma líder en gestión de información vial en Colombia, 
+          reconocido por promover la cultura de tránsito responsable y la 
+          participación ciudadana activa. Aspiramos a reducir las infracciones 
+          y mejorar la calidad de vida en las ciudades a través de la tecnología 
+          y la transparencia.
+        </p>
+        <div class="vision-features">
+          <div class="feature-item" data-aos="zoom-in" data-aos-delay="100">
+            <i class="fa-solid fa-rocket"></i>
+            <span>Innovación</span>
+          </div>
+          <div class="feature-item" data-aos="zoom-in" data-aos-delay="200">
+            <i class="fa-solid fa-handshake"></i>
+            <span>Transparencia</span>
+          </div>
+          <div class="feature-item" data-aos="zoom-in" data-aos-delay="300">
+            <i class="fa-solid fa-heart"></i>
+            <span>Compromiso</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EQUIPO -->
+    <div class="tab-content" *ngIf="activeTab === 'equipo'" data-aos="fade-up">
+      <div class="content-card">
+        <div class="icon-wrapper">
+          <i class="fa-solid fa-users"></i>
+        </div>
+        <h2>Nuestro Equipo</h2>
+        <p class="equipo-intro">
+          Somos un equipo multidisciplinario apasionado por mejorar la movilidad 
+          y seguridad vial en nuestra región.
+        </p>
+        <div class="equipo-grid">
+          <div 
+            class="equipo-member" 
+            *ngFor="let miembro of equipo; let i = index"
+            data-aos="flip-left"
+            [attr.data-aos-delay]="i * 100"
+          >
+            <div class="member-avatar">
+              <img [src]="miembro.imagen" [alt]="miembro.nombre" (error)="miembro.imagen = 'https://ui-avatars.com/api/?name=' + miembro.nombre + '&background=3b82f6&color=fff&size=150'">
+            </div>
+            <h3>{{ miembro.nombre }}</h3>
+            <span class="member-role">{{ miembro.rol }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-footer></app-footer>

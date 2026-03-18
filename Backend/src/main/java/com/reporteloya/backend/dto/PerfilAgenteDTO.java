@@ -16,4 +16,8 @@ public class PerfilAgenteDTO {
     private String telefono;
     private String estado;
     private String foto;
+    private String resumenProfesional1;
+    private String resumenProfesional2;
+    private String resumenProfesional3;
+    private String resumenProfesional4;
 }

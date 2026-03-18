@@ -32,8 +32,41 @@
     </div>
 
     <div class="header-info">
-      <h2>{{agente?.nombre}}</h2>
-      <h3 class="ciudad">{{agente?.placa}}</h3>
+      <div>
+        <h2 *ngIf="editandoCampo !== 'nombre'">{{agente?.nombre}}</h2>
+        <button *ngIf="editandoCampo !== 'nombre'" class="btn-edit" (click)="iniciarEdicion('nombre')">
+          <i class="fa-solid fa-pencil"></i>
+        </button>
+      </div>
+
+      
+      <div *ngIf="editandoCampo === 'nombre'" class="edit-inline">
+        <input [(ngModel)]="editData.nombre" class="edit-input" maxlength="50">
+        <button class="btn-save" (click)="guardarCampo('nombre')" [disabled]="guardando">
+          <i class="fa-solid fa-check"></i>
+        </button>
+        <button class="btn-cancel" (click)="cancelarEdicion()">
+          <i class="fa-solid fa-times"></i>
+        </button>
+      </div>
+
+
+      <h3 class="ciudad" *ngIf="editandoCampo !== 'placa'">
+        {{agente?.placa}}
+        <button class="btn-edit-small" (click)="iniciarEdicion('placa')">
+          <i class="fa-solid fa-pencil"></i>
+        </button>
+      </h3>
+      
+      <div *ngIf="editandoCampo === 'placa'" class="edit-inline">
+        <input [(ngModel)]="editData.placa" class="edit-input" maxlength="10" placeholder="ABC-123">
+        <button class="btn-save" (click)="guardarCampo('placa')" [disabled]="guardando">
+          <i class="fa-solid fa-check"></i>
+        </button>
+        <button class="btn-cancel" (click)="cancelarEdicion()">
+          <i class="fa-solid fa-times"></i>
+        </button>
+      </div>
 
       <span class="estado-badge"
         [class.disponible]="estadoAgente === 'DISPONIBLE'"
@@ -54,18 +87,146 @@
 
     <div class="card info-card">
       <h3>Información Personal</h3>
-      <p><strong>Cédula:</strong> {{agente?.documento}}</p>
-      <p><strong>Placa:</strong> {{agente?.placa}}</p>
-      <p><strong>Telefono:</strong> {{agente?.telefono}}</p>
-      <p><strong>Correo:</strong> {{agente?.correo}}</p>
+      
+      <!-- Cédula -->
+      <div class="info-row">
+        <p><strong>Cédula:</strong></p>
+        <div *ngIf="editandoCampo !== 'documento'" class="info-value-row">
+          <span>{{agente?.documento}}</span>
+          <button class="btn-edit-small" (click)="iniciarEdicion('documento')">
+            <i class="fa-solid fa-pencil"></i>
+          </button>
+        </div>
+        <div *ngIf="editandoCampo === 'documento'" class="edit-inline">
+          <input [(ngModel)]="editData.documento" class="edit-input" maxlength="20">
+          <button class="btn-save" (click)="guardarCampo('documento')" [disabled]="guardando">
+            <i class="fa-solid fa-check"></i>
+          </button>
+          <button class="btn-cancel" (click)="cancelarEdicion()">
+            <i class="fa-solid fa-times"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Teléfono -->
+      <div class="info-row">
+        <p><strong>Teléfono:</strong></p>
+        <div *ngIf="editandoCampo !== 'telefono'" class="info-value-row">
+          <span>{{agente?.telefono}}</span>
+          <button class="btn-edit-small" (click)="iniciarEdicion('telefono')">
+            <i class="fa-solid fa-pencil"></i>
+          </button>
+        </div>
+        <div *ngIf="editandoCampo === 'telefono'" class="edit-inline">
+          <input [(ngModel)]="editData.telefono" class="edit-input" maxlength="15">
+          <button class="btn-save" (click)="guardarCampo('telefono')" [disabled]="guardando">
+            <i class="fa-solid fa-check"></i>
+          </button>
+          <button class="btn-cancel" (click)="cancelarEdicion()">
+            <i class="fa-solid fa-times"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Correo -->
+      <div class="info-row">
+        <p><strong>Correo:</strong></p>
+        <div *ngIf="editandoCampo !== 'correo'" class="info-value-row">
+          <span>{{agente?.correo}}</span>
+          <button class="btn-edit-small" (click)="iniciarEdicion('correo')">
+            <i class="fa-solid fa-pencil"></i>
+          </button>
+        </div>
+        <div *ngIf="editandoCampo === 'correo'" class="edit-inline">
+          <input [(ngModel)]="editData.correo" class="edit-input" type="email" maxlength="50">
+          <button class="btn-save" (click)="guardarCampo('correo')" [disabled]="guardando">
+            <i class="fa-solid fa-check"></i>
+          </button>
+          <button class="btn-cancel" (click)="cancelarEdicion()">
+            <i class="fa-solid fa-times"></i>
+          </button>
+        </div>
+      </div>
     </div>
 
     <div class="card extra-card">
       <h3>Resumen Profesional</h3>
-      <p>✔ 4 años de servicio</p>
-      <p>✔ 125 reportes gestionados</p>
-      <p>✔ 98% efectividad</p>
-      <p>✔ Participación en 12 operativos</p>
+      
+      <!-- Resumen 1 -->
+      <div class="info-row">
+        <div *ngIf="editandoCampo !== 'resumen1'" class="info-value-row">
+          <span *ngIf="agente?.resumenProfesional1">{{agente?.resumenProfesional1}}</span>
+          <span *ngIf="!agente?.resumenProfesional1" class="no-resumen">Línea 1 vacía</span>
+          <button class="btn-edit-small" (click)="iniciarEdicion('resumen1')">
+            <i class="fa-solid fa-pencil"></i>
+          </button>
+        </div>
+        <div *ngIf="editandoCampo === 'resumen1'" class="edit-resumen">
+          <input [(ngModel)]="editData.resumenProfesional1" class="edit-input" maxlength="40" placeholder="Máximo 40 caracteres">
+          <div class="contador">{{getResumenLength(1)}}/40</div>
+          <div class="edit-buttons">
+            <button class="btn-save" (click)="guardarCampo('resumen1')" [disabled]="guardando">Guardar</button>
+            <button class="btn-cancel" (click)="cancelarEdicion()">Cancelar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resumen 2 -->
+      <div class="info-row">
+        <div *ngIf="editandoCampo !== 'resumen2'" class="info-value-row">
+          <span *ngIf="agente?.resumenProfesional2">{{agente?.resumenProfesional2}}</span>
+          <span *ngIf="!agente?.resumenProfesional2" class="no-resumen">Línea 2 vacía</span>
+          <button class="btn-edit-small" (click)="iniciarEdicion('resumen2')">
+            <i class="fa-solid fa-pencil"></i>
+          </button>
+        </div>
+        <div *ngIf="editandoCampo === 'resumen2'" class="edit-resumen">
+          <input [(ngModel)]="editData.resumenProfesional2" class="edit-input" maxlength="40" placeholder="Máximo 40 caracteres">
+          <div class="contador">{{getResumenLength(2)}}/40</div>
+          <div class="edit-buttons">
+            <button class="btn-save" (click)="guardarCampo('resumen2')" [disabled]="guardando">Guardar</button>
+            <button class="btn-cancel" (click)="cancelarEdicion()">Cancelar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resumen 3 -->
+      <div class="info-row">
+        <div *ngIf="editandoCampo !== 'resumen3'" class="info-value-row">
+          <span *ngIf="agente?.resumenProfesional3">{{agente?.resumenProfesional3}}</span>
+          <span *ngIf="!agente?.resumenProfesional3" class="no-resumen">Línea 3 vacía</span>
+          <button class="btn-edit-small" (click)="iniciarEdicion('resumen3')">
+            <i class="fa-solid fa-pencil"></i>
+          </button>
+        </div>
+        <div *ngIf="editandoCampo === 'resumen3'" class="edit-resumen">
+          <input [(ngModel)]="editData.resumenProfesional3" class="edit-input" maxlength="40" placeholder="Máximo 40 caracteres">
+          <div class="contador">{{getResumenLength(3)}}/40</div>
+          <div class="edit-buttons">
+            <button class="btn-save" (click)="guardarCampo('resumen3')" [disabled]="guardando">Guardar</button>
+            <button class="btn-cancel" (click)="cancelarEdicion()">Cancelar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resumen 4 -->
+      <div class="info-row">
+        <div *ngIf="editandoCampo !== 'resumen4'" class="info-value-row">
+          <span *ngIf="agente?.resumenProfesional4">{{agente?.resumenProfesional4}}</span>
+          <span *ngIf="!agente?.resumenProfesional4" class="no-resumen">Línea 4 vacía</span>
+          <button class="btn-edit-small" (click)="iniciarEdicion('resumen4')">
+            <i class="fa-solid fa-pencil"></i>
+          </button>
+        </div>
+        <div *ngIf="editandoCampo === 'resumen4'" class="edit-resumen">
+          <input [(ngModel)]="editData.resumenProfesional4" class="edit-input" maxlength="40" placeholder="Máximo 40 caracteres">
+          <div class="contador">{{getResumenLength(4)}}/40</div>
+          <div class="edit-buttons">
+            <button class="btn-save" (click)="guardarCampo('resumen4')" [disabled]="guardando">Guardar</button>
+            <button class="btn-cancel" (click)="cancelarEdicion()">Cancelar</button>
+          </div>
+        </div>
+      </div>
     </div>
 
   </div>

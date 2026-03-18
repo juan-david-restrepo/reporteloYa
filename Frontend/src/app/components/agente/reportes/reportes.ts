@@ -5,6 +5,7 @@ import { Reporte, EstadoReporte } from '../agente';
 import { AgenteServiceTs } from '../../../service/agente.service';
 import { trigger, transition, style, animate } from '@angular/animations';
 import * as L from 'leaflet';
+import 'leaflet-routing-machine';
 
 
 @Component({
@@ -30,6 +31,20 @@ export class Reportes implements OnChanges, OnDestroy {
   private map!: L.Map;
   private marker!: L.Marker;
   private markersLayer = L.layerGroup();
+  
+  // Mapa ruta y seguimiento
+  private routingControl: any;
+  private agentMarker: L.Marker | null = null;
+  private reportMarker: L.Marker | null = null;
+  private routePolyline: L.Polyline | null = null;
+  private watchId: number | null = null;
+  
+  // Estado
+  isFullscreen = false;
+  showRoute = false;
+  isLocating = false;
+  locationError: string | null = null;
+  agentPosition: { lat: number; lng: number } | null = null;
 
   // ================================================================
   // reportesScroll: lo que SE MUESTRA en pantalla.
@@ -318,8 +333,14 @@ export class Reportes implements OnChanges, OnDestroy {
     this.reporteSeleccionado = r;
     this.tieneCoordenadas = !!(r.lat && r.lng);
     
+    this.clearRoute();
+    
     setTimeout(() => {
       this.inicializarMapa(r.lat, r.lng);
+      
+      if (r.estado === EstadoReporte.EN_PROCESO && r.lat && r.lng) {
+        this.getLocation();
+      }
     }, 100);
   }
 
@@ -372,7 +393,328 @@ export class Reportes implements OnChanges, OnDestroy {
     }, 200);
   }
 
+  // ================================
+  // UBICACIÓN DEL AGENTE Y RUTA
+  // ================================
+  
+  getLocation() {
+    if (!navigator.geolocation) {
+      this.locationError = 'La geolocalización no está soportada en este navegador';
+      return;
+    }
+
+    this.isLocating = true;
+    this.locationError = null;
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        this.agentPosition = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        };
+        this.isLocating = false;
+        
+        if (this.reporteSeleccionado && this.reporteSeleccionado.lat && this.reporteSeleccionado.lng) {
+          this.showRouteToReport();
+        }
+      },
+      (error) => {
+        this.isLocating = false;
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            this.locationError = 'Permiso de ubicación denegado';
+            break;
+          case error.POSITION_UNAVAILABLE:
+            this.locationError = 'Información de ubicación no disponible';
+            break;
+          case error.TIMEOUT:
+            this.locationError = 'Tiempo de espera agotado';
+            break;
+          default:
+            this.locationError = 'Error desconocido';
+        }
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  }
+
+  startTracking() {
+    if (!navigator.geolocation) return;
+
+    this.watchId = navigator.geolocation.watchPosition(
+      (position) => {
+        this.agentPosition = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        };
+        this.updateAgentMarker();
+        
+        if (this.reporteSeleccionado && this.reporteSeleccionado.lat && this.reporteSeleccionado.lng) {
+          this.updateRoute().catch(e => console.log('Error updating route:', e));
+        }
+      },
+      (error) => {
+        console.error('Error tracking:', error);
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 5000 }
+    );
+  }
+
+  stopTracking() {
+    if (this.watchId !== null) {
+      navigator.geolocation.clearWatch(this.watchId);
+      this.watchId = null;
+    }
+  }
+
+  private updateAgentMarker() {
+    if (!this.map || !this.agentPosition) return;
+
+    const agentIcon = L.divIcon({
+      className: 'agent-marker',
+      html: `<div style="
+        background-color: #3b82f6;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        border: 4px solid white;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      ">
+        <i class="fa-solid fa-location-arrow" style="color: white; font-size: 12px;"></i>
+      </div>`,
+      iconSize: [28, 28],
+      iconAnchor: [14, 14]
+    });
+
+    if (this.agentMarker) {
+      this.agentMarker.setLatLng([this.agentPosition.lat, this.agentPosition.lng]);
+    } else {
+      this.agentMarker = L.marker([this.agentPosition.lat, this.agentPosition.lng], { icon: agentIcon, draggable: false })
+        .addTo(this.map)
+        .bindPopup('Tu ubicación');
+    }
+  }
+
+  showRouteToReport() {
+    if (!this.map || !this.reporteSeleccionado?.lat || !this.reporteSeleccionado?.lng || !this.agentPosition) {
+      if (!this.agentPosition) {
+        this.getLocation();
+      }
+      return;
+    }
+
+    this.showRoute = true;
+
+    if (this.routingControl) {
+      try {
+        this.map.removeControl(this.routingControl);
+      } catch (e) {}
+      this.routingControl = null;
+    }
+
+    const reportLatLng: L.LatLngExpression = [this.reporteSeleccionado.lat, this.reporteSeleccionado.lng];
+    const agentLatLng: L.LatLngExpression = [this.agentPosition.lat, this.agentPosition.lng];
+
+    // Usar leaflet-routing-machine sin panel de información
+    this.showRoutingMachine(agentLatLng, reportLatLng);
+
+    this.updateAgentMarker();
+    this.startTracking();
+    
+    const bounds = L.latLngBounds([agentLatLng, reportLatLng]);
+    this.map.fitBounds(bounds, { padding: [50, 50] });
+  }
+
+  private async showRoutingMachine(agentLatLng: L.LatLngExpression, reportLatLng: L.LatLngExpression) {
+    try {
+      const origin = agentLatLng as [number, number];
+      const destination = reportLatLng as [number, number];
+
+      const routeData = await this.getRouteFromOSRM(origin, destination);
+      
+      if (routeData) {
+        this.drawRoute(routeData.coordinates, agentLatLng, reportLatLng);
+      } else {
+        this.showSimpleRoute(agentLatLng, reportLatLng);
+      }
+    } catch (e) {
+      console.log('Using simple line fallback', e);
+      this.showSimpleRoute(agentLatLng, reportLatLng);
+    }
+  }
+
+  private async getRouteFromOSRM(origin: [number, number], destination: [number, number]): Promise<{ coordinates: [number, number][] } | null> {
+    return new Promise((resolve) => {
+      const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${origin[1]},${origin[0]};${destination[1]},${destination[0]}?overview=full&geometries=geojson`;
+      
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', osrmUrl, true);
+      
+      xhr.onload = () => {
+        if (xhr.status === 200) {
+          try {
+            const data = JSON.parse(xhr.responseText);
+            if (data.code === 'Ok' && data.routes && data.routes.length > 0) {
+              const geometry = data.routes[0].geometry;
+              resolve({ coordinates: geometry.coordinates });
+            } else {
+              resolve(null);
+            }
+          } catch (e) {
+            resolve(null);
+          }
+        } else {
+          resolve(null);
+        }
+      };
+      
+      xhr.onerror = () => {
+        resolve(null);
+      };
+      
+      xhr.send();
+    });
+  }
+
+  private drawRoute(coordinates: [number, number][], agentLatLng: L.LatLngExpression, reportLatLng: L.LatLngExpression) {
+    const latLngCoords = coordinates.map(coord => [coord[1], coord[0]] as [number, number]);
+
+    if (this.routePolyline) {
+      this.map.removeLayer(this.routePolyline);
+    }
+
+    this.routePolyline = L.polyline(latLngCoords, {
+      color: '#3b82f6',
+      weight: 6,
+      opacity: 0.8
+    }).addTo(this.map);
+
+    if (this.reportMarker) {
+      this.map.removeLayer(this.reportMarker);
+    }
+
+    const reportIcon = L.divIcon({
+      className: 'custom-marker',
+      html: '<div style="background-color: #ef4444; width: 24px; height: 24px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.4);"></div>',
+      iconSize: [24, 24],
+      iconAnchor: [12, 12]
+    });
+
+    this.reportMarker = L.marker(reportLatLng, { icon: reportIcon }).addTo(this.map);
+
+    this.routingControl = {
+      onRemove: () => {
+        if (this.routePolyline) {
+          this.map.removeLayer(this.routePolyline);
+          this.routePolyline = null;
+        }
+        if (this.reportMarker) {
+          this.map.removeLayer(this.reportMarker);
+          this.reportMarker = null;
+        }
+      }
+    };
+  }
+
+  private showSimpleRoute(agentLatLng: L.LatLngExpression, reportLatLng: L.LatLngExpression) {
+    const polyline = L.polyline([agentLatLng, reportLatLng], {
+      color: '#3b82f6',
+      weight: 5,
+      opacity: 0.8,
+      dashArray: '10, 10'
+    }).addTo(this.map);
+
+    this.routingControl = {
+      onRemove: () => {
+        this.map.removeLayer(polyline);
+      }
+    };
+  }
+
+  private async updateRoute() {
+    if (!this.map || !this.reporteSeleccionado?.lat || !this.reporteSeleccionado?.lng || !this.agentPosition) return;
+
+    const agentLatLng: L.LatLngExpression = [this.agentPosition.lat, this.agentPosition.lng];
+    const reportLatLng: L.LatLngExpression = [this.reporteSeleccionado.lat, this.reporteSeleccionado.lng];
+
+    try {
+      const origin: [number, number] = [this.agentPosition.lat, this.agentPosition.lng];
+      const destination: [number, number] = [this.reporteSeleccionado.lat, this.reporteSeleccionado.lng];
+
+      const routeData = await this.getRouteFromOSRM(origin, destination);
+      
+      if (routeData) {
+        this.drawRoute(routeData.coordinates, agentLatLng, reportLatLng);
+      } else {
+        this.showSimpleRoute(agentLatLng, reportLatLng);
+      }
+    } catch (e) {
+      console.log('Route update error, will recreate', e);
+    }
+  }
+
+  clearRoute() {
+    this.showRoute = false;
+    this.stopTracking();
+    
+    if (this.routingControl && this.map) {
+      try {
+        if (this.routingControl.onRemove) {
+          this.routingControl.onRemove();
+        } else {
+          this.map.removeControl(this.routingControl);
+        }
+      } catch (e) {}
+      this.routingControl = null;
+    }
+
+    if (this.routePolyline && this.map) {
+      this.map.removeLayer(this.routePolyline);
+      this.routePolyline = null;
+    }
+
+    if (this.reportMarker && this.map) {
+      this.map.removeLayer(this.reportMarker);
+      this.reportMarker = null;
+    }
+
+    if (this.agentMarker && this.map) {
+      this.map.removeLayer(this.agentMarker);
+      this.agentMarker = null;
+    }
+  }
+
+  // ================================
+  // PANTALLA COMPLETA
+  // ================================
+
+  toggleFullscreen() {
+    this.isFullscreen = !this.isFullscreen;
+    
+    setTimeout(() => {
+      if (this.map) {
+        this.map.invalidateSize();
+      }
+    }, 300);
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscapeKey() {
+    if (this.isFullscreen) {
+      this.isFullscreen = false;
+      setTimeout(() => {
+        if (this.map) {
+          this.map.invalidateSize();
+        }
+      }, 300);
+    }
+  }
+
   ngOnDestroy() {
+    this.stopTracking();
     if (this.map) {
       this.map.remove();
     }
@@ -553,5 +895,21 @@ export class Reportes implements OnChanges, OnDestroy {
     this.zoomScale += event.deltaY < 0 ? 0.1 : -0.1;
     if (this.zoomScale < 1) this.zoomScale = 1;
     if (this.zoomScale > 3) this.zoomScale = 3;
+  }
+
+  // ================================
+  // ELIMINAR REPORTE DESDE EL PADRE
+  // (cuando otro agente acepta un reporte que estaba solo en reportesScroll)
+  // ================================
+  eliminarReportePorId(id: number): boolean {
+    const idx = this.reportesScroll.findIndex(r => r.id === id);
+    if (idx !== -1) {
+      this.reportesScroll.splice(idx, 1);
+      if (this.reporteSeleccionado?.id === id) {
+        this.reporteSeleccionado = null;
+      }
+      return true;
+    }
+    return false;
   }
 }

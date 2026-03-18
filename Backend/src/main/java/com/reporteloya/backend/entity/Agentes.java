@@ -16,7 +16,20 @@ public class Agentes extends Usuario {
     private String documento;
     private String telefono;
     private String estado;
+    @Column(length = 1000)
     private String foto;
+    
+    @Column(length = 40)
+    private String resumenProfesional1;
+    
+    @Column(length = 40)
+    private String resumenProfesional2;
+    
+    @Column(length = 40)
+    private String resumenProfesional3;
+    
+    @Column(length = 40)
+    private String resumenProfesional4;
 
     @OneToMany(mappedBy = "agente", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Tarea> listaTareas = new ArrayList<>();

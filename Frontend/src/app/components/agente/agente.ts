@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SidebarAgente } from './sidebar-agente/sidebar-agente';
@@ -44,6 +44,7 @@ export interface Reporte {
   acompanado?: boolean;
   placaCompanero?: string;
   nombreCompanero?: string;
+  placaAgente?: string;
   esCompanero?: boolean;
 }
 
@@ -66,6 +67,7 @@ export interface Notificacion {
   texto: string;
   hora: string;
   data?: any;
+  leida: boolean;
 }
 
 type VistaAgente =
@@ -98,6 +100,23 @@ export class Agente implements OnInit, OnDestroy {
     this.vistaActual = 'historial';
   }
 
+  abrirHistorialRechazados() {
+    this.filtroHistorial = 'RECHAZADOS';
+    this.vistaActual = 'historial';
+  }
+
+  navegarAActividad(evento: { tipo: string; id: number }) {
+    if (evento.tipo === 'Reporte completado') {
+      const reporte = this.historialReportes.find(r => r.id === evento.id);
+      if (reporte) {
+        this.verDetalleHist(reporte);
+      }
+    } else if (evento.tipo === 'Tarea completada') {
+      this.filtroTareas = 'HECHAS';
+      this.cambiarVista('tareas');
+    }
+  }
+
   EstadoReporte = EstadoReporte;
   reporteDesdeHistorial: Reporte | null = null;
   origenDetalle: 'historial' | 'reportes' = 'reportes';
@@ -122,11 +141,18 @@ export class Agente implements OnInit, OnDestroy {
   reportesEntrantes: Reporte[] = [];
 
   tareasAdmin: Tarea[] = [];
+  filtroTareas: 'PENDIENTES' | 'HECHAS' | 'TODAS' = 'PENDIENTES';
   notificaciones: Notificacion[] = [];
+
+  @ViewChild(Reportes) reportesComponente!: Reportes;
 
   perfilAgente: {
     nombre: string; placa: string; documento: string;
     telefono: string; correo: string; foto: string;
+    resumenProfesional1?: string;
+    resumenProfesional2?: string;
+    resumenProfesional3?: string;
+    resumenProfesional4?: string;
   } = {
     nombre: '', placa: '', documento: '',
     telefono: '', correo: '', foto: ''
@@ -136,7 +162,8 @@ export class Agente implements OnInit, OnDestroy {
     private agenteService: AgenteServiceTs,
     private websocketService: WebsocketService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   // ================================
@@ -335,7 +362,7 @@ export class Agente implements OnInit, OnDestroy {
           correo:    data.email ?? '',
           placa:     data.placa ?? 'N/A',
           telefono:  data.telefono ?? 'N/A',
-          foto:      'https://randomuser.me/api/portraits/men/32.jpg'
+          foto:      data.foto || 'https://randomuser.me/api/portraits/men/32.jpg'
         };
         this.estadoAgente = data.estado || 'DISPONIBLE';
       },
@@ -350,6 +377,10 @@ export class Agente implements OnInit, OnDestroy {
   // MAPEO BACKEND → Reporte
   // ================================
   _mapearReporte(r: any): Reporte {
+    const placaActual = this.perfilAgente.placa?.toUpperCase() || '';
+    const placaCompanero = r.placaCompanero?.toUpperCase() || '';
+    const placaAgente = r.placaAgente?.toUpperCase() || '';
+    
     return {
       id:               r.id,
       tipoInfraccion:   r.tipoInfraccion,
@@ -370,7 +401,9 @@ export class Agente implements OnInit, OnDestroy {
       resumenOperativo: r.resumenOperativo,
       acompanado:       r.acompanado ?? false,
       placaCompanero:   r.placaCompanero,
-      nombreCompanero:  r.nombreCompanero
+      nombreCompanero:  r.nombreCompanero,
+      placaAgente:      r.placaAgente?.toUpperCase() || '',
+      esCompanero:      r.acompanado && placaCompanero === placaActual && placaAgente !== placaActual
     };
   }
 
@@ -381,6 +414,8 @@ export class Agente implements OnInit, OnDestroy {
     const nuevo = this._mapearReporte(rb);
     const idx   = this.reportesEntrantes.findIndex(r => r.id === nuevo.id);
 
+    console.log('🔍 Procesando reporte:', nuevo.estado, 'idx:', idx, 'id:', nuevo.id);
+
     switch (nuevo.estado) {
 
       case EstadoReporte.FINALIZADO:
@@ -388,28 +423,80 @@ export class Agente implements OnInit, OnDestroy {
         if (idx !== -1) {
           this.reportesEntrantes.splice(idx, 1);
           this.estadoAgente = 'DISPONIBLE';
+          
+          // También eliminar de reportesScroll (el hijo) si está disponible
+          if (this.reportesComponente?.eliminarReportePorId) {
+            this.reportesComponente.eliminarReportePorId(nuevo.id);
+          }
+          
+          this.cdr.detectChanges();
           // Recargar historial para incluir el nuevo reporte finalizado
           this.cargarHistorialDesdeBD();
         }
         break;
 
       case EstadoReporte.EN_PROCESO:
-        // Lo tomó otro agente — quitar de la lista de pendientes
-        if (idx !== -1 && this.reportesEntrantes[idx].estado !== EstadoReporte.EN_PROCESO) {
-          this.reportesEntrantes.splice(idx, 1);
+        console.log('📝 WS: Reporte EN_PROCESO recibido. Placa agente:', nuevo.placaAgente, 'Mi placa:', this.perfilAgente.placa);
+        
+        // Determinar si fue otro agente quien lo aceptó
+        const placaAgente = nuevo.placaAgente?.toUpperCase() || '';
+        const placaActual = this.perfilAgente.placa?.toUpperCase() || '';
+        const fueOtroAgente = placaAgente !== placaActual;
+        
+        // Solo procesar si fue otro agente (no el actual)
+        if (fueOtroAgente) {
+          console.log('📝 WS: Eliminando reporte (otro agente lo aceptó)');
+          
+          // 1. Eliminar de reportesEntrantes si estaba ahí
+          if (idx !== -1) {
+            this.reportesEntrantes.splice(idx, 1);
+          }
+          
+          // 2. Eliminar de reportesScroll (el hijo) si estaba solo ahí
+          // Esto cubre el caso donde el reporte se cargó dinámicamente por scroll
+          if (this.reportesComponente?.eliminarReportePorId) {
+            const eliminadoDelScroll = this.reportesComponente.eliminarReportePorId(nuevo.id);
+            console.log('📝 WS: Eliminado de reportesScroll:', eliminadoDelScroll);
+          }
+          
+          this.cdr.detectChanges();
+        } else {
+          console.log('📝 WS: NO eliminar - YO fui quien lo aceptó');
+          // Actualizar el estado en reportesEntrantes si existe
+          if (idx !== -1) {
+            this.reportesEntrantes[idx] = {
+              ...this.reportesEntrantes[idx],
+              ...nuevo,
+              estado: EstadoReporte.EN_PROCESO
+            };
+            // También actualizar en el hijo
+            if (this.reportesComponente?.eliminarReportePorId) {
+              this.reportesComponente.eliminarReportePorId(nuevo.id);
+              // Agregar a la lista como EN_PROCESO
+              this.reportesComponente.reportesScroll.unshift({
+                ...nuevo,
+                estado: EstadoReporte.EN_PROCESO
+              });
+            }
+          }
         }
         break;
 
       case EstadoReporte.PENDIENTE:
+        console.log('📝 Es PENDIENTE, idx:', idx);
         // Reporte nuevo
         if (idx === -1) {
+          console.log('➕ Agregando reporte y creando notificación');
           this.reportesEntrantes.unshift(nuevo);
           this.notificaciones.unshift({
             tipo:  'REPORTE',
             texto: `Nuevo reporte en ${nuevo.direccion}`,
             hora:  new Date().toLocaleTimeString(),
-            data:  nuevo
+            data:  nuevo,
+            leida: false
           });
+          this._ordenarNotificaciones();
+          this.cdr.detectChanges();
         }
         break;
     }
@@ -455,6 +542,9 @@ export class Agente implements OnInit, OnDestroy {
     this.vistaActual           = v;
     this.reporteDesdeHistorial = null;
     this.origenDetalle         = 'reportes';
+    if (v !== 'tareas' || this.filtroTareas !== 'HECHAS') {
+      this.filtroTareas = 'PENDIENTES';
+    }
     if (v === 'historial') this.cargarHistorialDesdeBD();
     if (v === 'perfil') this.cargarPerfilDesdeBD();
   }
@@ -464,9 +554,28 @@ export class Agente implements OnInit, OnDestroy {
     this.vistaActual           = origen;
   }
 
-  toggleNotificaciones() { this.mostrarNotificaciones = !this.mostrarNotificaciones; }
+  toggleNotificaciones() {
+    if (!this.mostrarNotificaciones) {
+      this.notificaciones.forEach(n => n.leida = true);
+    }
+    this.mostrarNotificaciones = !this.mostrarNotificaciones;
+  }
+
+  get notificacionesNoLeidas(): number {
+    return this.notificaciones.filter(n => !n.leida).length;
+  }
+
+  private _ordenarNotificaciones() {
+    this.notificaciones.sort((a, b) => {
+      if (a.leida !== b.leida) return a.leida ? 1 : -1;
+      if (a.tipo === 'TAREA' && b.tipo !== 'TAREA') return -1;
+      if (a.tipo !== 'TAREA' && b.tipo === 'TAREA') return 1;
+      return 0;
+    });
+  }
 
   abrirNotif(n: any) {
+    n.leida = true;
     if (n.tipo === 'REPORTE') this.vistaActual = 'reportes';
     if (n.tipo === 'TAREA')   this.vistaActual = 'tareas';
     this.mostrarNotificaciones = false;
@@ -485,7 +594,6 @@ export class Agente implements OnInit, OnDestroy {
   cerrarSesion() {
     this.reiniciarCronometroSignal++;
     setTimeout(() => {
-      localStorage.removeItem('agente_tiempo_activo_inicio');
       this.authService.logout().subscribe({
         next:  () => { this.websocketService.disconnect(); this.router.navigate(['/login']); },
         error: () => { this.router.navigate(['/login']); }
@@ -507,7 +615,11 @@ export class Agente implements OnInit, OnDestroy {
           correo:    data.email,
           placa:     data.placa || 'N/A',
           telefono:  data.telefono || 'N/A',
-          foto:      'https://randomuser.me/api/portraits/men/32.jpg'
+          foto:      data.foto || 'https://randomuser.me/api/portraits/men/32.jpg',
+          resumenProfesional1: data.resumenProfesional1 || '',
+          resumenProfesional2: data.resumenProfesional2 || '',
+          resumenProfesional3: data.resumenProfesional3 || '',
+          resumenProfesional4: data.resumenProfesional4 || ''
         };
         this.estadoAgente = data.estado || 'DISPONIBLE';
         if (data.placa) this.websocketService.connect(data.placa);
@@ -517,7 +629,9 @@ export class Agente implements OnInit, OnDestroy {
             this.tareasAdmin = tareas.map(t => ({
               id: t.id, titulo: t.titulo, descripcion: t.descripcion,
               admin: 'Administrador', estado: t.estado,
-              hora: t.hora, fecha: t.fecha, prioridad: t.prioridad
+              hora: t.hora, fecha: t.fecha, prioridad: t.prioridad,
+              fechaInicio: t.fechaInicio ? new Date(t.fechaInicio) : undefined,
+              fechaFin: t.fechaFin ? new Date(t.fechaFin) : undefined
             }));
           },
           error: (err) => { if (err.status === 401) this.router.navigate(['/login']); }
@@ -535,7 +649,10 @@ export class Agente implements OnInit, OnDestroy {
     this.cargarHistorialDesdeBD();
 
     // 3. WS — cambios de estado de reportes
-    this.websocketService.reportes$.subscribe((rb: any) => this._manejarReporteWebSocket(rb));
+    this.websocketService.reportes$.subscribe((rb: any) => {
+      console.log('📥 WS: Reporte recibido en agente:', rb.estado, rb.direccion);
+      this._manejarReporteWebSocket(rb);
+    });
 
     // 4. WS — asignado como compañero
     this.websocketService.reporteAsignado$.subscribe((rb: any) => {
@@ -547,8 +664,9 @@ export class Agente implements OnInit, OnDestroy {
         this.notificaciones.unshift({
           tipo:  'REPORTE',
           texto: `Fuiste asignado como compañero en: ${r.direccion}`,
-          hora:  new Date().toLocaleTimeString(), data: r
+          hora:  new Date().toLocaleTimeString(), data: r, leida: false
         });
+        this._ordenarNotificaciones();
       }
     });
 
@@ -557,13 +675,16 @@ export class Agente implements OnInit, OnDestroy {
       const t: Tarea = {
         id: tb.id, titulo: tb.titulo, descripcion: tb.descripcion,
         admin: 'Administrador', estado: tb.estado,
-        hora: tb.hora, fecha: tb.fecha, prioridad: tb.prioridad
+        hora: tb.hora, fecha: tb.fecha, prioridad: tb.prioridad,
+        fechaInicio: tb.fechaInicio ? new Date(tb.fechaInicio) : undefined,
+        fechaFin: tb.fechaFin ? new Date(tb.fechaFin) : undefined
       };
       this.tareasAdmin.unshift(t);
       this.notificaciones.unshift({
         tipo: 'TAREA', texto: `Nueva tarea: ${t.titulo}`,
-        hora: new Date().toLocaleTimeString(), data: t
+        hora: new Date().toLocaleTimeString(), data: t, leida: false
       });
+      this._ordenarNotificaciones();
     });
   }
 
