@@ -1,22 +1,28 @@
-import { CanActivateFn } from '@angular/router';
+import { CanActivateFn, Router } from '@angular/router';
 import { inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { AuthService } from '../service/auth.service';
+import { map, take } from 'rxjs/operators';
 
 export const adminGuard: CanActivateFn = () => {
   const router = inject(Router);
+  const authService = inject(AuthService);
 
-  const token = localStorage.getItem('token');
-  const role = localStorage.getItem('role');
+  return authService.authState$.pipe(
+    take(1),
+    map(isAuthenticated => {
+      if (!isAuthenticated) {
+        router.navigate(['/login']);
+        return false;
+      }
 
-  if (!token) {
-    router.navigate(['/login']);
-    return false;
-  }
+      const role = authService.getUserRole();
+      
+      if (role !== 'ADMIN') {
+        router.navigate(['/home']);
+        return false;
+      }
 
-  if (role !== 'ADMIN') {
-    router.navigate(['/home']);
-    return false;
-  }
-
-  return true;
+      return true;
+    })
+  );
 };

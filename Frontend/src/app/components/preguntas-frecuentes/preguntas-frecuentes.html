@@ -1,0 +1,131 @@
+<app-nav></app-nav>
+
+<div class="preguntas-container">
+  <button class="back-home-btn" routerLink="/home">
+    <i class="fa-solid fa-arrow-left"></i> Volver al Inicio
+  </button>
+
+  <div class="header-section" data-aos="fade-down">
+    <h1>Preguntas Frecuentes</h1>
+    <p>Resuelve tus dudas sobre Reportelo Ya y si no encuentras respuesta, ¡pregúntanos!</p>
+  </div>
+
+  <div class="content-wrapper">
+    <!-- Formulario -->
+    <div class="form-card" data-aos="fade-up">
+      <div class="form-header">
+        <i class="fa-solid fa-question-circle"></i>
+        <h3>¿Tienes una pregunta?</h3>
+        <p>Envíanos tu consulta y nuestro equipo te responderá</p>
+      </div>
+
+      <div class="form-body">
+        <div class="input-group">
+          <label for="nombre">
+            <i class="fa-solid fa-user"></i> Tu nombre
+          </label>
+          <input 
+            type="text" 
+            id="nombre" 
+            [(ngModel)]="nombre" 
+            placeholder="Escribe tu nombre completo"
+            maxlength="50"
+          >
+        </div>
+
+        <div class="input-group">
+          <label for="pregunta">
+            <i class="fa-solid fa-comment-dots"></i> Tu pregunta
+          </label>
+          <textarea 
+            id="pregunta" 
+            [(ngModel)]="pregunta" 
+            placeholder="Escribe tu pregunta aquí..."
+            rows="4"
+            maxlength="300"
+          ></textarea>
+          <span class="char-count">{{ pregunta.length }}/300</span>
+        </div>
+
+        <button 
+          class="submit-btn" 
+          (click)="enviarPregunta()"
+          [disabled]="!nombre.trim() || !pregunta.trim()"
+        >
+          <i class="fa-solid fa-paper-plane"></i> Enviar Pregunta
+        </button>
+
+        <div class="success-message" *ngIf="preguntaEnviada">
+          <i class="fa-solid fa-check-circle"></i>
+          <span>¡Tu pregunta ha sido enviada exitosamente!</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lista de Preguntas -->
+    <div class="preguntas-list">
+      <div class="list-header">
+        <i class="fa-solid fa-comments"></i>
+        <h3>Preguntas de la Comunidad</h3>
+        <span class="pregunta-count">{{ preguntas.length }} preguntas</span>
+      </div>
+
+      <div 
+        class="pregunta-card" 
+        *ngFor="let p of preguntas; let i = index"
+        data-aos="fade-up"
+        [attr.data-aos-delay]="i * 100"
+        [class.respondida]="p.respondida"
+        [class.sin-responder]="!p.respondida"
+      >
+        <div class="pregunta-header">
+          <div class="autor-info">
+            <div class="avatar">
+              <i class="fa-solid fa-user"></i>
+            </div>
+            <div class="autor-details">
+              <span class="autor-nombre">{{ p.autor }}</span>
+              <span class="pregunta-fecha">{{ formatFecha(p.fecha) }}</span>
+            </div>
+          </div>
+          <span class="status-badge" [class.pendiente]="!p.respondida">
+            <i [class]="p.respondida ? 'fa-solid fa-check' : 'fa-solid fa-clock'"></i>
+            {{ p.respondida ? 'Respondida' : 'Pendiente' }}
+          </span>
+        </div>
+
+        <div class="pregunta-content">
+          <h4><i class="fa-solid fa-question"></i> {{ p.pregunta }}</h4>
+        </div>
+
+        <div class="respuesta-content" *ngIf="p.respondida && p.respuesta">
+          <div class="respuesta-box">
+            <div class="respuesta-header">
+              <i class="fa-solid fa-user-tie"></i>
+              <span>Equipo Reportelo Ya</span>
+            </div>
+            <p>{{ p.respuesta }}</p>
+          </div>
+        </div>
+
+        <div class="pendiente-box" *ngIf="!p.respondida">
+          <i class="fa-solid fa-hourglass-half"></i>
+          <span>Tu pregunta está siendo revisada por nuestro equipo</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-adicional" data-aos="fade-up">
+    <div class="info-card">
+      <i class="fa-solid fa-headset"></i>
+      <div>
+        <h4>¿Prefieres contactarte directamente?</h4>
+        <p>Nuestro equipo de soporte está disponible 24/7</p>
+        <a routerLink="/soporte">Ir a Soporte</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-footer></app-footer>
