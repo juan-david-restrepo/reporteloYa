@@ -329,4 +329,7 @@ export class GestionAgentes implements OnInit, OnDestroy {
     this.horaTarea = '';
     this.prioridadTarea = 'MEDIA';
   }
+
+
+  
 }
