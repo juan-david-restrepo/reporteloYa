@@ -10,7 +10,7 @@ export class ReportesService {
 
 
   private api = 'http://localhost:8080/admin';
-  private apiUrl = 'http://localhost:8080/api/reportes';
+  private apiUrl = 'http://localhost:8080/api/reportes/todos';
 
   constructor(private http: HttpClient) {}
 

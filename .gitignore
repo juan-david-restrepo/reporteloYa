@@ -14,3 +14,6 @@ docker-compose.override.yml
 
 # ===== CREDENTIALS =====
 google-credentials.json
+
+#====== NODE MODULES ======
+node_modules/
