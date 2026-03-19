@@ -50,9 +50,11 @@
             </label>
             <select class="custom-select-pro" (change)="filtrarPorTipo($event)">
               <option value="todos">Todos</option>
-              <option value="Exceso de velocidad">Exceso Velocidad</option>
-              <option value="Semáforo en Rojo">Semáforo Rojo</option>
-              <option value="Vehículo mal estacionado">Mal Parqueo</option>
+              <option value="Accidente de tránsito">Accidente de tránsito</option>
+              <option value="Vehículo mal estacionado">Vehículo mal estacionado</option>
+              <option value="Semáforo dañado">Semáforo dañado</option>
+              <option value="Conducción peligrosa">Conducción peligrosa</option>
+              <option value="Otros">Otros</option>
             </select>
           </div>
         </div>
@@ -67,13 +69,23 @@
     <div class="table-section">
       <div class="table-header">
         <h3>Reportes</h3>
-        <select (change)="aplicarFiltro($event)">
-          <option value="">Todos los estados</option>
-          <option value="PENDIENTE">PENDIENTE</option>
-          <option value="EN PROCESO">EN PROCESO</option>
-          <option value="FINALIZADO">FINALIZADO</option>
-          <option value="RECHAZADO">RECHAZADO</option>
-        </select>
+        <div class="table-filters">
+          <select (change)="filtrarTablaPorTipo($event)">
+            <option value="">Todos los tipos</option>
+            <option value="Accidente de tránsito">Accidente</option>
+            <option value="Vehículo mal estacionado">Mal Estacionado</option>
+            <option value="Semáforo dañado">Semáforo Dañado</option>
+            <option value="Conducción peligrosa">Conducción Peligrosa</option>
+            <option value="Otros">Otros</option>
+          </select>
+          <select (change)="aplicarFiltro($event)">
+            <option value="">Todos los estados</option>
+            <option value="PENDIENTE">PENDIENTE</option>
+            <option value="EN PROCESO">EN PROCESO</option>
+            <option value="FINALIZADO">FINALIZADO</option>
+            <option value="RECHAZADO">RECHAZADO</option>
+          </select>
+        </div>
       </div>
 
       <div class="table-responsive">
@@ -91,7 +103,7 @@
             <tr *ngFor="let inf of infraccionesAMostrar" (click)="abrirDetalleInfraccion(inf)" class="clickable-row">
               <td data-label="#"><strong>{{ inf.id }}</strong></td>
               <td data-label="Fecha">{{ inf.fecha }}</td>
-              <td data-label="Tipo">{{ inf.tipo }}</td>
+              <td data-label="Tipo">{{ getNombreTipo(inf.tipo) }}</td>
               <td data-label="Agente">{{ inf.agente }}</td>
               <td data-label="Estado">
                 <span class="status" [ngClass]="getClaseEstado(inf.estado)">{{ inf.estado }}</span>
@@ -109,7 +121,7 @@
     <div class="modal-header">
       <div class="modal-title-group">
         <div class="modal-icon">
-          <i class="fas fa-chart-pie"></i>
+          <i class="fas fa-chart-bar"></i>
         </div>
         <div class="modal-title-text">
           <h5>{{ tituloModal }}</h5>
@@ -149,7 +161,7 @@
           </h4>
           <div class="reporte-card" *ngFor="let inf of reportesFiltrados">
             <div class="reporte-header">
-              <span class="reporte-tipo">{{ inf.tipo }}</span>
+              <span class="reporte-tipo">{{ getNombreTipo(inf.tipo) }}</span>
               <span class="status-badge" [ngClass]="getClaseEstado(inf.estado)">{{ inf.estado }}</span>
             </div>
             <div class="reporte-detalles">
@@ -183,7 +195,7 @@
             <p>{{ infraccionSeleccionada.ref }}</p>
           </div>
           <div class="detalle-item"><label>Tipo</label>
-            <p>{{ infraccionSeleccionada.tipo }}</p>
+            <p>{{ getNombreTipo(infraccionSeleccionada.tipo) }}</p>
           </div>
           <div class="detalle-item"><label>Agente</label>
             <p>{{ infraccionSeleccionada.agente }}</p>

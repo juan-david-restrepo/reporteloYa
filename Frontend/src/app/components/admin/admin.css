@@ -242,6 +242,29 @@ app-sidebar-admin {
   border-color: #3b82f6;
 }
 
+.table-filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.table-filters select {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  font-size: 13px;
+  color: #334155;
+  font-weight: 500;
+  cursor: pointer;
+  background: #f8fafc;
+  min-width: 140px;
+}
+
+.table-filters select:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
 .data-table {
   width: 100%;
   border-collapse: collapse;
@@ -912,6 +935,12 @@ app-sidebar-admin {
   color: #f8fafc !important;
 }
 
+::ng-deep body.dark-mode .table-filters select {
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
 ::ng-deep body.dark-mode .data-table thead { background-color: #0f172a !important; }
 ::ng-deep body.dark-mode .data-table thead th { color: #60a5fa !important; }
 
@@ -987,6 +1016,66 @@ app-sidebar-admin {
 
 ::ng-deep body.dark-mode .modal-container.modal-pro .stat-item:hover {
   border-color: #60a5fa !important;
+}
+
+/* Dark Mode - Stat Total (Azul) */
+::ng-deep body.dark-mode .modal-container.modal-pro .stat-item.active {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%) !important;
+  border-color: #3b82f6 !important;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4) !important;
+}
+
+::ng-deep body.dark-mode .modal-container.modal-pro .stat-item.active .stat-numero {
+  color: #ffffff !important;
+}
+
+::ng-deep body.dark-mode .modal-container.modal-pro .stat-item.active .stat-label {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Dark Mode - Pendiente (Amarillo) */
+::ng-deep body.dark-mode .modal-container.modal-pro .stat-item.stat-pendiente.active {
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important;
+  border-color: #f59e0b !important;
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4) !important;
+}
+
+::ng-deep body.dark-mode .modal-container.modal-pro .stat-item.stat-pendiente.active .stat-numero {
+  color: #ffffff !important;
+}
+
+::ng-deep body.dark-mode .modal-container.modal-pro .stat-item.stat-pendiente.active .stat-label {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Dark Mode - En Proceso (Azul) */
+::ng-deep body.dark-mode .modal-container.modal-pro .stat-item.stat-proceso.active {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+  border-color: #60a5fa !important;
+  box-shadow: 0 4px 15px rgba(96, 165, 250, 0.4) !important;
+}
+
+::ng-deep body.dark-mode .modal-container.modal-pro .stat-item.stat-proceso.active .stat-numero {
+  color: #ffffff !important;
+}
+
+::ng-deep body.dark-mode .modal-container.modal-pro .stat-item.stat-proceso.active .stat-label {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Dark Mode - Finalizado (Verde) */
+::ng-deep body.dark-mode .modal-container.modal-pro .stat-item.stat-finalizado.active {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+  border-color: #10b981 !important;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4) !important;
+}
+
+::ng-deep body.dark-mode .modal-container.modal-pro .stat-item.stat-finalizado.active .stat-numero {
+  color: #ffffff !important;
+}
+
+::ng-deep body.dark-mode .modal-container.modal-pro .stat-item.stat-finalizado.active .stat-label {
+  color: rgba(255, 255, 255, 0.9) !important;
 }
 
 ::ng-deep body.dark-mode .modal-container.modal-pro .stat-numero {
@@ -1201,6 +1290,8 @@ app-sidebar-admin {
   .table-section { padding: 16px; }
   .table-header { flex-direction: column; align-items: flex-start; }
   .table-header select { width: 100%; }
+  .table-filters { width: 100%; }
+  .table-filters select { width: 100%; min-width: unset; }
   .data-table { min-width: unset; }
   .data-table thead { display: none; }
   .data-table tbody tr {
@@ -1310,6 +1401,8 @@ app-sidebar-admin {
   /* Table - Vertical Layout on Mobile */
   .table-section { padding: 12px; border-radius: 12px; }
   .table-header h3 { font-size: 15px; }
+  .table-filters { width: 100%; }
+  .table-filters select { width: 100%; min-width: unset; font-size: 12px; padding: 6px 10px; }
   .data-table { min-width: unset; }
   .data-table thead { display: none; }
   .data-table,
