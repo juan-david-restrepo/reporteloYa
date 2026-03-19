@@ -1,21 +1,144 @@
-<div class="chatbot-toggle" *ngIf="!mostrarChat" (click)="toggleChat()">
-  💬
+<!-- Botón flotante para abrir chat (solo usuarios logueados) -->
+<div class="chatbot-toggle" *ngIf="showChat && !mostrarChat" (click)="toggleChat()">
+  <img src="assets/images/Gemini_Generated_Image_npokq1npokq1npok-removebg-preview.png" alt="Chatbot" />
+  <span class="tooltip">¿Necesitas ayuda?</span>
 </div>
 
-<div class="chatbot-box" *ngIf="mostrarChat">
-  <div class="chat-header">
-    <span>Robotransit</span>
-    <button (click)="toggleChat()">✖</button>
-  </div>
+<!-- OVERLAY + CONTENEDOR DEL CHAT (solo usuarios logueados) -->
+<div class="chat-overlay" *ngIf="showChat && mostrarChat">
+  <div class="chat-container">
 
-  <div id="chatMessages" class="chat-messages">
-    <div *ngFor="let msg of mensajes" [ngClass]="msg.tipo">{{ msg.texto }}</div>
-    <div *ngIf="cargando" class="loader">Cargando...</div>
-  </div>
+    <!-- SIDEBAR -->
+    <div class="sidebar" [ngClass]="{'active': sidebarCollapsed}">
 
-  <div class="chat-input">
-    <input [(ngModel)]="textoUsuario"
-           (keydown.enter)="enviarMensaje()"
-           placeholder="Escribe tu mensaje..." />
-  </div>
-</div>
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <img src="assets/images/logoNuevo.png" alt="Chatbot" />
+          <strong>Roportelo Ya</strong>
+        </div>
+      </div>
+
+      <div class="sidebar-menu">
+        <div class="sidebar-item" (click)="nuevoChat()">
+          <i class="fa-solid fa-plus"></i>
+          <span>Nuevo chat</span>
+        </div>
+
+        <div class="sidebar-item search-chat">
+          <i class="fa-solid fa-magnifying-glass"></i>
+
+          <input type="text" placeholder="Buscar chats..." (input)="buscarChats($event)" />
+        </div>
+
+        <hr>
+
+        <div class="sidebar-section-title">Tus chats</div>
+
+        <div class="chat-list" id="chatList">
+          <div class="sidebar-item chat-item" *ngFor="let conv of conversaciones"
+            (click)="cargarMensajes(conv.id_conversacion)">
+            <span>{{ conv.titulo || 'Chat sin título' }} </span>
+            <button class="menu-btn" (click)="toggleMenu($event, conv.id_conversacion)">
+              <i class="fa-solid fa-ellipsis-vertical"></i>
+            </button>
+
+            <!-- Menú desplegable MOVIDO dentro del ngFor -->
+            <div class="menu-dropdown" *ngIf="activeMenuId === conv.id_conversacion" (click)="onDropdownClick($event)">
+              <div class="menu-item">
+                <i class="fa-solid fa-pen"></i>
+                Cambiar nombre
+              </div>
+
+              <div class="menu-item delete" (click)="eliminarConversacion(conv.id_conversacion, $event)">
+                <i class="fa-solid fa-trash"></i>
+                Eliminar
+              </div>
+            </div>
+          </div>
+        </div>
+      </div> <!-- Cerrar sidebar-menu -->
+
+      <div class="sidebar-footer">
+        © Reportelo Ya {{ currentYear }}
+      </div>
+
+    </div> <!-- Cerrar sidebar -->
+
+    <!-- CHAT MODAL -->
+    <div class="chatbot-modal">
+
+      <div class="chat-header">
+        <div class="chat-left">
+          <div class="logo">
+            <img src="assets/images/Gemini_Generated_Image_npokq1npokq1npok-removebg-preview.png" alt="Chatbot" />
+          </div>
+          <div class="chat-title">
+            <span class="bot-name">Robotransit</span>
+            <span class="bot-subtitle">Asistente Inteligente</span>
+            <span class="bot-subtitle">Activo <i class="fa-solid fa-circle" style="color: green;"></i></span>
+          </div>
+        </div>
+        <button class="close-btn" (click)="toggleChat()" title="Cerrar">✕</button>
+      </div>
+
+      <div class="chat-body" id="chatBody" #chatContainer>
+        <div class="chat-initial-message" *ngIf="fechaCreacionConversacion">
+          Este chat se graba usando un servicio en la nube y se inició el
+          <strong>{{ fechaCreacionConversacion}}</strong><br />
+          y está sujeto a los términos de nuestro <a routerLink="/">Aviso de privacidad.</a>
+        </div>
+        <div *ngFor="let msg of mensajes" [ngClass]="{'user-msg': msg.tipo === 'user', 'bot-msg': msg.tipo === 'bot'}"
+          class="chat-message">
+
+          <!-- Avatar -->
+          <img *ngIf="msg.tipo==='user'" class="avatar user-avatar" [src]="usuarioAvatar" alt="Usuario" />
+          <img *ngIf="msg.tipo==='bot'" class="avatar bot-avatar" [src]="botAvatar" alt="Bot" />
+
+          <!-- Contenedor de texto -->
+          <div class="msg-content">
+            <span class="msg-text" [innerHTML]="msg.texto"></span>
+            <span class="msg-time">{{ msg.hora }}</span>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="chat-footer">
+        <input type="text" 
+              [placeholder]="'Pregunta a Robotransit ...'" 
+              [(ngModel)]="mensaje"
+              (keydown.enter)="enviarMensaje()"
+              [readonly]="isListening" />
+
+        <button class="voice-btn"> <span class="bars" *ngIf="!mensaje" title="Usar el modo de voz">
+            <span></span><span></span><span></span><span></span><span></span> </span> <i
+            class="bx bx-up-arrow-alt send-icon" *ngIf="mensaje"></i> 
+        </button>
+
+        <!-- BOTÓN DE VOZ / ENVÍO -->
+        <button class="send-btn" (click)="onMainAction()">
+          <!-- Microphone mientras escucha -->
+          <i class="bx" [ngClass]="
+              isListening 
+                ? 'bx-stopwatch' 
+                : mensaje.trim() 
+                  ? 'bx-check-circle' 
+                  : 'bx-microphone'
+            " [title]="
+              isListening 
+                ? 'Grabando...' 
+                : mensaje.trim() 
+                  ? 'Enviar mensaje' 
+                  : 'Dictar'
+            ">
+          </i>
+        </button>
+
+        <!-- BOTÓN PARA CANCELAR AUDIO -->
+        <button class="cancel-btn" *ngIf="isListening" (click)="stopVoiceDictation()">
+          <i class="bx bx-x-circle" title="Cancelar dictado"></i>
+        </button>
+      </div>
+    </div> <!-- Cerrar chatbot-modal -->
+  </div> <!-- Cerrar chat-container -->
+</div> <!-- Cerrar chat-overlay -->

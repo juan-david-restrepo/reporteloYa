@@ -42,7 +42,7 @@
           </div>
         </div>
       </div>
-    </aside> <!-- cierre único y correcto del sidebar -->
+    </aside>
 
     <!-- BOTÓN INTERRUPTOR -->
     <button class="edit-toggle" (click)="toggleEdit()">
@@ -118,9 +118,43 @@
         </div>
 
       </form>
+
+      <!-- ACTIVIDADES RECIENTES - Solo para ciudadanos -->
+      <div class="actividades-section" *ngIf="esCiudadano">
+        <div class="actividades-header">
+          <h2>
+            <i class="fa-solid fa-clock-rotate-left"></i> Actividades Recientes
+          </h2>
+          <button class="btn-limpiar-actividades" (click)="limpiarActividades()" *ngIf="actividades.length > 0">
+            <i class="fa-solid fa-trash-can"></i> Limpiar
+          </button>
+        </div>
+
+        <div class="actividades-grid" *ngIf="actividades.length > 0">
+          <div class="actividad-card" *ngFor="let actividad of actividades" [style.border-left-color]="actividad.color">
+            <div class="actividad-icono" [style.background]="actividad.color + '20'" [style.color]="actividad.color">
+              <i [class]="actividad.icono"></i>
+            </div>
+            <div class="actividad-info">
+              <div class="actividad-descripcion">{{ actividad.descripcion }}</div>
+              <div class="actividad-meta">
+                <span><i class="fa-regular fa-calendar"></i> {{ actividad.fecha }}</span>
+                <span><i class="fa-regular fa-clock"></i> {{ actividad.hora }}</span>
+              </div>
+              <span class="actividad-modulo">{{ actividad.modulo }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="actividades-vacias" *ngIf="actividades.length === 0">
+          <i class="fa-regular fa-clock"></i>
+          <p>No hay actividades recientes</p>
+        </div>
+      </div>
+
     </section>
 
-  </div> <!-- cierre perfil-card -->
-</div> <!-- cierre perfil-wrapper -->
+  </div>
+</div>
 
 <app-footer></app-footer>

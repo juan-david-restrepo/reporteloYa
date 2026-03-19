@@ -227,11 +227,12 @@ export class SubirReporteComponent implements OnInit, OnDestroy {
     return this.placa ? this.PLACA_REGEX.test(this.placa.toUpperCase()) : true;
   }
 
-  private validarFechaHora(): boolean {
-    if (!this.fecha || !this.hora) return false;
-    const ahora = new Date();
-    const seleccionada = new Date(`${this.fecha}T${this.hora}`);
-    return seleccionada <= ahora;
+  validarFecha(): boolean {
+    return !!this.fecha;
+  }
+
+  validarHora(): boolean {
+    return !!this.hora;
   }
 
   formularioValido(): boolean {
@@ -239,12 +240,33 @@ export class SubirReporteComponent implements OnInit, OnDestroy {
       this.tipoSeleccionado === 'Otros'
         ? this.detalleOtroIncidente?.trim()
         : this.tipoSeleccionado;
+    
     return !!(
       tipoFinal &&
       this.descripcion?.trim().length >= 10 &&
-      this.validarFechaHora() &&
+      this.validarFecha() &&
+      this.validarHora() &&
       this.validarPlaca()
     );
+  }
+
+  campoFaltante: string = '';
+
+  obtenerCampoFaltante(): string {
+    const tipoFinal =
+      this.tipoSeleccionado === 'Otros'
+        ? this.detalleOtroIncidente?.trim()
+        : this.tipoSeleccionado;
+
+    if (!tipoFinal) return 'Selecciona el tipo de incidente';
+    if (!this.descripcion?.trim() || this.descripcion.trim().length < 10) {
+      return 'La descripción debe tener al menos 10 caracteres';
+    }
+    if (!this.validarFecha()) return 'Selecciona la fecha del incidente';
+    if (!this.validarHora()) return 'Selecciona la hora del incidente';
+    if (!this.validarPlaca()) return 'La placa no es válida (formato: ABC123)';
+    
+    return '';
   }
 
   async enviarReporte() {

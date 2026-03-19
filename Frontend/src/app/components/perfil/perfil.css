@@ -374,3 +374,161 @@
 @keyframes colorShift { 0% { background-position:0% 50%; } 50% { background-position:100% 50%; } 100% { background-position:0% 50%; } }
 .pattern { background-size: 20px 20px; background-image: repeating-linear-gradient(45deg, #fff 0 5px, #000 5px 10px); }
 .modal-actions { margin-top: 15px; display: flex; justify-content: flex-end; gap: 10px; }
+
+/* =========================================================
+   ACTIVIDADES RECIENTES
+========================================================= */
+
+.actividades-section {
+    margin-top: 50px;
+    padding-top: 40px;
+    border-top: 2px solid #e5e7eb;
+}
+
+.actividades-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.actividades-header h2 {
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.actividades-header h2 i {
+    color: #1e3a8a;
+}
+
+.btn-limpiar-actividades {
+    padding: 10px 20px;
+    background: #fee2e2;
+    color: #dc2626;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-limpiar-actividades:hover {
+    background: #fecaca;
+    transform: translateY(-2px);
+}
+
+.actividades-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.actividad-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px;
+    background: #f8fafc;
+    border-radius: 12px;
+    border-left: 4px solid;
+    transition: all 0.2s ease;
+}
+
+.actividad-card:hover {
+    transform: translateX(4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.actividad-icono {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.actividad-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.actividad-descripcion {
+    font-size: 0.9rem;
+    color: #334155;
+    font-weight: 500;
+    margin-bottom: 4px;
+    line-height: 1.4;
+}
+
+.actividad-meta {
+    display: flex;
+    gap: 12px;
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+.actividad-meta i {
+    margin-right: 4px;
+}
+
+.actividad-modulo {
+    display: inline-block;
+    padding: 3px 10px;
+    background: #e2e8f0;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    color: #475569;
+    font-weight: 500;
+}
+
+.actividades-vacias {
+    text-align: center;
+    padding: 50px 20px;
+    color: #94a3b8;
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 2px dashed #e2e8f0;
+}
+
+.actividades-vacias i {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    display: block;
+}
+
+.actividades-vacias p {
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+/* Scrollbar personalizada */
+.actividades-grid::-webkit-scrollbar {
+    width: 6px;
+}
+
+.actividades-grid::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 3px;
+}
+
+.actividades-grid::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.actividades-grid::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}

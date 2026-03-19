@@ -8,42 +8,61 @@
       <div class="form-grid">
         <div class="columna-izq">
           <div class="seccion">
-            <label>Tipo de incidente *</label>
+            <label>Tipo de incidente <span class="requerido">*</span></label>
             <div class="grid-incidentes">
               <div *ngFor="let incidente of incidentes" class="card-incidente"
-                [class.selected]="tipoSeleccionado === incidente.nombre" (click)="seleccionarIncidente(incidente)">
+                [class.selected]="tipoSeleccionado === incidente.nombre" 
+                [class.card-error]="!tipoSeleccionado"
+                (click)="seleccionarIncidente(incidente)">
                 {{ incidente.nombre }}
               </div>
             </div>
+            <p class="seleccion-info" *ngIf="tipoSeleccionado">
+              <i class="fas fa-check"></i> Seleccionado: {{ tipoSeleccionado }}
+            </p>
             <div *ngIf="mostrarCampoOtros" class="campo-otros mt-2">
               <input type="text" name="detalleOtro" [(ngModel)]="detalleOtroIncidente" placeholder="Especifica el tipo"
-                required />
+                required
+                [class.input-ok]="detalleOtroIncidente && detalleOtroIncidente.trim().length > 0"
+                [class.input-error]="detalleOtroIncidente && detalleOtroIncidente.trim().length === 0" />
             </div>
           </div>
 
           <div class="seccion">
-            <label>Descripción *</label>
+            <label>Descripción * <span class="requerido">*</span></label>
             <textarea name="descripcion" [(ngModel)]="descripcion" maxlength="300" required
-              placeholder="Describe lo sucedido..." class="textarea-compacto"></textarea>
-            <small class="contador-texto">{{ descripcion?.length || 0 }}/300</small>
+              placeholder="Describe lo sucedido (mínimo 10 caracteres)..." 
+              class="textarea-compacto"
+              [class.input-ok]="descripcion && descripcion.trim().length >= 10"
+              [class.input-error]="descripcion && descripcion.trim().length < 10"></textarea>
+            <small class="contador-texto" [class.contador-ok]="descripcion && descripcion.trim().length >= 10">
+              {{ descripcion?.length || 0 }}/300 {{ (descripcion && descripcion.trim().length >= 10) ? '✓' : '(mín 10)' }}
+            </small>
           </div>
         </div>
 
         <div class="columna-der">
           <div class="seccion fila-doble">
             <div class="input-group">
-              <label>Fecha *</label>
-              <input type="date" name="fecha" [(ngModel)]="fecha" required />
+              <label>Fecha * <span class="requerido">*</span></label>
+              <input type="date" name="fecha" [(ngModel)]="fecha" required
+                [class.input-ok]="validarFecha()"
+                [class.input-error]="fecha && !validarFecha()" />
             </div>
             <div class="input-group">
-              <label>Hora *</label>
-              <input type="time" name="hora" [(ngModel)]="hora" required />
+              <label>Hora * <span class="requerido">*</span></label>
+              <input type="time" name="hora" [(ngModel)]="hora" required
+                [class.input-ok]="validarHora()"
+                [class.input-error]="hora && !validarHora()" />
             </div>
           </div>
 
           <div class="seccion" *ngIf="requierePlacaActual || placaOpcional">
-            <label>Placa del vehículo <span *ngIf="requierePlacaActual">*</span></label>
-            <input type="text" name="placa" [(ngModel)]="placa" placeholder="Ej: ABC123" maxlength="6" />
+            <label>Placa del vehículo <span *ngIf="requierePlacaActual" class="requerido">*</span></label>
+            <input type="text" name="placa" [(ngModel)]="placa" placeholder="Ej: ABC123" maxlength="6"
+              [class.input-ok]="!requierePlacaActual || placa?.length === 6"
+              [class.input-error]="requierePlacaActual && placa && placa.length < 6" />
+            <small class="placa-hint" *ngIf="requierePlacaActual">Formato: 3 letras + 3 números (ej: ABC123)</small>
           </div>
 
           <div class="seccion">
@@ -86,6 +105,15 @@
             <div id="map" class="mapa-compacto"></div>
           </div>
         </div>
+      </div>
+
+      <div class="estado-formulario">
+        <p class="campo-faltante" *ngIf="!formularioValido() && obtenerCampoFaltante()">
+          <i class="fas fa-exclamation-circle"></i> {{ obtenerCampoFaltante() }}
+        </p>
+        <p class="campo-ok" *ngIf="formularioValido()">
+          <i class="fas fa-check-circle"></i> Formulario listo para enviar
+        </p>
       </div>
 
       <button type="submit" class="btn-enviar" [disabled]="!formularioValido() || isSubmitting">
