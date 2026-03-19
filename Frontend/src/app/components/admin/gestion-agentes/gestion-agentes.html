@@ -104,9 +104,9 @@
             <td data-label="Hora">{{ tarea.hora }}</td>
             <td data-label="Descripción" class="td-descripcion">
               <div class="descripcion-contenido">
-                <span class="descripcion-texto">{{ tarea.descripcion }}</span>
-                <button *ngIf="tarea.descripcion.length >=10" class="ver-mas"
-                  (click)="abrirModalDescripcion(tarea.descripcion)">
+                <span class="descripcion-texto">{{ tarea.descripcion || '-' }}</span>
+                <button *ngIf="tarea.descripcion && tarea.descripcion.length >= 10" class="ver-mas"
+                  (click)="abrirModalDescripcion(tarea.descripcion, 'Descripción de Tarea')">
                   Ver más
                 </button>
               </div>
@@ -161,6 +161,7 @@
               <th>Fecha</th>
               <th>Hora</th>
               <th>Descripción</th>
+              <th>Resumen</th>
               <th>Estado</th>
             </tr>
           </thead>
@@ -168,7 +169,18 @@
             <tr *ngFor="let tarea of tareasFinalizadas">
               <td data-label="Fecha">{{ tarea.fecha }}</td>
               <td data-label="Hora">{{ tarea.hora }}</td>
-              <td data-label="Descripción">{{ tarea.descripcion }}</td>
+              <td data-label="Descripción">
+                <span *ngIf="!tarea.descripcion || tarea.descripcion.length < 20">{{ tarea.descripcion || '-' }}</span>
+                <button *ngIf="tarea.descripcion && tarea.descripcion.length >= 20" class="ver-mas" (click)="abrirModalDescripcion(tarea.descripcion, 'Descripción de Tarea')">
+                  Ver más
+                </button>
+              </td>
+              <td data-label="Resumen">
+                <span *ngIf="!tarea.resumenOperativo || tarea.resumenOperativo.length <= 20">{{ tarea.resumenOperativo || '-' }}</span>
+                <button *ngIf="tarea.resumenOperativo && tarea.resumenOperativo.length >= 20" class="ver-mas" (click)="abrirModalDescripcion(tarea.resumenOperativo, 'Resumen Operativo')">
+                  Ver más
+                </button>
+              </td>
               <td data-label="Estado">
                 <span class="badge-estado bg-finalizado">FINALIZADO</span>
               </td>
@@ -197,6 +209,8 @@
               <th>Hora</th>
               <th>Ubicación</th>
               <th>Incidente</th>
+              <th>Descripción</th>
+              <th>Resumen</th>
             </tr>
           </thead>
           <tbody>
@@ -205,6 +219,19 @@
               <td data-label="Hora">{{ reporte.horaIncidente }}</td>
               <td data-label="Ubicación">{{ reporte.direccion }}</td>
               <td data-label="Incidente">{{ reporte.tipoInfraccion }}</td>
+              <td data-label="Descripción">
+                <span *ngIf="!reporte.descripcion || reporte.descripcion.length === 0">-</span>
+                <span *ngIf="reporte.descripcion && reporte.descripcion.length < 20">{{ reporte.descripcion }}</span>
+                <button *ngIf="reporte.descripcion && reporte.descripcion.length >= 20" class="ver-mas" (click)="abrirModalDescripcion(reporte.descripcion, 'Descripción del Reporte')">
+                  Ver más
+                </button>
+              </td>
+              <td data-label="Resumen">
+                <span *ngIf="!reporte.resumenOperativo || reporte.resumenOperativo.length < 20">{{ reporte.resumenOperativo || '-' }}</span>
+                <button *ngIf="reporte.resumenOperativo && reporte.resumenOperativo.length >= 20" class="ver-mas" (click)="abrirModalDescripcion(reporte.resumenOperativo, 'Resumen Operativo')">
+                  Ver más
+                </button>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -229,19 +256,27 @@
   </div>
 </div>
 
-<div class="modal-backdrop" *ngIf="modalDescripcion" (click)="cerrarModalDescripcion()"></div>
-
-<div class="modal-descripcion" *ngIf="modalDescripcion">
-  <div class="modal-contenido">
-    <div class="modal-header">
-      <h3>Descripción completa</h3>
-      <button class="cerrar" (click)="cerrarModalDescripcion()">✕</button>
-    </div>
-    <div class="modal-body">{{ descripcionSeleccionada }}</div>
-    <div class="modal-footer">
-      <button class="btn-cerrar" (click)="cerrarModalDescripcion()">
-        Cerrar
+<div class="modal-overlay-detalle" *ngIf="modalDescripcion" (click)="cerrarModalDescripcion()">
+  <div class="modal-vista" (click)="$event.stopPropagation()">
+    <div class="modal-header-detalle">
+      <div class="modal-icono">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+        </svg>
+      </div>
+      <h3>{{ tituloModal }}</h3>
+      <button class="btn-cerrar-modal" (click)="cerrarModalDescripcion()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
       </button>
+    </div>
+    <div class="modal-body-detalle">
+      <p>{{ descripcionSeleccionada }}</p>
     </div>
   </div>
 </div>

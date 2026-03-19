@@ -233,36 +233,134 @@ input:checked + .slider:before { transform: translateX(22px); }
 
 
 /* ====================================================
-   👁️ MODO DALTONISMO GLOBAL
-   ==================================================== */
-::ng-deep body.color-blind .status-badge.pending,
-::ng-deep body.color-blind .status.pending {
+    👁️ MODO DALTONISMO GLOBAL
+    ==================================================== */
+/* Protanopía (falta rojo) */
+::ng-deep body.protanopia .status-badge.pending,
+::ng-deep body.protanopia .status.pending,
+::ng-deep body.protanopia .status-badge.pendiente,
+::ng-deep body.protanopia .status.pendiente,
+::ng-deep body.protanopia .estado-pendiente,
+::ng-deep body.protanopia .badge-estado.pendiente {
   background-color: #000000 !important;
   color: #ffffff !important;
   border: 2px solid #ffffff !important;
 }
 
-::ng-deep body.color-blind .status-badge.validated,
-::ng-deep body.color-blind .status.validated {
+::ng-deep body.protanopia .status-badge.validated,
+::ng-deep body.protanopia .status.validated,
+::ng-deep body.protanopia .status-badge.finalizado,
+::ng-deep body.protanopia .status.finalizado,
+::ng-deep body.protanopia .estado-finalizado,
+::ng-deep body.protanopia .badge-estado.finalizado {
   background-color: #ffffff !important;
   color: #000000 !important;
   border: 2px solid #000000 !important;
-  text-decoration: underline !important; /* Ayuda extra visual */
+  text-decoration: underline !important;
 }
 
+::ng-deep body.protanopia .status-badge.proceso,
+::ng-deep body.protanopia .status.proceso,
+::ng-deep body.protanopia .estado-proceso,
+::ng-deep body.protanopia .badge-estado.proceso {
+  background-color: #0000FF !important;
+  color: #ffffff !important;
+  border: 2px solid #FFFF00 !important;
+}
 
-/* ====================================================
-   🔎 TAMAÑOS DE FUENTE GLOBALES
-   ==================================================== */
-::ng-deep body.font-small .admin-layout { 
-  font-size: 14px !important; 
+::ng-deep body.protanopia .status-badge.rechazado,
+::ng-deep body.protanopia .status.rechazado,
+::ng-deep body.protanopia .estado-rechazado,
+::ng-deep body.protanopia .badge-estado.rechazado {
+  background-color: #FF0000 !important;
+  color: #ffffff !important;
+  border: 2px solid #000000 !important;
 }
-::ng-deep body.font-normal .admin-layout { 
-  font-size: 16px !important; 
+
+/* Deuteranopía (falta verde) */
+::ng-deep body.deuteranopia .status-badge.pending,
+::ng-deep body.deuteranopia .status.pending,
+::ng-deep body.deuteranopia .status-badge.pendiente,
+::ng-deep body.deuteranopia .status.pendiente,
+::ng-deep body.deuteranopia .estado-pendiente,
+::ng-deep body.deuteranopia .badge-estado.pendiente {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
 }
-::ng-deep body.font-large .admin-layout { 
-  font-size: 20px !important; 
+
+::ng-deep body.deuteranopia .status-badge.validated,
+::ng-deep body.deuteranopia .status.validated,
+::ng-deep body.deuteranopia .status-badge.finalizado,
+::ng-deep body.deuteranopia .status.finalizado,
+::ng-deep body.deuteranopia .estado-finalizado,
+::ng-deep body.deuteranopia .badge-estado.finalizado {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border: 2px solid #000000 !important;
+  text-decoration: underline !important;
 }
+
+::ng-deep body.deuteranopia .status-badge.proceso,
+::ng-deep body.deuteranopia .status.proceso,
+::ng-deep body.deuteranopia .estado-proceso,
+::ng-deep body.deuteranopia .badge-estado.proceso {
+  background-color: #0000FF !important;
+  color: #ffffff !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+::ng-deep body.deuteranopia .status-badge.rechazado,
+::ng-deep body.deuteranopia .status.rechazado,
+::ng-deep body.deuteranopia .estado-rechazado,
+::ng-deep body.deuteranopia .badge-estado.rechazado {
+  background-color: #FF0000 !important;
+  color: #ffffff !important;
+  border: 2px solid #000000 !important;
+}
+
+/* Tritanopía (falta azul) */
+::ng-deep body.tritanopia .status-badge.pending,
+::ng-deep body.tritanopia .status.pending,
+::ng-deep body.tritanopia .status-badge.pendiente,
+::ng-deep body.tritanopia .status.pendiente,
+::ng-deep body.tritanopia .estado-pendiente,
+::ng-deep body.tritanopia .badge-estado.pendiente {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+}
+
+::ng-deep body.tritanopia .status-badge.validated,
+::ng-deep body.tritanopia .status.validated,
+::ng-deep body.tritanopia .status-badge.finalizado,
+::ng-deep body.tritanopia .status.finalizado,
+::ng-deep body.tritanopia .estado-finalizado,
+::ng-deep body.tritanopia .badge-estado.finalizado {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border: 2px solid #000000 !important;
+  text-decoration: underline !important;
+}
+
+::ng-deep body.tritanopia .status-badge.proceso,
+::ng-deep body.tritanopia .status.proceso,
+::ng-deep body.tritanopia .estado-proceso,
+::ng-deep body.tritanopia .badge-estado.proceso {
+  background-color: #0000FF !important;
+  color: #ffffff !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+::ng-deep body.tritanopia .status-badge.rechazado,
+::ng-deep body.tritanopia .status.rechazado,
+::ng-deep body.tritanopia .estado-rechazado,
+::ng-deep body.tritanopia .badge-estado.rechazado {
+  background-color: #FF0000 !important;
+  color: #ffffff !important;
+  border: 2px solid #000000 !important;
+}
+
 
 /* Forzar que los textos hereden el tamaño modificado */
 ::ng-deep body[class*="font-"] p,
@@ -274,4 +372,84 @@ input:checked + .slider:before { transform: translateX(22px); }
 }
 ::ng-deep body[class*="font-"] h2 {
   font-size: 1.5em !important;
+}
+
+/* ====================================================
+   🔎 TAMAÑOS DE FUENTE
+   ==================================================== */
+.font-size-option {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+}
+
+.font-size-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.font-slider {
+  flex: 1;
+  height: 8px;
+  border-radius: 4px;
+  background: #e2e8f0;
+  outline: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+.font-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #1e3a8a;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.font-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+.font-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #1e3a8a;
+  cursor: pointer;
+  border: none;
+}
+
+.font-reset-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #64748b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.font-reset-btn:hover {
+  background: #1e3a8a;
+  color: #ffffff;
+  border-color: #1e3a8a;
+}
+
+/* ====================================================
+   🔎 TAMAÑOS DE FUENTE
+   ==================================================== */
+::ng-deep body .admin-layout,
+::ng-deep body .main-content {
+  font-size: var(--admin-font-size, 16px) !important;
+}
+::ng-deep body .admin-layout *,
+::ng-deep body .main-content * {
+  font-size: inherit !important;
 }

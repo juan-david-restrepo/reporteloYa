@@ -85,6 +85,7 @@ export class GestionAgentes implements OnInit, OnDestroy {
   modalDescripcion = false;
   modalAbierto = false; 
   descripcionSeleccionada = '';
+  tituloModal = 'Detalle';
 
   constructor(
     private adminService: AdminService,
@@ -97,11 +98,10 @@ export class GestionAgentes implements OnInit, OnDestroy {
     const isDark = localStorage.getItem('darkMode') === 'true';
     if (isDark) document.body.classList.add('dark-mode');
 
-    const isColorBlind = localStorage.getItem('colorBlind') === 'true';
-    if (isColorBlind) document.body.classList.add('color-blind');
-
-    const savedSize = localStorage.getItem('fontSize') || 'normal';
-    document.body.classList.add(`font-${savedSize}`);
+    const savedSize = localStorage.getItem('fontSize');
+    if (savedSize) {
+      document.body.style.setProperty('--admin-font-size', savedSize + 'px');
+    }
   }
 
   ngOnInit(): void {
@@ -117,13 +117,24 @@ export class GestionAgentes implements OnInit, OnDestroy {
     });
 
     this.websocketService.tareaEstado$.subscribe((tarea:any)=>{
-
       const t = this.tareas.find(x => x.id === tarea.id);
-
       if(t){
         t.estado = tarea.estado;
       }
+    });
 
+    this.websocketService.tareas$.subscribe((tarea:any) => {
+      console.log('📡 Nueva tarea/reporte WS:', tarea);
+      if (this.agente && tarea.placaAgente === this.agente.placa) {
+        this.cargarTareas();
+      }
+    });
+
+    this.websocketService.reportes$.subscribe((reporte:any) => {
+      console.log('📡 Nuevo reporte WS:', reporte);
+      if (this.agente && reporte.placaAgente === this.agente.placa) {
+        this.cargarReportes();
+      }
     });
 
   }
@@ -192,12 +203,16 @@ export class GestionAgentes implements OnInit, OnDestroy {
     this.tareasService.obtenerTareasPorAgente(this.agente!.placa)
     .subscribe({
       next: (data: any) => {
+        console.log('📊 Tareas recibidas (raw):', JSON.stringify(data, null, 2));
         if (Array.isArray(data)) {
           this.tareas = data;
         } else if (data.listaTareas) {
           this.tareas = data.listaTareas;
         } else {
           this.tareas = [];
+        }
+        if (this.tareas.length > 0) {
+          console.log('📊 Primera tarea:', JSON.stringify(this.tareas[0], null, 2));
         }
         if (!silent) this.cargandoTareas = false;
       },
@@ -273,7 +288,11 @@ export class GestionAgentes implements OnInit, OnDestroy {
 
     this.reportesService.obtenerReportesPorAgente(this.agente.placa).subscribe({
       next: (data) => {
+        console.log('📊 Reportes recibidos (raw):', JSON.stringify(data, null, 2));
         this.reportes = data;
+        if (this.reportes.length > 0) {
+          console.log('📊 Primer reporte:', JSON.stringify(this.reportes[0], null, 2));
+        }
         this.cargandoReportes = false;
       },
       error: () => {
@@ -286,8 +305,9 @@ export class GestionAgentes implements OnInit, OnDestroy {
   // =========================
   // 8. CONTROL DE MODALES
   // =========================
-  abrirModalDescripcion(texto: string): void {
+  abrirModalDescripcion(texto: string, titulo: string = 'Detalle'): void {
     this.descripcionSeleccionada = texto;
+    this.tituloModal = titulo;
     this.modalDescripcion = true;
     this.modalAbierto = true;
     document.body.style.overflow = 'hidden';
