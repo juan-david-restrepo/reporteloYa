@@ -15,6 +15,9 @@ interface Infraccion {
   agente: string;
   estado: EstadoInfraccion;
   ref: string;
+  descripcion?: string;
+  resumen?: string;
+  ubicacion?: string;
 }
 
 interface ItemFiltrado {
@@ -48,6 +51,9 @@ export class Admin implements OnInit, AfterViewInit, OnDestroy {
   filtroTipoGrafico: string = 'todos';
   filtroTiempoGrafico: string = 'mes';
 
+  // Filtro del Modal
+  filtroEstadoModal: string = '';
+
   private chartBarras?: Chart;
 
   constructor(private infraccionService: InfraccionService) {}
@@ -64,6 +70,10 @@ export class Admin implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadSettings();
+    this.cargarInfracciones();
+  }
+
+  refreshData(): void {
     this.cargarInfracciones();
   }
 
@@ -108,6 +118,25 @@ export class Admin implements OnInit, AfterViewInit, OnDestroy {
       'EN PROCESO': 'estado-proceso'
     };
     return clases[estado] || '';
+  }
+
+  getCountByEstado(estado: string): number {
+    return this.infraccionesAMostrar.filter(inf => inf.estado === estado).length;
+  }
+
+  filtrarPorEstadoModal(estado: string): void {
+    this.filtroEstadoModal = this.filtroEstadoModal === estado ? '' : estado;
+  }
+
+  get reportesFiltrados(): Infraccion[] {
+    if (!this.filtroEstadoModal) {
+      return this.infraccionesAMostrar;
+    }
+    return this.infraccionesAMostrar.filter(inf => inf.estado === this.filtroEstadoModal);
+  }
+
+  isEstadoActivo(estado: string): boolean {
+    return this.filtroEstadoModal === estado;
   }
 
   // =========================
@@ -214,19 +243,7 @@ export class Admin implements OnInit, AfterViewInit, OnDestroy {
   // =========================
   abrirModalBarras(): void {
     this.tipoModalActivo = 'barras';
-    this.tituloModal = 'Análisis Estadístico de Infracciones';
-
-    const conteoPorTipo: Record<string, number> = {};
-    this.infracciones.forEach(inf => {
-      conteoPorTipo[inf.tipo] = (conteoPorTipo[inf.tipo] || 0) + 1;
-    });
-
-    this.itemsFiltrados = Object.keys(conteoPorTipo).map(tipo => ({
-      ref: tipo,
-      descripcion: `Reportes registrados en el sistema`,
-      cantidad: conteoPorTipo[tipo]
-    }));
-
+    this.tituloModal = 'Análisis de Reportes';
     this.modalAbierto = true;
     document.body.classList.add('modal-open');
   }
