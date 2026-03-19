@@ -567,6 +567,7 @@ export class Agente implements OnInit, OnDestroy {
     if (!this.mostrarNotificaciones) {
       this.notificaciones.forEach(n => n.leida = true);
     }
+
     this.mostrarNotificaciones = !this.mostrarNotificaciones;
   }
 
@@ -606,6 +607,7 @@ export class Agente implements OnInit, OnDestroy {
       this.authService.logout().subscribe({
         next:  () => { this.websocketService.disconnect(); this.router.navigate(['/login']); },
         error: () => { this.router.navigate(['/login']); }
+
       });
     }, 100);
   }
