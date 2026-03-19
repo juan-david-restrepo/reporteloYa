@@ -85,6 +85,7 @@ export class GestionAgentes implements OnInit, OnDestroy {
   modalDescripcion = false;
   modalAbierto = false; 
   descripcionSeleccionada = '';
+  tituloModal = 'Detalle';
 
   constructor(
     private adminService: AdminService,
@@ -304,8 +305,9 @@ export class GestionAgentes implements OnInit, OnDestroy {
   // =========================
   // 8. CONTROL DE MODALES
   // =========================
-  abrirModalDescripcion(texto: string): void {
+  abrirModalDescripcion(texto: string, titulo: string = 'Detalle'): void {
     this.descripcionSeleccionada = texto;
+    this.tituloModal = titulo;
     this.modalDescripcion = true;
     this.modalAbierto = true;
     document.body.style.overflow = 'hidden';
