@@ -1570,3 +1570,15 @@ table td {
   border: 2px solid #000000 !important;
   text-decoration: underline !important;
 }
+
+/* ====================================================
+   🔎 TAMAÑOS DE FUENTE
+   ==================================================== */
+::ng-deep body .admin-container,
+::ng-deep body .admin-content {
+  font-size: var(--admin-font-size, 16px) !important;
+}
+::ng-deep body .admin-container *,
+::ng-deep body .admin-content * {
+  font-size: inherit !important;
+}

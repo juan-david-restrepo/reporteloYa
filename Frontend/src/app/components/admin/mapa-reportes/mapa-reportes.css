@@ -443,3 +443,30 @@ app-sidebar-admin {
   border: 2px solid #000000 !important;
   text-decoration: underline !important;
 }
+
+/* ====================================================
+   🔎 TAMAÑOS DE FUENTE
+   ==================================================== */
+::ng-deep body .admin-container,
+::ng-deep body .admin-container .admin-content {
+  font-size: var(--admin-font-size, 16px) !important;
+}
+
+.admin-container,
+.admin-container .admin-content,
+.admin-container .admin-header,
+.admin-container .admin-header h1,
+.admin-container .admin-header p,
+.admin-container .stats-grid,
+.admin-container .stat-card,
+.admin-container .stat-card h3,
+.admin-container .stat-card span,
+.admin-container .map-card,
+.admin-container .map-card h2,
+.admin-container .map-header span,
+.admin-container .detalle-panel,
+.admin-container .detalle-header,
+.admin-container .detalle-body,
+.admin-container .detalle-body p {
+  font-size: var(--admin-font-size, 16px) !important;
+}
