@@ -620,6 +620,47 @@ app-sidebar-admin {
 .modal-container.modal-pro .modal-body::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
 .modal-container.modal-pro .modal-body::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
+/* ===== DETALLE INFRACCION MODAL ===== */
+.modal-container.modal-pro .detalle-infraccion-container {
+  padding: 0;
+}
+
+.modal-container.modal-pro .detalle-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.modal-container.modal-pro .detalle-item {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px 18px;
+  transition: all 0.2s ease;
+}
+
+.modal-container.modal-pro .detalle-item:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+}
+
+.modal-container.modal-pro .detalle-item label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.modal-container.modal-pro .detalle-item p {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
 /* ===== STATS ===== */
 .stats-resumen {
   display: grid;
@@ -1073,6 +1114,25 @@ app-sidebar-admin {
   background: #60a5fa !important;
 }
 
+/* Dark Mode - Detalle Infraccion */
+::ng-deep body.dark-mode .modal-container.modal-pro .detalle-item {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+::ng-deep body.dark-mode .modal-container.modal-pro .detalle-item:hover {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15) !important;
+}
+
+::ng-deep body.dark-mode .modal-container.modal-pro .detalle-item label {
+  color: #94a3b8 !important;
+}
+
+::ng-deep body.dark-mode .modal-container.modal-pro .detalle-item p {
+  color: #f8fafc !important;
+}
+
 ::ng-deep body.dark-mode .stat-item {
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
   border-color: #334155 !important;
@@ -1193,6 +1253,22 @@ app-sidebar-admin {
   }
   .modal-container.modal-pro .reporte-card {
     padding: 12px;
+  }
+  
+  /* Detalle Infraccion - Tablet */
+  .modal-container.modal-pro .detalle-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .modal-container.modal-pro .detalle-item {
+    padding: 14px;
+  }
+  .modal-container.modal-pro .detalle-item label {
+    font-size: 10px;
+    margin-bottom: 6px;
+  }
+  .modal-container.modal-pro .detalle-item p {
+    font-size: 14px;
   }
 
   /* Modal */
@@ -1370,6 +1446,22 @@ app-sidebar-admin {
   .modal-container.modal-pro .detalle-fila {
     font-size: 12px;
   }
+
+  /* Detalle Infraccion - Mobile */
+  .modal-container.modal-pro .detalle-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .modal-container.modal-pro .detalle-item {
+    padding: 14px;
+  }
+  .modal-container.modal-pro .detalle-item label {
+    font-size: 10px;
+    margin-bottom: 6px;
+  }
+  .modal-container.modal-pro .detalle-item p {
+    font-size: 14px;
+  }
 }
 
 /* Mobile Small (360px and below) */
@@ -1382,6 +1474,12 @@ app-sidebar-admin {
   }
   .modal-container.modal-pro .stat-label {
     font-size: 9px;
+  }
+  .modal-container.modal-pro .detalle-item {
+    padding: 12px;
+  }
+  .modal-container.modal-pro .detalle-item p {
+    font-size: 13px;
   }
 }
 
