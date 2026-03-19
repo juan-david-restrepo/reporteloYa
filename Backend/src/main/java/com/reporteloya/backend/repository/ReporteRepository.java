@@ -60,4 +60,20 @@ public interface ReporteRepository extends JpaRepository<Reporte, Long> {
     // Reportes finalizados por agente (para estadísticas)
     @Query("SELECT r FROM Reporte r WHERE r.estado = 'FINALIZADO' AND (r.agente.placa = :placa OR r.agenteCompanero.placa = :placa)")
     List<Reporte> findFinalizadosByAgente(@Param("placa") String placa);
+
+    // Contar reportes finalizados por agente en un rango de fechas
+    @Query("SELECT COUNT(r) FROM Reporte r WHERE r.agente.placa = :placa AND r.estado = 'FINALIZADO' AND r.fechaFinalizado BETWEEN :inicio AND :fin")
+    int countByAgentePlacaAndEstadoAndFechaFinalizadoBetween(
+        @Param("placa") String placa, 
+        @Param("estado") String estado, 
+        @Param("inicio") LocalDateTime inicio, 
+        @Param("fin") LocalDateTime fin);
+
+    // Contar reportes rechazados por agente en un rango de fechas
+    @Query("SELECT COUNT(r) FROM Reporte r WHERE r.agente.placa = :placa AND r.estado = 'RECHAZADO' AND r.fechaRechazado BETWEEN :inicio AND :fin")
+    int countByAgentePlacaAndEstadoAndFechaRechazadoBetween(
+        @Param("placa") String placa, 
+        @Param("estado") String estado, 
+        @Param("inicio") LocalDateTime inicio, 
+        @Param("fin") LocalDateTime fin);
 }

@@ -28,18 +28,39 @@
 /* ---------- FECHAS ---------- */
 .chart-calendar {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
   background: var(--bg);
   background-color: none;
   color: var(--text);
   border: 1px solid var(--border);
+  padding: 8px 12px;
+  border-radius: 10px;
 }
 
-.chart-calendar input {
+.chart-calendar label {
+  font-weight: 500;
+  color: var(--text);
+}
+
+.chart-calendar .fecha-input {
   padding: 6px 10px;
   border-radius: 8px;
   border: 1px solid #d1d5db;
+  background: var(--card, #fff);
+  color: var(--text);
+}
+
+.chart-calendar .separador {
+  color: var(--text);
+  opacity: 0.6;
+}
+
+.chart-calendar .rango-seleccionado {
+  font-size: 0.85em;
+  color: #3b82f6;
+  font-weight: 500;
+  margin-left: 5px;
 }
 
 .chart-calendar button {

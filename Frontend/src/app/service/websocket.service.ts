@@ -40,11 +40,10 @@ export class WebsocketService {
 
       console.log('✅ WebSocket conectado');
 
-      
-
       // Reportes globales (nuevos y actualizaciones de estado)
       this.stompClient.subscribe('/topic/reportes', (msg) => {
         const reporte = JSON.parse(msg.body);
+        console.log('📨 WS Service: Reporte recibido del topic /topic/reportes:', reporte.estado, 'ID:', reporte.id, 'PlacaAgente:', reporte.placaAgente);
         this.reportesSubject.next(reporte);
       });
 
@@ -66,20 +65,12 @@ export class WebsocketService {
         this.tareaEstadoSubject.next(tarea);
       });
 
-      // ✅ NUEVO: Canal personal del agente para recibir reportes como compañero
+      // ✅ Canal personal del agente para recibir reportes como compañero
       this.stompClient.subscribe(`/topic/reporte-asignado/${placa}`, (msg) => {
         const reporte = JSON.parse(msg.body);
         console.log('📌 Reporte asignado como compañero:', reporte);
         this.reporteAsignadoSubject.next(reporte);
       });
-
-       this.stompClient.subscribe('/topic/reportes', (message) => {
-         const reporte = JSON.parse(message.body);
-
-         console.log('Reporte recibido:', reporte);
-
-         this.reportesSubject.next(reporte);
-       });
 
     };
 

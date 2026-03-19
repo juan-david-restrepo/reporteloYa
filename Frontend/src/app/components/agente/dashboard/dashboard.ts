@@ -62,13 +62,12 @@ export class Dashboard implements AfterViewInit, OnInit, OnDestroy, OnChanges {
   @Output() irActividad = new EventEmitter<{ tipo: string; id: number }>();
 
   private intervalId: any;
-  private readonly STORAGE_KEY = 'agente_tiempo_activo_inicio';
 
   tiempoFormateado: string = '00:00:00';
   private tiempoInicial: number = 0;
 
   ngOnInit() {
-    this.cargarOCrearTiempo();
+    this.tiempoInicial = Date.now();
     this.cargarEstadisticas();
     this.iniciarCronometro();
   }
@@ -244,19 +243,6 @@ export class Dashboard implements AfterViewInit, OnInit, OnDestroy, OnChanges {
     return new Date(r.fechaFinalizado).getHours();
   }
 
-  private cargarOCrearTiempo() {
-    const inicioSesion = localStorage.getItem(this.STORAGE_KEY);
-
-    if (!inicioSesion) {
-      this.tiempoInicial = Date.now();
-      localStorage.setItem(this.STORAGE_KEY, this.tiempoInicial.toString());
-    } else {
-      this.tiempoInicial = parseInt(inicioSesion, 10);
-    }
-
-    this.actualizarDisplay();
-  }
-
   private iniciarCronometro() {
     this.intervalId = setInterval(() => {
       this.actualizarDisplay();
@@ -281,7 +267,6 @@ export class Dashboard implements AfterViewInit, OnInit, OnDestroy, OnChanges {
 
   reiniciar() {
     this.tiempoInicial = Date.now();
-    localStorage.setItem(this.STORAGE_KEY, this.tiempoInicial.toString());
     this.actualizarDisplay();
   }
 
@@ -291,6 +276,13 @@ export class Dashboard implements AfterViewInit, OnInit, OnDestroy, OnChanges {
   modoGrafica: 'SEMANA' | 'ANIO' | 'DIA' = 'SEMANA';
 
   ngAfterViewInit() {
+    const hoy = new Date();
+    const hace7Dias = new Date();
+    hace7Dias.setDate(hoy.getDate() - 7);
+    
+    this.fechaFin = hoy.toISOString().split('T')[0];
+    this.fechaInicio = hace7Dias.toISOString().split('T')[0];
+    
     this.crearGrafica();
   }
 
@@ -318,6 +310,28 @@ export class Dashboard implements AfterViewInit, OnInit, OnDestroy, OnChanges {
 
   fechaInicio = '';
   fechaFin = '';
+
+  // Maneja el cambio de fecha "Desde" - si es mayor que "Hasta", ajusta "Hasta"
+  onFechaDesdeChange() {
+    if (this.fechaInicio && this.fechaFin) {
+      const desde = new Date(this.fechaInicio);
+      const hasta = new Date(this.fechaFin);
+      if (desde > hasta) {
+        this.fechaFin = this.fechaInicio;
+      }
+    }
+    this.filtrarPorRango();
+  }
+
+  // Retorna la cantidad de días del rango seleccionado
+  getDiasRango(): number {
+    if (!this.fechaInicio || !this.fechaFin) return 0;
+    const desde = new Date(this.fechaInicio);
+    const hasta = new Date(this.fechaFin);
+    const diffTime = Math.abs(hasta.getTime() - desde.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+    return diffDays;
+  }
 
   // Filtra las estadísticas por rango de fechas y actualiza tarjetas y gráficas
   filtrarPorRango() {

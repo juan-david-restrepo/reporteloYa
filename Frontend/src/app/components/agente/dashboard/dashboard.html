@@ -2,11 +2,27 @@
   <div class="chart-card shadow">
     <!-- ================= HEADER ================= -->
     <div class="chart-header">
-      <!-- FECHAS -->
+      <!-- FECHAS - RANGO EN UN SOLO CALENDARIO -->
       <div class="chart-calendar">
-        <input type="date" [(ngModel)]="fechaInicio" />
-        <input type="date" [(ngModel)]="fechaFin" />
-        <button (click)="filtrarPorRango()">Aplicar</button>
+        <label>Rango:</label>
+        <input 
+          type="date" 
+          id="fechaDesde"
+          [(ngModel)]="fechaInicio" 
+          (change)="onFechaDesdeChange()"
+          class="fecha-input"
+        />
+        <span class="separador">→</span>
+        <input 
+          type="date" 
+          id="fechaHasta"
+          [(ngModel)]="fechaFin" 
+          (change)="filtrarPorRango()"
+          class="fecha-input"
+        />
+        <span class="rango-seleccionado" *ngIf="fechaInicio && fechaFin">
+          ({{ getDiasRango() }} días)
+        </span>
       </div>
 
       <!-- FILTROS -->
@@ -23,11 +39,6 @@
           Día
         </button>
       </div>
-    </div>
-
-    <!-- ================= SOLO DIA ================= -->
-    <div *ngIf="modoGrafica === 'DIA'" class="chart-calendar">
-      <input type="date" [(ngModel)]="fechaSeleccionada" />
     </div>
 
     <!-- ================= TARJETAS ================= -->
