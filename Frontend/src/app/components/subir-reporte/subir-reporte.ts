@@ -256,33 +256,44 @@ export class SubirReporteComponent implements OnInit, OnDestroy {
 
         Swal.close();
 
-        setTimeout(() => {
-          if (!this.map) {
-            this.map = L.map('map', {
-              center: [lat, lng],
-              zoom: 16,
-              zoomControl: true
-            });
-            
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-              attribution: '© OpenStreetMap'
-            }).addTo(this.map);
-          }
+        await new Promise(resolve => setTimeout(resolve, 200));
 
-          this.map.setView([lat, lng], 16);
-
-          if (this.marker) {
-            this.map.removeLayer(this.marker);
-          }
+        if (!this.map) {
+          this.map = L.map('map', {
+            center: [lat, lng],
+            zoom: 16,
+            zoomControl: true,
+            attributionControl: false
+          });
           
-          this.marker = L.marker([lat, lng], {
-            draggable: false
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19
           }).addTo(this.map);
+        }
 
-          setTimeout(() => {
-            this.map.invalidateSize();
-          }, 100);
-        }, 100);
+        this.map.setView([lat, lng], 16);
+
+        if (this.marker) {
+          this.map.removeLayer(this.marker);
+        }
+
+        const defaultIcon = L.icon({
+          iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+          iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+          shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+          iconSize: [25, 41],
+          iconAnchor: [12, 41],
+          popupAnchor: [1, -34],
+          shadowSize: [41, 41]
+        });
+        
+        L.Marker.prototype.options.icon = defaultIcon;
+        
+        this.marker = L.marker([lat, lng], {
+          draggable: false
+        }).addTo(this.map);
+
+        this.map.invalidateSize();
 
         try {
           const res = await fetch(

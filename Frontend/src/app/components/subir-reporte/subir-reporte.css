@@ -25,6 +25,7 @@
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-xl: 20px;
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 /* =========================================
@@ -38,6 +39,7 @@
   justify-content: center;
   box-sizing: border-box;
   margin-top: 20px;
+  font-family: var(--font-family);
 }
 
 .reporte-container {
@@ -54,7 +56,7 @@
    ========================================= */
 .reporte-header {
   background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-  padding: 30px 35px;
+  padding: 28px 32px;
   display: flex;
   align-items: center;
   gap: 18px;
@@ -85,14 +87,14 @@
 }
 
 .header-icon {
-  width: 56px;
-  height: 56px;
+  width: 60px;
+  height: 60px;
   background: rgba(255, 255, 255, 0.2);
   border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 26px;
+  font-size: 28px;
   color: white;
   flex-shrink: 0;
   position: relative;
@@ -106,14 +108,14 @@
 
 .header-text h1 {
   margin: 0;
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 800;
   color: white;
 }
 
 .header-text p {
-  margin: 4px 0 0 0;
-  font-size: 14px;
+  margin: 6px 0 0 0;
+  font-size: 15px;
   color: rgba(255, 255, 255, 0.85);
 }
 
@@ -133,7 +135,7 @@
 .form-section {
   background: var(--bg-section);
   border-radius: var(--radius-md);
-  padding: 16px 18px;
+  padding: 18px 20px;
   border: 1px solid var(--border);
 }
 
@@ -150,37 +152,37 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 12px;
-  padding-bottom: 8px;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
   border-bottom: 1px solid var(--border);
 }
 
 .section-header i {
-  font-size: 14px;
+  font-size: 16px;
   color: var(--primary-light);
 }
 
 .section-header h3 {
   margin: 0;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--text-primary);
   flex: 1;
 }
 
 .required-badge {
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: var(--danger);
   background: rgba(239, 68, 68, 0.1);
-  padding: 3px 8px;
+  padding: 4px 10px;
   border-radius: 20px;
 }
 
 .optional-badge {
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -224,10 +226,10 @@
 }
 
 .incidente-icono {
-  font-size: 14px;
+  font-size: 16px;
   color: var(--primary);
   flex-shrink: 0;
-  width: 18px;
+  width: 20px;
   text-align: center;
 }
 
@@ -236,7 +238,7 @@
 }
 
 .incidente-card span {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--text-secondary);
   flex: 1;
@@ -260,21 +262,21 @@
 
 .input-wrapper label {
   display: block;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--text-secondary);
-  margin-bottom: 5px;
+  margin-bottom: 6px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .input-clean {
   width: 100%;
-  padding: 10px 12px;
+  padding: 12px 14px;
   border: 2px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--bg-card);
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text-primary);
   transition: all 0.25s ease;
   box-sizing: border-box;
@@ -312,12 +314,12 @@
   border: 2px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--bg-card);
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text-primary);
   resize: none;
   transition: all 0.25s ease;
   box-sizing: border-box;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 .textarea-clean:focus {
@@ -338,7 +340,7 @@
 }
 
 .char-count {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--text-muted);
   font-weight: 500;
 }
@@ -349,7 +351,7 @@
 .datetime-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 12px;
   margin-bottom: 10px;
 }
 
@@ -357,18 +359,18 @@
   display: flex;
   align-items: flex-start;
   gap: 6px;
-  font-size: 10px;
+  font-size: 12px;
   color: var(--text-muted);
   background: rgba(59, 130, 246, 0.05);
-  padding: 8px 10px;
+  padding: 10px 12px;
   border-radius: 6px;
-  line-height: 1.4;
+  line-height: 1.5;
   margin-bottom: 8px;
 }
 
 .fecha-info i {
   color: var(--primary-light);
-  margin-top: 1px;
+  margin-top: 2px;
   flex-shrink: 0;
 }
 
@@ -449,31 +451,31 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
 }
 
 .upload-icon-wrapper {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  font-size: 20px;
   color: white;
   flex-shrink: 0;
   box-shadow: 0 4px 10px rgba(30, 64, 175, 0.25);
 }
 
 .upload-title {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--text-primary);
 }
 
 .upload-subtitle {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-muted);
 }
 
@@ -555,7 +557,7 @@
 
 .btn-location {
   width: 100%;
-  padding: 12px 16px;
+  padding: 14px 18px;
   background: var(--bg-card);
   border: 2px solid var(--border);
   border-radius: var(--radius-sm);
@@ -563,8 +565,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  font-size: 13px;
+  gap: 10px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--primary);
   transition: all 0.25s ease;
@@ -584,25 +586,38 @@
 .location-address {
   display: flex;
   align-items: flex-start;
-  gap: 6px;
-  font-size: 11px;
+  gap: 8px;
+  font-size: 13px;
   color: var(--text-secondary);
-  line-height: 1.4;
+  line-height: 1.5;
   margin: 0;
 }
 
 .location-address i {
   color: var(--primary-light);
-  margin-top: 1px;
+  margin-top: 2px;
   flex-shrink: 0;
 }
 
 .map-container {
-  height: 130px;
+  height: 150px;
+  width: 100%;
   border-radius: var(--radius-sm);
   border: 2px solid var(--border);
   overflow: hidden;
   background: var(--bg-card);
+  z-index: 1;
+  position: relative;
+}
+
+.map-container .leaflet-container {
+  height: 100% !important;
+  width: 100% !important;
+  z-index: 1 !important;
+}
+
+.map-container .leaflet-pane {
+  z-index: 2 !important;
 }
 
 /* =========================================
@@ -615,12 +630,12 @@
 
 .btn-submit {
   width: 100%;
-  padding: 16px 30px;
+  padding: 18px 30px;
   background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
   color: white;
   border: none;
   border-radius: var(--radius-md);
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1.5px;
