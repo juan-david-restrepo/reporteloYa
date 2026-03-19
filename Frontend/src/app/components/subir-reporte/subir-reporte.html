@@ -127,17 +127,35 @@
             <i class="fas fa-map-marker-alt"></i>
             <h3>Ubicación</h3>
           </div>
-          <div class="location-row">
-            <button type="button" class="btn-location" (click)="obtenerUbicacion()">
-              <i class="fas fa-location-crosshairs"></i>
-              <span>Obtener ubicación actual</span>
-            </button>
-            <p class="location-address" *ngIf="direccion">
-              <i class="fas fa-location-dot"></i>
-              {{ direccion }}
-            </p>
+          <div class="location-options">
+            <div class="location-auto">
+              <button type="button" class="btn-location" (click)="obtenerUbicacion()">
+                <i class="fas fa-location-crosshairs"></i>
+                <span>Obtener ubicación actual</span>
+              </button>
+              <p class="location-address" *ngIf="direccion">
+                <i class="fas fa-location-dot"></i>
+                {{ direccion }}
+              </p>
+            </div>
+            <div class="location-divider">
+              <span>o</span>
+            </div>
+            <div class="location-manual">
+              <input type="text" name="ubicacionManual" [(ngModel)]="ubicacionManual" 
+                (ngModelChange)="onUbicacionManualChange()"
+                placeholder="Escribe la dirección del incidente" class="input-clean" />
+              <p class="location-hint">
+                <i class="fas fa-info-circle"></i>
+                Escribe la dirección donde ocurrió el incidente
+              </p>
+            </div>
           </div>
-          <div id="map" class="map-container"></div>
+          <p class="map-hint" *ngIf="!ubicacionManual">
+            <i class="fas fa-hand-pointer"></i>
+            Haz clic en el mapa para marcar la ubicación
+          </p>
+          <div id="map" class="map-container" [class.hidden]="ubicacionManual" (click)="inicializarMapa()"></div>
         </div>
       </div>
 

@@ -59,6 +59,7 @@ export class SubirReporteComponent implements OnInit, OnDestroy {
   evidenciaRequerida = false;
   isDragOver = false;
   mostrarModalLegal = false;
+  ubicacionManual = '';
 
   // =============================
   // ESTADO DEL MODAL
@@ -256,54 +257,7 @@ export class SubirReporteComponent implements OnInit, OnDestroy {
 
         Swal.close();
 
-        await new Promise(resolve => setTimeout(resolve, 200));
-
-        if (!this.map) {
-          this.map = L.map('map', {
-            center: [lat, lng],
-            zoom: 16,
-            zoomControl: true,
-            attributionControl: false
-          });
-          
-          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19
-          }).addTo(this.map);
-        }
-
-        this.map.setView([lat, lng], 16);
-
-        if (this.marker) {
-          this.map.removeLayer(this.marker);
-        }
-
-        const defaultIcon = L.icon({
-          iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-          iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-          shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-          iconSize: [25, 41],
-          iconAnchor: [12, 41],
-          popupAnchor: [1, -34],
-          shadowSize: [41, 41]
-        });
-        
-        L.Marker.prototype.options.icon = defaultIcon;
-        
-        this.marker = L.marker([lat, lng], {
-          draggable: false
-        }).addTo(this.map);
-
-        this.map.invalidateSize();
-
-        try {
-          const res = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`,
-          );
-          const data = await res.json();
-          this.direccion = data.display_name || 'Dirección no encontrada';
-        } catch (error) {
-          this.direccion = 'No se pudo obtener la dirección';
-        }
+        await this.marcarUbicacionEnMapa(lat, lng);
       },
       (error) => {
         Swal.close();
@@ -314,6 +268,107 @@ export class SubirReporteComponent implements OnInit, OnDestroy {
         Swal.fire('Error', mensaje, 'error');
       }
     );
+  }
+
+  inicializarMapa() {
+    if (this.map) return;
+
+    this.map = L.map('map', {
+      center: [4.5339, -75.6811],
+      zoom: 14,
+      zoomControl: true,
+      attributionControl: false
+    });
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19
+    }).addTo(this.map);
+
+    const defaultIcon = L.icon({
+      iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+      iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+      shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41]
+    });
+    
+    L.Marker.prototype.options.icon = defaultIcon;
+
+    this.map.on('click', (e: any) => {
+      this.marcarUbicacionEnMapa(e.latlng.lat, e.latlng.lng);
+    });
+
+    this.map.invalidateSize();
+  }
+
+  async marcarUbicacionEnMapa(lat: number, lng: number) {
+    this.ubicacionManual = '';
+    this.coordenadas = `${lat}, ${lng}`;
+
+    if (!this.map) {
+      this.map = L.map('map', {
+        center: [4.5339, -75.6811],
+        zoom: 16,
+        zoomControl: true,
+        attributionControl: false
+      });
+      
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19
+      }).addTo(this.map);
+
+      const defaultIcon = L.icon({
+        iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+        iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+      });
+      
+      L.Marker.prototype.options.icon = defaultIcon;
+
+      this.map.on('click', (e: any) => {
+        this.marcarUbicacionEnMapa(e.latlng.lat, e.latlng.lng);
+      });
+    }
+
+    this.map.setView([lat, lng], 16);
+
+    if (this.marker) {
+      this.map.removeLayer(this.marker);
+    }
+
+    this.marker = L.marker([lat, lng]).addTo(this.map);
+
+    this.map.invalidateSize();
+
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`,
+      );
+      const data = await res.json();
+      this.direccion = data.display_name || 'Dirección no encontrada';
+    } catch (error) {
+      this.direccion = 'No se pudo obtener la dirección';
+    }
+  }
+
+  onUbicacionManualChange() {
+    if (this.ubicacionManual.trim()) {
+      this.direccion = '';
+      this.coordenadas = '';
+      if (this.map) {
+        this.map.remove();
+        this.map = null;
+      }
+      if (this.marker) {
+        this.marker = null;
+      }
+    }
   }
 
   // =============================
@@ -368,6 +423,17 @@ export class SubirReporteComponent implements OnInit, OnDestroy {
         );
         return;
       }
+      
+      const ubicacionValida = this.direccion || (this.ubicacionManual && this.ubicacionManual.trim().length > 0);
+      if (!ubicacionValida) {
+        Swal.fire(
+          'Ubicación requerida',
+          'Por favor indica la ubicación del incidente.',
+          'warning',
+        );
+        return;
+      }
+      
       Swal.fire(
         'Formulario incompleto',
         'Revisa los campos obligatorios.',
@@ -390,13 +456,16 @@ export class SubirReporteComponent implements OnInit, OnDestroy {
     
     this.evidenciaRequerida = this.fileList.length === 0;
     
+    const ubicacionValida = this.direccion || (this.ubicacionManual && this.ubicacionManual.trim().length > 0);
+    
     return !!(
       tipoFinal &&
       this.descripcion?.trim().length >= 10 &&
       this.validarFecha() &&
       !this.fechaInvalida &&
       this.validarPlaca() &&
-      this.fileList.length > 0
+      this.fileList.length > 0 &&
+      ubicacionValida
     );
   }
 
@@ -404,13 +473,15 @@ export class SubirReporteComponent implements OnInit, OnDestroy {
     this.mostrarModalLegal = false;
     this.isSubmitting = true;
 
+    const direccionFinal = this.direccion || this.ubicacionManual;
+
     try {
       const formData = new FormData();
 
       formData.append('descripcion', this.descripcion);
-      formData.append('direccion', this.direccion);
-      formData.append('latitud', this.coordenadas.split(',')[0]);
-      formData.append('longitud', this.coordenadas.split(',')[1]);
+      formData.append('direccion', direccionFinal);
+      formData.append('latitud', this.coordenadas.split(',')[0] || '0');
+      formData.append('longitud', this.coordenadas.split(',')[1] || '0');
       formData.append('placa', this.placa);
        formData.append(
          'tipoInfraccion',
@@ -456,6 +527,7 @@ export class SubirReporteComponent implements OnInit, OnDestroy {
     this.hora = '';
     this.direccion = '';
     this.coordenadas = '';
+    this.ubicacionManual = '';
     this.tipoSeleccionado = '';
     this.prioridadInterna = '';
     this.mostrarCampoOtros = false;
