@@ -1,26 +1,45 @@
 /* ===== SIDEBAR ===== */
 .sidebar {
   width: 260px;
-  background: #0a2540;
-  padding: 24px 16px;
-  height: 120vh;
-  min-height: auto;
+  background: #1e293b;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
 }
 
-.sidebar-header h2 {
+.logo-box {
+  display: flex;
+  align-items: center;
+  margin-bottom: 30px;
+  gap: 12px;
+}
+
+.logo-img {
+  width: 70px;
+  height: 70px;
+}
+
+.logo-text {
+  font-size: 20px;
+  font-weight: 700;
   color: #ffffff;
-  font-size: 22px;
-  margin-bottom: 32px;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .sidebar-nav a {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   padding: 12px 14px;
   margin-bottom: 6px;
   border-radius: 8px;
-  color: #c7d2fe;
+  color: #cbd5e1;
   text-decoration: none;
   font-size: 14px;
   transition: background 0.2s;
@@ -32,34 +51,50 @@
 }
 
 .sidebar-nav a.active {
-  background: #1e40af;
+  background: #3498db;
   color: #ffffff;
+  box-shadow: inset 4px 0 0 #60a5fa;
 }
-.sidebar-nav  button{
+
+.sidebar-nav button {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   padding: 12px 14px;
   margin-bottom: 6px;
   border-radius: 8px;
-  color: #c7d2fe;
+  color: #cbd5e1;
   text-decoration: none;
   font-size: 14px;
   transition: background 0.2s;
   background: none;
   border: none;
   cursor: pointer;
+  text-align: left;
 }
-.sidebar-nav  button:hover {
+
+.sidebar-nav button:hover {
   background: rgba(255, 255, 255, 0.15);
   color: #ffffff;
 }
+
+.sidebar-nav button i {
+  width: 20px;
+  text-align: center;
+}
+
+.sidebar-nav a i {
+  width: 20px;
+  text-align: center;
+}
+
+
 
 /* ====================================================
    🔎 TAMAÑOS DE FUENTE
    ==================================================== */
 ::ng-deep body .sidebar,
-::ng-deep body .sidebar-header h2,
+::ng-deep body .logo-text,
 ::ng-deep body .sidebar-nav a,
 ::ng-deep body .sidebar-nav button {
   font-size: var(--admin-font-size, 16px) !important;
