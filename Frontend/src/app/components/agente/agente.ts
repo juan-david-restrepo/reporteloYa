@@ -64,11 +64,13 @@ export interface Tarea {
 }
 
 export interface Notificacion {
+  id?: number;
   tipo: 'REPORTE' | 'TAREA';
   texto: string;
   hora: string;
   data?: any;
   leida: boolean;
+  idReferencia?: number;
 }
 
 type VistaAgente =
@@ -556,6 +558,15 @@ export class Agente implements OnInit, OnDestroy {
     }
     this.estadoAgente = nuevoEstado;
     this.agenteService.actualizarEstado(nuevoEstado).subscribe();
+    
+    if (nuevoEstado === 'FUERA_SERVICIO') {
+      this.detenerCronometro();
+      this.reiniciarCronometroSignal++;
+    } else {
+      this.reiniciarCronometro();
+      this.iniciarCronometro();
+      this.reiniciarCronometroSignal++;
+    }
   }
 
   verDetalleHist(r: Reporte) {
@@ -592,6 +603,14 @@ export class Agente implements OnInit, OnDestroy {
     return this.notificaciones.filter(n => !n.leida).length;
   }
 
+  get reportesNoLeidos(): number {
+    return this.notificaciones.filter(n => !n.leida && n.tipo === 'REPORTE').length;
+  }
+
+  get tareasNoLeidas(): number {
+    return this.notificaciones.filter(n => !n.leida && n.tipo === 'TAREA').length;
+  }
+
   private _ordenarNotificaciones() {
     this.notificaciones.sort((a, b) => {
       if (a.leida !== b.leida) return a.leida ? 1 : -1;
@@ -602,7 +621,15 @@ export class Agente implements OnInit, OnDestroy {
   }
 
   abrirNotif(n: any) {
-    n.leida = true;
+    if (!n.leida) {
+      n.leida = true;
+      if (n.id) {
+        this.agenteService.marcarNotificacionLeida(n.id).subscribe({
+          next: () => console.log('Notificación marcada como leída:', n.id),
+          error: (err) => console.error('Error al marcar notificación:', err)
+        });
+      }
+    }
     if (n.tipo === 'REPORTE') this.vistaActual = 'reportes';
     if (n.tipo === 'TAREA')   this.vistaActual = 'tareas';
     this.mostrarNotificaciones = false;
@@ -618,8 +645,60 @@ export class Agente implements OnInit, OnDestroy {
 
   reiniciarCronometroSignal: number = 0;
 
+  tiempoActivoFormateado: string = '00:00:00';
+  private cronometroIntervalId: any;
+  private tiempoInicialKey = 'tiempoInicialActivo';
+  private tiempoInicial: number = 0;
+
+  private getTiempoInicial(): number {
+    const stored = localStorage.getItem(this.tiempoInicialKey);
+    return stored ? parseInt(stored, 10) : Date.now();
+  }
+
+  private guardarTiempoInicial() {
+    localStorage.setItem(this.tiempoInicialKey, this.tiempoInicial.toString());
+  }
+
+  private iniciarCronometro() {
+    this.detenerCronometro();
+    this.tiempoInicial = this.getTiempoInicial();
+    this.cronometroIntervalId = setInterval(() => {
+      this.actualizarTiempoActivo();
+    }, 1000);
+    this.actualizarTiempoActivo();
+  }
+
+  private detenerCronometro() {
+    if (this.cronometroIntervalId) {
+      clearInterval(this.cronometroIntervalId);
+      this.cronometroIntervalId = null;
+    }
+  }
+
+  private actualizarTiempoActivo() {
+    const diff = Math.floor((Date.now() - this.tiempoInicial) / 1000);
+    const horas = Math.floor(diff / 3600);
+    const minutos = Math.floor((diff % 3600) / 60);
+    const segs = diff % 60;
+    this.tiempoActivoFormateado =
+      `${horas.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}:${segs.toString().padStart(2, '0')}`;
+  }
+
+  private reiniciarCronometro() {
+    this.tiempoInicial = Date.now();
+    this.guardarTiempoInicial();
+    this.actualizarTiempoActivo();
+  }
+
+  private limpiarTiempoActivo() {
+    localStorage.removeItem(this.tiempoInicialKey);
+    this.tiempoInicial = Date.now();
+  }
+
   cerrarSesion() {
     this.reiniciarCronometroSignal++;
+    this.detenerCronometro();
+    this.limpiarTiempoActivo();
     setTimeout(() => {
       this.authService.logout().subscribe({
         next:  () => { this.websocketService.disconnect(); this.router.navigate(['/login']); },
@@ -653,9 +732,16 @@ export class Agente implements OnInit, OnDestroy {
         
         console.log('📋 Perfil cargado:', this.perfilAgente.nombre, 'Placa:', this.perfilAgente.placa);
         
+        if (this.estadoAgente !== 'FUERA_SERVICIO') {
+          this.iniciarCronometro();
+        }
+        
         // Conectar WebSocket DESPUÉS de cargar el perfil
         if (data.placa) {
           this.websocketService.connect(data.placa);
+          
+          // Cargar notificaciones no leídas desde la BD (las que se perdieron mientras estaba offline)
+          this._cargarNotificacionesNoLeidas();
           
           // SUSCRIBIRSE a WebSocket DENTRO de la conexión para asegurar que perfilAgente.placa esté configurado
           this.websocketService.reportes$.subscribe((rb: any) => {
@@ -722,5 +808,35 @@ export class Agente implements OnInit, OnDestroy {
     this.cargarHistorialDesdeBD();
   }
 
-  ngOnDestroy() { this.websocketService.disconnect(); }
+  private _cargarNotificacionesNoLeidas() {
+    this.agenteService.getNotificacionesNoLeidas().subscribe({
+      next: (notificaciones: any[]) => {
+        console.log('📋 Notificaciones no leídas cargadas:', notificaciones.length);
+        notificaciones.forEach(n => {
+          const yaExiste = this.notificaciones.some(
+            notif => notif.id === n.id
+          );
+          if (!yaExiste) {
+            this.notificaciones.unshift({
+              id: n.id,
+              tipo: n.tipo as 'REPORTE' | 'TAREA',
+              texto: n.titulo,
+              hora: n.fechaCreacion ? new Date(n.fechaCreacion).toLocaleTimeString() : new Date().toLocaleTimeString(),
+              leida: false,
+              idReferencia: n.idReferencia
+            });
+          }
+        });
+        this._ordenarNotificaciones();
+      },
+      error: (err) => {
+        console.error('Error cargando notificaciones no leídas:', err);
+      }
+    });
+  }
+
+  ngOnDestroy() {
+    this.detenerCronometro();
+    this.websocketService.disconnect();
+  }
 }

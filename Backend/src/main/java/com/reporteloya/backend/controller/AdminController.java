@@ -16,12 +16,17 @@ import java.util.stream.Collectors;
 import com.reporteloya.backend.entity.Tarea;
 import com.reporteloya.backend.entity.Agentes;
 import com.reporteloya.backend.entity.Reporte;
+import com.reporteloya.backend.entity.Notification;
 import com.reporteloya.backend.dto.AdminAgenteDTO;
 import com.reporteloya.backend.dto.ReporteSocketDTO;
+import com.reporteloya.backend.dto.TareaSocketDTO;
 import com.reporteloya.backend.service.AgenteService;
 import com.reporteloya.backend.service.ReporteService;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import com.reporteloya.backend.repository.TareaRepository;
+import com.reporteloya.backend.repository.NotificationRepository;
+import com.reporteloya.backend.repository.AgenteRepository;
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/admin")
@@ -37,6 +42,12 @@ public class AdminController {
 
     @Autowired
     private TareaRepository tareaRepository;
+
+    @Autowired
+    private NotificationRepository notificationRepository;
+
+    @Autowired
+    private AgenteRepository agenteRepository;
 
     @Autowired
     private ReporteService reporteService;
@@ -93,26 +104,51 @@ public class AdminController {
     // AGREGAR TAREA (Múltiples)
     // =========================
     @PostMapping("/{placa}/tareas")
+    @Transactional
     public ResponseEntity<?> agregarTarea(@PathVariable String placa, @RequestBody Tarea nuevaTarea) {
 
-        return agenteService.buscarPorPlaca(placa).map(agente -> {
+        Optional<Agentes> agenteOpt = agenteService.buscarPorPlaca(placa);
 
-            nuevaTarea.setAgente(agente);
-            nuevaTarea.setEstado("PENDIENTE");
-            agente.getListaTareas().add(nuevaTarea);
-            agenteService.guardar(agente);
+        if (agenteOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
 
-            Tarea tareaGuardada = tareaRepository.findAll().stream()
-                .filter(t -> t.getTitulo().equals(nuevaTarea.getTitulo()) 
-                          && t.getAgente().getPlaca().equals(placa))
-                .reduce((first, second) -> second)
-                .orElse(nuevaTarea);
+        Agentes agente = agenteOpt.get();
 
-            messagingTemplate.convertAndSend("/topic/tareas/" + placa, tareaGuardada);
+        nuevaTarea.setAgente(agente);
+        nuevaTarea.setEstado("PENDIENTE");
 
-            return ResponseEntity.ok("Tarea asignada con éxito");
+        Tarea tareaGuardada = tareaRepository.save(nuevaTarea);
 
-        }).orElse(ResponseEntity.notFound().build());
+        Agentes agenteActualizado = agenteRepository.findById(agente.getId()).orElse(agente);
+
+        Notification notificacion = new Notification();
+        notificacion.setAgente(agenteActualizado);
+        notificacion.setTipo("TAREA");
+        notificacion.setTitulo("Nueva tarea: " + tareaGuardada.getTitulo());
+        notificacion.setMensaje(tareaGuardada.getDescripcion());
+        notificacion.setLeida(false);
+        notificacion.setFechaCreacion(LocalDateTime.now());
+        notificacion.setIdReferencia(tareaGuardada.getId());
+        notificationRepository.save(notificacion);
+
+        TareaSocketDTO tareaSocket = new TareaSocketDTO(
+            tareaGuardada.getId(),
+            tareaGuardada.getTitulo(),
+            tareaGuardada.getDescripcion(),
+            tareaGuardada.getResumenOperativo(),
+            tareaGuardada.getFecha(),
+            tareaGuardada.getHora(),
+            tareaGuardada.getPrioridad(),
+            tareaGuardada.getEstado(),
+            tareaGuardada.getFechaInicio(),
+            tareaGuardada.getFechaFin(),
+            agenteActualizado.getPlaca()
+        );
+
+        messagingTemplate.convertAndSend("/topic/tareas/" + placa, tareaSocket);
+
+        return ResponseEntity.ok("Tarea asignada con éxito");
     }
 
 

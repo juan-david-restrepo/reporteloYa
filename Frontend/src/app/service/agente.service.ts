@@ -201,4 +201,19 @@ export class AgenteServiceTs {
     if (params.length > 0) url += `?${params.join('&')}`;
     return this.http.get<any>(url, { withCredentials: true });
   }
+
+  // =============================
+  // NOTIFICACIONES NO LEÍDAS
+  // =============================
+  getNotificacionesNoLeidas(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiAgente}/notificaciones`, {
+      withCredentials: true
+    });
+  }
+
+  marcarNotificacionLeida(id: number): Observable<any> {
+    return this.http.put(`${this.apiAgente}/notificaciones/${id}/leida`, {}, {
+      withCredentials: true
+    });
+  }
 }

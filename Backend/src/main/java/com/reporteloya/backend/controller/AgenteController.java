@@ -2,9 +2,13 @@ package com.reporteloya.backend.controller;
 
 import com.reporteloya.backend.dto.EstadoAgenteDTO;
 import com.reporteloya.backend.dto.PerfilAgenteDTO;
+import com.reporteloya.backend.dto.NotificacionDTO;
+import com.reporteloya.backend.dto.TareaSocketDTO;
 import com.reporteloya.backend.entity.Agentes;
 import com.reporteloya.backend.entity.Tarea;
+import com.reporteloya.backend.entity.Notification;
 import com.reporteloya.backend.repository.TareaRepository;
+import com.reporteloya.backend.repository.NotificationRepository;
 import com.reporteloya.backend.service.AgenteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,6 +36,9 @@ public class AgenteController {
 
     @Autowired
     private TareaRepository tareaRepository;
+
+    @Autowired
+    private NotificationRepository notificationRepository;
 
     @Autowired
     private AgenteService agenteService;
@@ -120,7 +127,6 @@ public class AgenteController {
                 tarea.setResumenOperativo(resumenOperativo);
             }
 
-            // ← AÑADIR ESTO
             if ("FINALIZADO".equals(nuevoEstado)) {
                 tarea.setFechaFin(java.time.LocalDateTime.now());
             } else if ("EN PROCESO".equals(nuevoEstado)) {
@@ -129,7 +135,22 @@ public class AgenteController {
 
             tareaRepository.save(tarea);
 
-            messagingTemplate.convertAndSend("/topic/tarea-estado", tarea);
+            Agentes agente = tarea.getAgente();
+            TareaSocketDTO tareaSocket = new TareaSocketDTO(
+                tarea.getId(),
+                tarea.getTitulo(),
+                tarea.getDescripcion(),
+                tarea.getResumenOperativo(),
+                tarea.getFecha(),
+                tarea.getHora(),
+                tarea.getPrioridad(),
+                tarea.getEstado(),
+                tarea.getFechaInicio(),
+                tarea.getFechaFin(),
+                agente != null ? agente.getPlaca() : null
+            );
+
+            messagingTemplate.convertAndSend("/topic/tarea-estado", tareaSocket);
 
             return ResponseEntity.ok(tarea);
 
@@ -271,6 +292,48 @@ public class AgenteController {
             e.printStackTrace();
             return ResponseEntity.internalServerError().build();
         }
+    }
+
+    @GetMapping("/notificaciones")
+    public ResponseEntity<List<NotificacionDTO>> obtenerNotificacionesNoLeidas(Authentication authentication) {
+        String email = authentication.getName();
+        return agenteService.buscarPorEmail(email)
+            .map(agente -> {
+                List<Notification> notificaciones = notificationRepository
+                    .findNoLeidasPorAgenteId(agente.getId());
+                List<NotificacionDTO> dtos = notificaciones.stream()
+                    .map(n -> new NotificacionDTO(
+                        n.getId(),
+                        n.getTipo(),
+                        n.getTitulo(),
+                        n.getMensaje(),
+                        n.getLeida(),
+                        n.getFechaCreacion(),
+                        n.getIdReferencia()
+                    ))
+                    .toList();
+                return ResponseEntity.ok(dtos);
+            })
+            .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/notificaciones/{id}/leida")
+    public ResponseEntity<?> marcarNotificacionLeida(@PathVariable Long id, Authentication authentication) {
+        String email = authentication.getName();
+        return agenteService.buscarPorEmail(email)
+            .map(agente -> {
+                return notificationRepository.findById(id)
+                    .map(notificacion -> {
+                        if (!notificacion.getAgente().getId().equals(agente.getId())) {
+                            return ResponseEntity.status(403).<Void>build();
+                        }
+                        notificacion.setLeida(true);
+                        notificationRepository.save(notificacion);
+                        return ResponseEntity.ok().build();
+                    })
+                    .orElse(ResponseEntity.notFound().build());
+            })
+            .orElse(ResponseEntity.notFound().build());
     }
    
 }

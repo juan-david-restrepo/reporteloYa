@@ -69,9 +69,14 @@
           >
             <i class="fa-solid fa-bell"></i>
 
-            <span class="notif-count" *ngIf="notificacionesNoLeidas > 0">
-              {{ notificacionesNoLeidas }}
-            </span>
+            <div class="notif-badges" *ngIf="notificacionesNoLeidas > 0">
+              <span class="notif-count reporte-count" *ngIf="reportesNoLeidos > 0">
+                {{ reportesNoLeidos }}
+              </span>
+              <span class="notif-count tarea-count" *ngIf="tareasNoLeidas > 0">
+                {{ tareasNoLeidas }}
+              </span>
+            </div>
           </div>
 
           <div class="notif-dropdown" *ngIf="mostrarNotificaciones">
@@ -114,6 +119,7 @@
     <app-dashboard
       *ngIf="vistaActual === 'dashboard'"
       [estadoAgente]="estadoAgente"
+      [tiempoActivo]="tiempoActivoFormateado"
       [reiniciarCronometro$]="reiniciarCronometroSignal"
       [tareas]="tareasAdmin"
       (irHistorial)="abrirHistorial()"

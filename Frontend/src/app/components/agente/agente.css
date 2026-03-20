@@ -168,6 +168,33 @@
       border-radius: 999px;
     }
 
+    .notif-badges {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      display: flex;
+      gap: 2px;
+    }
+
+    .notif-badges .notif-count {
+      position: relative;
+      top: 0;
+      right: 0;
+      font-size: 11px;
+      padding: 2px 5px;
+      min-width: 18px;
+      text-align: center;
+    }
+
+    .notif-badges .reporte-count {
+      background: #ef4444;
+    }
+
+    .notif-badges .tarea-count {
+      background: #eab308;
+      color: #1e293b;
+    }
+
     .notif-dropdown {
       position: absolute;
       right: 0;
@@ -503,6 +530,13 @@
     width: 38px;
     height: 38px;
     font-size: 16px;
+  }
+
+  /* Badges en móvil */
+  .notif-badges .notif-count {
+    font-size: 10px;
+    padding: 1px 4px;
+    min-width: 16px;
   }
 
   /* Dropdown adaptable */

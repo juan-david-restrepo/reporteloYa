@@ -45,13 +45,12 @@ export class Dashboard implements AfterViewInit, OnInit, OnDestroy, OnChanges {
   /*Inputs y Outputs*/
 
   @Input() estadoAgente!: string;
-  @Input() tiempoActivo: number = 0;
+  @Input() tiempoActivo: string = '00:00:00';
   @Input() tareas: Tarea[] = [];
   private _reiniciarSignal: number = 0;
   @Input() set reiniciarCronometro$(value: number) {
     if (value > this._reiniciarSignal) {
       this._reiniciarSignal = value;
-      this.reiniciar();
     }
   }
 
@@ -61,25 +60,26 @@ export class Dashboard implements AfterViewInit, OnInit, OnDestroy, OnChanges {
   @Output() irRechazados = new EventEmitter<void>();
   @Output() irActividad = new EventEmitter<{ tipo: string; id: number }>();
 
-  private intervalId: any;
-
   tiempoFormateado: string = '00:00:00';
-  private tiempoInicial: number = 0;
 
   ngOnInit() {
-    this.tiempoInicial = Date.now();
+    this.tiempoFormateado = this.tiempoActivo;
     this.cargarEstadisticas();
-    this.iniciarCronometro();
   }
 
   ngOnChanges(changes: SimpleChanges) {
+    if (changes['tiempoActivo']) {
+      this.tiempoFormateado = changes['tiempoActivo'].currentValue;
+    }
     if (changes['tareas'] && !changes['tareas'].firstChange) {
       this.construirActividadReciente();
+    }
+    if (changes['reiniciarCronometro$'] && !changes['reiniciarCronometro$'].firstChange) {
+      this.tiempoFormateado = '00:00:00';
     }
   }
 
   ngOnDestroy() {
-    this.detenerCronometro();
   }
 
   // =============================
@@ -241,33 +241,6 @@ export class Dashboard implements AfterViewInit, OnInit, OnDestroy, OnChanges {
   private getHora(r: Reporte): number {
     if (!r.fechaFinalizado) return 0;
     return new Date(r.fechaFinalizado).getHours();
-  }
-
-  private iniciarCronometro() {
-    this.intervalId = setInterval(() => {
-      this.actualizarDisplay();
-    }, 1000);
-  }
-
-  private actualizarDisplay() {
-    const diff = Math.floor((Date.now() - this.tiempoInicial) / 1000);
-    const horas = Math.floor(diff / 3600);
-    const minutos = Math.floor((diff % 3600) / 60);
-    const segs = diff % 60;
-
-    this.tiempoFormateado =
-      `${horas.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}:${segs.toString().padStart(2, '0')}`;
-  }
-
-  private detenerCronometro() {
-    if (this.intervalId) {
-      clearInterval(this.intervalId);
-    }
-  }
-
-  reiniciar() {
-    this.tiempoInicial = Date.now();
-    this.actualizarDisplay();
   }
 
   chart!: Chart;
