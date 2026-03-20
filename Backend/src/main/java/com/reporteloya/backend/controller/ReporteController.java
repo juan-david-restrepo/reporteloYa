@@ -45,20 +45,28 @@ public class ReporteController {
             Authentication authentication) {
 
         if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(403).body("No autenticado");
+            return ResponseEntity.status(403).body(Map.of("error", "No autenticado"));
         }
 
         try {
+            Usuario usuario = (Usuario) authentication.getPrincipal();
+            
+            System.out.println("=== CREAR REPORTE ===");
+            System.out.println("Usuario ID: " + usuario.getId());
+            System.out.println("Usuario Email: " + usuario.getEmail());
+            System.out.println("Usuario Nombre: " + usuario.getNombreCompleto());
+            System.out.println("====================");
+            
             Reporte reporte = reporteService.crearReporte(
                     descripcion, direccion, latitud, longitud,
                     placa, fechaIncidente, horaIncidente,
-                    tipoInfraccion, archivos);
+                    tipoInfraccion, archivos, usuario);
 
             return ResponseEntity.ok(reporte);
 
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 

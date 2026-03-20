@@ -1,0 +1,218 @@
+<app-nav></app-nav>
+
+<div class="mis-reportes-container">
+  <div class="header-section">
+    <h1><i class="fa-solid fa-file-waveform"></i> Mis Reportes</h1>
+    <p class="subtitle">Consulta el estado de tus reportes y gestiona tus evidencias</p>
+  </div>
+
+  <!-- Statistics Cards -->
+  <div class="stats-grid" *ngIf="estadisticas">
+    <div class="stat-card stat-total">
+      <div class="stat-icon">
+        <i class="fa-solid fa-files-o"></i>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{ estadisticas.total }}</span>
+        <span class="stat-label">Total Reportes</span>
+      </div>
+    </div>
+    <div class="stat-card stat-pending">
+      <div class="stat-icon">
+        <i class="fa-solid fa-clock"></i>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{ estadisticas.pendientes }}</span>
+        <span class="stat-label">Pendientes</span>
+      </div>
+    </div>
+    <div class="stat-card stat-process">
+      <div class="stat-icon">
+        <i class="fa-solid fa-spinner"></i>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{ estadisticas.enProceso }}</span>
+        <span class="stat-label">En Proceso</span>
+      </div>
+    </div>
+    <div class="stat-card stat-completed">
+      <div class="stat-icon">
+        <i class="fa-solid fa-check-circle"></i>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{ estadisticas.finalizados }}</span>
+        <span class="stat-label">Finalizados</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Cargando reportes...</p>
+  </div>
+
+  <!-- Reports Table -->
+  <div class="table-container" *ngIf="!isLoading">
+    <div class="table-header">
+      <h2><i class="fa-solid fa-list"></i> Historial de Reportes</h2>
+    </div>
+    
+    <table class="reports-table" *ngIf="reportes.length > 0">
+      <thead>
+        <tr>
+          <th><i class="fa-solid fa-tags"></i> Tipo</th>
+          <th><i class="fa-solid fa-align-left"></i> Descripción</th>
+          <th><i class="fa-solid fa-location-dot"></i> Dirección</th>
+          <th><i class="fa-regular fa-calendar"></i> Fecha</th>
+          <th><i class="fa-regular fa-clock"></i> Hora</th>
+          <th><i class="fa-solid fa-circle-info"></i> Estado</th>
+          <th><i class="fa-solid fa-gears"></i> Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let reporte of reportes" class="report-row">
+          <td class="report-type">{{ reporte.tipoInfraccion }}</td>
+          <td class="report-desc" [title]="reporte.descripcion">
+            {{ reporte.descripcion | slice:0:50 }}{{ reporte.descripcion && reporte.descripcion.length > 50 ? '...' : '' }}
+          </td>
+          <td class="report-address">{{ reporte.direccion }}</td>
+          <td class="report-date">{{ formatDate(reporte.fechaIncidente) }}</td>
+          <td class="report-time">{{ reporte.horaIncidente || '-' }}</td>
+          <td class="report-status">
+            <span class="status-badge" [ngClass]="getEstadoClass(reporte.estado)">
+              {{ getEstadoLabel(reporte.estado) }}
+            </span>
+          </td>
+          <td class="report-actions">
+            <button 
+              class="btn btn-view" 
+              title="Ver detalles"
+              (click)="openEditModal(reporte)">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+            <button 
+              *ngIf="puedeEditar(reporte.estado)"
+              class="btn btn-edit" 
+              title="Editar"
+              (click)="openEditModal(reporte)">
+              <i class="fa-solid fa-pen-to-square"></i>
+            </button>
+            <button 
+              *ngIf="puedeEliminar(reporte.estado)"
+              class="btn btn-delete" 
+              title="Eliminar"
+              (click)="deleteReport(reporte.id)">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="empty-state" *ngIf="reportes.length === 0">
+      <i class="fa-regular fa-file"></i>
+      <h3>No tienes reportes</h3>
+      <p>Aquí aparecerán los reportes que hayas enviado</p>
+      <a routerLink="/subir-reporte" class="btn btn-primary">
+        <i class="fa-solid fa-plus"></i> Crear Reporte
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" *ngIf="editingReporte" (click)="closeEditModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2><i class="fa-solid fa-file-contract"></i> Detalles del Reporte #{{ editingReporte?.id }}</h2>
+      <button class="modal-close" (click)="closeEditModal()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+    
+    <div class="modal-body" *ngIf="editingReporte">
+      <div class="detail-row">
+        <span class="detail-label"><i class="fa-solid fa-flag"></i> Estado:</span>
+        <span class="status-badge" [ngClass]="getEstadoClass(editingReporte.estado)">
+          {{ getEstadoLabel(editingReporte.estado) }}
+        </span>
+      </div>
+      
+      <div class="detail-row">
+        <span class="detail-label"><i class="fa-solid fa-tags"></i> Tipo de Infracción:</span>
+        <span class="detail-value">{{ editingReporte.tipoInfraccion }}</span>
+      </div>
+      
+      <div class="detail-row">
+        <span class="detail-label"><i class="fa-solid fa-align-left"></i> Descripción:</span>
+        <p *ngIf="!puedeEditar(editingReporte.estado)" class="detail-value">{{ editingReporte.descripcion }}</p>
+        <textarea 
+          *ngIf="puedeEditar(editingReporte.estado)"
+          [(ngModel)]="editForm.descripcion" 
+          rows="3"
+          class="form-input">
+        </textarea>
+      </div>
+      
+      <div class="detail-row">
+        <span class="detail-label"><i class="fa-solid fa-location-dot"></i> Dirección:</span>
+        <p *ngIf="!puedeEditar(editingReporte.estado)" class="detail-value">{{ editingReporte.direccion }}</p>
+        <input 
+          *ngIf="puedeEditar(editingReporte.estado)"
+          type="text" 
+          [(ngModel)]="editForm.direccion" 
+          class="form-input"
+          placeholder="Dirección del incidente">
+      </div>
+      
+      <div class="detail-row">
+        <span class="detail-label"><i class="fa-regular fa-calendar"></i> Fecha del Incidente:</span>
+        <p *ngIf="!puedeEditar(editingReporte.estado)" class="detail-value">{{ formatDate(editingReporte.fechaIncidente) }}</p>
+        <input 
+          *ngIf="puedeEditar(editingReporte.estado)"
+          type="date" 
+          [(ngModel)]="editForm.fechaIncidente" 
+          class="form-input">
+      </div>
+      
+      <div class="detail-row">
+        <span class="detail-label"><i class="fa-regular fa-clock"></i> Hora del Incidente:</span>
+        <p *ngIf="!puedeEditar(editingReporte.estado)" class="detail-value">{{ editingReporte.horaIncidente || '-' }}</p>
+        <input 
+          *ngIf="puedeEditar(editingReporte.estado)"
+          type="time" 
+          [(ngModel)]="editForm.horaIncidente" 
+          class="form-input">
+      </div>
+      
+      <div class="detail-row" *ngIf="editingReporte.agente">
+        <span class="detail-label"><i class="fa-solid fa-user-police"></i> Agente Asignado:</span>
+        <span class="detail-value">{{ editingReporte.agente.nombreCompleto }} ({{ editingReporte.agente.placa }})</span>
+      </div>
+      
+      <div class="detail-row" *ngIf="getEvidenciaUrl(editingReporte)">
+        <span class="detail-label"><i class="fa-solid fa-image"></i> Evidencia:</span>
+        <div class="evidence-preview">
+          <img [src]="getEvidenciaUrl(editingReporte)" alt="Evidencia" (click)="openInNewTab(getEvidenciaUrl(editingReporte))">
+        </div>
+      </div>
+    </div>
+    
+    <div class="modal-footer" *ngIf="editingReporte && puedeEditar(editingReporte.estado)">
+      <button class="btn btn-secondary" (click)="closeEditModal()">
+        <i class="fa-solid fa-xmark"></i> Cancelar
+      </button>
+      <button class="btn btn-primary" (click)="saveEdit()">
+        <i class="fa-solid fa-floppy-disk"></i> Guardar Cambios
+      </button>
+    </div>
+    <div class="modal-footer" *ngIf="editingReporte && !puedeEditar(editingReporte.estado)">
+      <button class="btn btn-secondary" (click)="closeEditModal()">
+        <i class="fa-solid fa-xmark"></i> Cerrar
+      </button>
+    </div>
+  </div>
+</div>
+
+<app-footer></app-footer>

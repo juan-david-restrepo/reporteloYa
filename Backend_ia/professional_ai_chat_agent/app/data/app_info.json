@@ -1,0 +1,32 @@
+{
+  "app": {
+    "nombre": "Repórtelo Ya",
+    "contacto": "reporteloy@gmail.com",
+    "descripcion": "Plataforma web que permite a los ciudadanos del Quindío reportar infracciones viales, como mal estacionamiento, con evidencia fotográfica o en video y ubicación en tiempo real. Los reportes contribuyen a mejorar la movilidad, la educación vial y la planificación de controles de tránsito.",
+    "funciones": [
+      "Registrar infracciones viales con evidencia",
+      "Consultar el estado de los reportes propios",
+      "Recibir notificaciones sobre actualizaciones",
+      "Acceder a educación y recomendaciones de tránsito"
+    ]
+  },
+
+  "faq": [
+    {
+      "keywords": ["reportar incidente", "reportar infraccion", "crear reporte", "hacer reporte", "subir reporte"],
+      "respuesta": "Para registrar un reporte, accede desde la sección de Módulos y Servicios en 'Foto Multas', completa los campos requeridos, adjunta evidencia y envía la información."
+    },
+    {
+      "keywords": ["estado de mi reporte", "ver reporte", "mis reportes", "consultar reporte", "mi reporte"],
+      "respuesta": "Puedes consultar el estado de tus reportes en el menú puedes ver una sección llamada 'Reportes'. Allí selecciona 'Mis Reportes' y podrás consultar el estado actualizado de cada reporte enviado por ti."
+    },
+    {
+      "keywords": ["evidencia", "fotos", "videos"],
+      "respuesta": "Puedes adjuntar fotos o videos donde se vean claramente la placa, modelo del vehículo y la situación reportada para darle un contexto claro al agente de tránsito."
+    },
+    {
+      "keywords": ["ver reportes de otros", "ver reportes de otros ciudadanos", "modificar reportes", "reportes de otros usuarios"],
+      "respuesta": "Por motivos de privacidad y seguridad, cada usuario solo puede acceder a los reportes asociados a su propia cuenta."
+    }
+  ]
+}

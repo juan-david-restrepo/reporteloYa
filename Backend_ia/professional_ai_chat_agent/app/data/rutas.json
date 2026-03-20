@@ -1,0 +1,86 @@
+{
+  "routes": [
+    {
+      "name": "reportar incidente",
+      "keywords": [
+        "reportar incidente",
+        "reportar infraccion",
+        "reportar infracción",
+        "crear reporte",
+        "hacer reporte",
+        "subir reporte",
+        "enviar reporte",
+        "crear un reporte",
+        "como reportar",
+        "cómo reportar",
+        "reportar vehiculo",
+        "reportar vehículo",
+        "reportar carro",
+        "reportar mal parqueo",
+        "reportar mal estacionado",
+        "reportar auto",
+        "quiero reportar",
+        "donde reportar",
+        "ir a reportar",
+        "abrir reportar"
+      ],
+      "route": "/subir-reporte",
+      "action": "navigate",
+      "description": "Ir a la página para registrar un reporte de infracción."
+    },
+    {
+      "name": "mis reportes",
+      "keywords": [
+        "estado de mi reporte",
+        "ver reporte",
+        "ver mis reportes",
+        "mis reportes",
+        "consultar reporte",
+        "consultar mis reportes",
+        "mi reporte",
+        "estado del reporte",
+        "historial de reportes",
+        "ver historial de reportes"
+      ],
+      "route": "/perfil",
+      "action": "navigate",
+      "description": "Ir a la sección donde puedes ver tus reportes enviados."
+    },
+    {
+      "name": "registro",
+      "keywords": [
+        "registrarme",
+        "crear cuenta",
+        "registro",
+        "como registrarme",
+        "cómo registrarme",
+        "quiero registrarme",
+        "abrir cuenta",
+        "crear usuario",
+        "crear mi cuenta",
+        "ir a registro",
+        "abrir registro"
+      ],
+      "route": "/registro",
+      "action": "navigate",
+      "description": "Ir a la página de registro de usuario."
+    },
+    {
+      "name": "recuperar contraseña",
+      "keywords": [
+        "recuperar contraseña",
+        "olvide mi contraseña",
+        "olvidé mi contraseña",
+        "restablecer contraseña",
+        "cambiar contraseña",
+        "no recuerdo mi contraseña",
+        "resetear contraseña",
+        "recuperar mi clave",
+        "olvide mi clave"
+      ],
+      "route": "/recuperar",
+      "action": "navigate",
+      "description": "Ir a la página para recuperar la contraseña."
+    }
+  ]
+}
