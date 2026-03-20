@@ -234,13 +234,13 @@ public class ReporteService {
         // Agente principal
         if (reporte.getAgente() != null) {
             dto.setPlacaAgente(reporte.getAgente().getPlaca());
-            dto.setNombreAgente(reporte.getAgente().getNombre());
+            dto.setNombreAgente(reporte.getAgente().getNombreCompleto());
         }
 
         // Agente compañero
         if (reporte.getAgenteCompanero() != null) {
             dto.setPlacaCompanero(reporte.getAgenteCompanero().getPlaca());
-            dto.setNombreCompanero(reporte.getAgenteCompanero().getNombre());
+            dto.setNombreCompanero(reporte.getAgenteCompanero().getNombreCompleto());
         }
 
         // Primera evidencia
@@ -261,7 +261,7 @@ public class ReporteService {
     // ================================
     // AGENTE TOMA REPORTE (SOLO)
     // ================================
-    public Reporte tomarReporte(Long reporteId, String emailAgente) {
+    public Reporte tomarReporte(Long reporteId, String emailAgente, Long userId) {
 
         Reporte reporte = reporteRepository.findById(reporteId)
                 .orElseThrow(() -> new RuntimeException("Reporte no encontrado"));
@@ -270,9 +270,25 @@ public class ReporteService {
             throw new RuntimeException("El reporte ya fue tomado");
         }
 
-        // ✅ Buscar por email (no por placa)
-        Agentes agente = agenteRepository.findByEmail(emailAgente)
-                .orElseThrow(() -> new RuntimeException("Agente no encontrado"));
+        System.out.println("=== TOMAR REPORTE SERVICE ===");
+        System.out.println("Email: " + emailAgente);
+        System.out.println("User ID: " + userId);
+        
+        // Buscar por ID (más confiable con herencia JPA)
+        Agentes agentePorId = agenteRepository.findById(userId).orElse(null);
+        // También buscar por email para comparar (temporal, para debugging)
+        Agentes agentePorEmail = agenteRepository.findByEmail(emailAgente).orElse(null);
+        
+        System.out.println("Agente por ID: " + (agentePorId != null ? agentePorId.getNombre() + " (placa: " + agentePorId.getPlaca() + ")" : "NULL"));
+        System.out.println("Agente por Email: " + (agentePorEmail != null ? agentePorEmail.getNombre() + " (placa: " + agentePorEmail.getPlaca() + ")" : "NULL"));
+        System.out.println("==============================");
+
+        // Usar el agente encontrado por ID (más confiable)
+        Agentes agente = agentePorId;
+        
+        if (agente == null) {
+            throw new RuntimeException("Agente no encontrado con ID: " + userId);
+        }
 
         reporte.setAgente(agente);
         reporte.setEstado("EN_PROCESO");
@@ -296,7 +312,7 @@ public class ReporteService {
     // ================================
     // AGENTE TOMA REPORTE (ACOMPAÑADO)
     // ================================
-    public Reporte tomarReporteConCompanero(Long reporteId, String emailAgente, String placaCompanero) {
+    public Reporte tomarReporteConCompanero(Long reporteId, String emailAgente, String placaCompanero, Long userId) {
 
         Reporte reporte = reporteRepository.findById(reporteId)
                 .orElseThrow(() -> new RuntimeException("Reporte no encontrado"));
@@ -305,13 +321,21 @@ public class ReporteService {
             throw new RuntimeException("El reporte ya fue tomado");
         }
 
-        // Agente principal (por email del token)
-        Agentes agente = agenteRepository.findByEmail(emailAgente)
-                .orElseThrow(() -> new RuntimeException("Agente principal no encontrado"));
+        System.out.println("=== TOMAR REPORTE ACOMPAÑADO SERVICE ===");
+        System.out.println("Email: " + emailAgente);
+        System.out.println("User ID: " + userId);
+        System.out.println("Placa Compañero: " + placaCompanero);
+        
+        // Agente principal (por ID, más confiable)
+        Agentes agente = agenteRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Agente principal no encontrado con ID: " + userId));
+        System.out.println("Agente principal: " + agente.getNombre() + " (placa: " + agente.getPlaca() + ")");
 
         // Agente compañero (por placa)
         Agentes companero = agenteRepository.findByPlacaIgnoreCase(placaCompanero)
                 .orElseThrow(() -> new RuntimeException("Agente compañero no encontrado con placa: " + placaCompanero));
+        System.out.println("Agente compañero: " + companero.getNombre() + " (placa: " + companero.getPlaca() + ")");
+        System.out.println("=======================================");
 
         // Validar que el compañero esté libre (case-insensitive)
         if (companero.getEstado() == null || !"DISPONIBLE".equalsIgnoreCase(companero.getEstado())) {
@@ -354,7 +378,7 @@ public class ReporteService {
     // RECHAZAR REPORTE
     // Se guarda en historial con estado RECHAZADO (sin resumen).
     // ================================
-    public Reporte rechazarReporte(Long reporteId, String emailAgente) {
+    public Reporte rechazarReporte(Long reporteId, String emailAgente, Long userId) {
 
         Reporte reporte = reporteRepository.findById(reporteId)
                 .orElseThrow(() -> new RuntimeException("Reporte no encontrado"));
@@ -363,8 +387,8 @@ public class ReporteService {
             throw new RuntimeException("Solo se pueden rechazar reportes pendientes");
         }
 
-        Agentes agente = agenteRepository.findByEmail(emailAgente)
-                .orElseThrow(() -> new RuntimeException("Agente no encontrado"));
+        Agentes agente = agenteRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Agente no encontrado con ID: " + userId));
 
         reporte.setAgente(agente);
         reporte.setEstado("RECHAZADO");
@@ -384,7 +408,7 @@ public class ReporteService {
     // ================================
     // FINALIZAR REPORTE
     // ================================
-    public Reporte finalizarReporte(Long reporteId, String emailAgente, String resumen) {
+    public Reporte finalizarReporte(Long reporteId, String emailAgente, String resumen, Long userId) {
 
         Reporte reporte = reporteRepository.findById(reporteId)
                 .orElseThrow(() -> new RuntimeException("Reporte no encontrado"));
@@ -392,6 +416,12 @@ public class ReporteService {
         if (!"EN_PROCESO".equals(reporte.getEstado())) {
             throw new RuntimeException("El reporte no está en proceso");
         }
+
+        System.out.println("=== FINALIZAR REPORTE SERVICE ===");
+        System.out.println("Reporte ID: " + reporteId);
+        System.out.println("Email: " + emailAgente);
+        System.out.println("User ID: " + userId);
+        System.out.println("================================");
 
         reporte.setEstado("FINALIZADO");
         reporte.setResumenOperativo(resumen);
@@ -440,12 +470,18 @@ public class ReporteService {
     // REPORTES ACTIVOS DEL AGENTE
     // (PENDIENTES GLOBALES + SUS EN_PROCESO)
     // ================================
-    public List<ReporteSocketDTO> obtenerReportesDTOParaAgente(String emailAgente) {
+    public List<ReporteSocketDTO> obtenerReportesDTOParaAgente(String emailAgente, Long userId) {
 
-        Agentes agente = agenteRepository.findByEmail(emailAgente)
-                .orElseThrow(() -> new RuntimeException("Agente no encontrado"));
+        Agentes agente = agenteRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Agente no encontrado con ID: " + userId));
 
         String placa = agente.getPlaca();
+        
+        System.out.println("=== OBTENER REPORTES AGENTE ===");
+        System.out.println("Email: " + emailAgente);
+        System.out.println("User ID: " + userId);
+        System.out.println("Agente: " + agente.getNombre() + " (placa: " + placa + ")");
+        System.out.println("==============================");
 
         List<Reporte> pendientes = reporteRepository.findByEstado("PENDIENTE");
 
@@ -464,10 +500,10 @@ public class ReporteService {
     // HISTORIAL DEL AGENTE
     // (Reportes FINALIZADOS donde participó)
     // ================================
-    public List<ReporteSocketDTO> obtenerHistorialAgente(String emailAgente) {
+    public List<ReporteSocketDTO> obtenerHistorialAgente(String emailAgente, Long userId) {
 
-        Agentes agente = agenteRepository.findByEmail(emailAgente)
-                .orElseThrow(() -> new RuntimeException("Agente no encontrado"));
+        Agentes agente = agenteRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Agente no encontrado con ID: " + userId));
 
         String placa = agente.getPlaca();
 
@@ -667,9 +703,9 @@ public class ReporteService {
     // ================================
     // OBTENER ESTADÍSTICAS COMPLETAS (TARJETAS + GRÁFICAS)
     // ================================
-    public EstadisticasCompletasDTO obtenerEstadisticasCompletas(String emailAgente, String fechaInicio, String fechaFin) {
-        Agentes agente = agenteRepository.findByEmail(emailAgente)
-                .orElseThrow(() -> new RuntimeException("Agente no encontrado"));
+    public EstadisticasCompletasDTO obtenerEstadisticasCompletas(String emailAgente, Long userId, String fechaInicio, String fechaFin) {
+        Agentes agente = agenteRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Agente no encontrado con ID: " + userId));
 
         String placa = agente.getPlaca();
 

@@ -322,7 +322,9 @@ export class Reportes implements OnChanges, OnDestroy {
       resumenOperativo: r.resumenOperativo,
       acompanado:       r.acompanado ?? false,
       placaCompanero:   r.placaCompanero,
-      nombreCompanero:  r.nombreCompanero
+      nombreCompanero:  r.nombreCompanero,
+      placaAgente:      r.placaAgente?.toUpperCase() || '',
+      nombreAgente:      r.nombreAgente
     };
   }
 
