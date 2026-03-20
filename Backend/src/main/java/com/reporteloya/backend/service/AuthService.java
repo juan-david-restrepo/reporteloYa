@@ -24,7 +24,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
 
     // =========================
-    // REGISTER
+    // REGISTER (Ciudadano por defecto)
     // =========================
     public AuthResult register(RegisterRequest request) {
 
@@ -47,13 +47,13 @@ public class AuthService {
             throw new IllegalArgumentException("Error: El correo electrónico ya está registrado.");
         }
 
-        String jwtToken = jwtService.generateToken(nuevoUsuario);
+        String jwtToken = jwtService.generateTokenWithRole(nuevoUsuario, Role.CIUDADANO);
 
         return new AuthResult(jwtToken, nuevoUsuario);
     }
 
     // =========================
-    // LOGIN
+    // LOGIN (Tiempo según rol)
     // =========================
     public AuthResult login(LoginRequest request) {
 
@@ -71,7 +71,7 @@ public class AuthService {
                         )
                 );
 
-        String jwtToken = jwtService.generateToken(usuario);
+        String jwtToken = jwtService.generateTokenWithRole(usuario, usuario.getRole());
 
         return new AuthResult(jwtToken, usuario);
     }
