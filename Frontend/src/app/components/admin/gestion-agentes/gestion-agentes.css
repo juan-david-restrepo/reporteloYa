@@ -289,7 +289,6 @@ table td {
 
 .tabla-reportes td:nth-child(3),
 .tabla-reportes td:nth-child(5) {
-  max-width: 300px;
   word-wrap: break-word;
 }
 
@@ -513,6 +512,25 @@ table td {
   box-shadow: 0 10px 22px rgba(229, 57, 53, 0.45);
 }
 
+/* Icono de alerta en el modal */
+.modal-box::before {
+  content: '';
+  display: block;
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 16px;
+  background: linear-gradient(135deg, #fee2e2, #fecaca);
+  border-radius: 50%;
+  position: relative;
+}
+
+.modal-box::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' fill='none' stroke='%23dc2626' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'%3E%3C/circle%3E%3Cline x1='12' y1='8' x2='12' y2='12'%3E%3C/line%3E%3Cline x1='12' y1='16' x2='12.01' y2='16'%3E%3C/line%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 32px;
+}
+
 /* ================= ANIMACIONES ================= */
 @keyframes fadeIn {
   from {
@@ -617,7 +635,7 @@ table td {
 /* Acción */
 .tabla-tareas th:nth-child(7),
 .tabla-tareas td:nth-child(7) {
-  width: 90px;
+  width: 110px;
   text-align: center;
 }
 
@@ -775,7 +793,7 @@ table td {
   font-weight: bold;
   display: inline; /* Cambiado a inline para que no salte de línea */
   text-transform: uppercase;
-  font-size: 0.9rem;
+  font-size: 11px !important;
   margin-left: 5px; /* Espacio respecto al label */
 }
 
@@ -1049,7 +1067,7 @@ table td {
      display: inline-block;
     padding: 6px 14px;
     border-radius: 999px;
-    font-size: 11px;
+    font-size: 11px !important;
     font-weight: 800;
     text-transform: uppercase;
     min-width: 80px;
@@ -1455,4 +1473,377 @@ table td {
 ::ng-deep body.dark-mode .tabla-tareas td[data-label="Hora"] {
   color: #60a5fa !important;
   font-weight: 600 !important;
+}
+
+/* ====================================================
+    👁️ MODO DALTONISMO
+    ==================================================== */
+/* Protanopía */
+::ng-deep body.protanopia .estado.disponible,
+::ng-deep body.protanopia .badge-estado.bg-pendiente,
+::ng-deep body.protanopia .estado.pendiente,
+::ng-deep body.protanopia .badge-estado.pendiente {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+}
+
+::ng-deep body.protanopia .estado.ocupado,
+::ng-deep body.protanopia .badge-estado.bg-proceso,
+::ng-deep body.protanopia .estado.en-proceso,
+::ng-deep body.protanopia .badge-estado.proceso {
+  background-color: #0000FF !important;
+  color: #ffffff !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+::ng-deep body.protanopia .estado.fuera-de-servicio,
+::ng-deep body.protanopia .badge-estado.bg-rechazado,
+::ng-deep body.protanopia .estado.rechazado,
+::ng-deep body.protanopia .badge-estado.rechazado {
+  background-color: #FF0000 !important;
+  color: #ffffff !important;
+  border: 2px solid #000000 !important;
+}
+
+::ng-deep body.protanopia .badge-estado.bg-finalizado,
+::ng-deep body.protanopia .estado.finalizado,
+::ng-deep body.protanopia .badge-estado.finalizado {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border: 2px solid #000000 !important;
+  text-decoration: underline !important;
+}
+
+/* Deuteranopía */
+::ng-deep body.deuteranopia .estado.disponible,
+::ng-deep body.deuteranopia .badge-estado.bg-pendiente,
+::ng-deep body.deuteranopia .estado.pendiente,
+::ng-deep body.deuteranopia .badge-estado.pendiente {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+}
+
+::ng-deep body.deuteranopia .estado.ocupado,
+::ng-deep body.deuteranopia .badge-estado.bg-proceso,
+::ng-deep body.deuteranopia .estado.en-proceso,
+::ng-deep body.deuteranopia .badge-estado.proceso {
+  background-color: #0000FF !important;
+  color: #ffffff !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+::ng-deep body.deuteranopia .estado.fuera-de-servicio,
+::ng-deep body.deuteranopia .badge-estado.bg-rechazado,
+::ng-deep body.deuteranopia .estado.rechazado,
+::ng-deep body.deuteranopia .badge-estado.rechazado {
+  background-color: #FF0000 !important;
+  color: #ffffff !important;
+  border: 2px solid #000000 !important;
+}
+
+::ng-deep body.deuteranopia .badge-estado.bg-finalizado,
+::ng-deep body.deuteranopia .estado.finalizado,
+::ng-deep body.deuteranopia .badge-estado.finalizado {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border: 2px solid #000000 !important;
+  text-decoration: underline !important;
+}
+
+/* Tritanopía */
+::ng-deep body.tritanopia .estado.disponible,
+::ng-deep body.tritanopia .badge-estado.bg-pendiente,
+::ng-deep body.tritanopia .estado.pendiente,
+::ng-deep body.tritanopia .badge-estado.pendiente {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+}
+
+::ng-deep body.tritanopia .estado.ocupado,
+::ng-deep body.tritanopia .badge-estado.bg-proceso,
+::ng-deep body.tritanopia .estado.en-proceso,
+::ng-deep body.tritanopia .badge-estado.proceso {
+  background-color: #0000FF !important;
+  color: #ffffff !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+::ng-deep body.tritanopia .estado.fuera-de-servicio,
+::ng-deep body.tritanopia .badge-estado.bg-rechazado,
+::ng-deep body.tritanopia .estado.rechazado,
+::ng-deep body.tritanopia .badge-estado.rechazado {
+  background-color: #FF0000 !important;
+  color: #ffffff !important;
+  border: 2px solid #000000 !important;
+}
+
+::ng-deep body.tritanopia .badge-estado.bg-finalizado,
+::ng-deep body.tritanopia .estado.finalizado,
+::ng-deep body.tritanopia .badge-estado.finalizado {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border: 2px solid #000000 !important;
+  text-decoration: underline !important;
+}
+
+/* ====================================================
+    🔎 TAMAÑOS DE FUENTE
+    ==================================================== */
+::ng-deep body .admin-container,
+::ng-deep body .admin-content {
+  font-size: var(--admin-font-size, 16px) !important;
+}
+::ng-deep body .admin-container *,
+::ng-deep body .admin-content * {
+  font-size: inherit !important;
+}
+
+/* ====================================================
+   🎨 MODAL DETALLE - DISEÑO LIMPIO
+   ==================================================== */
+.modal-overlay-detalle {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 20px;
+  animation: fadeInModal 0.2s ease;
+}
+
+@keyframes fadeInModal {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-vista {
+  width: 100%;
+  max-width: 600px;
+  max-height: 85vh;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideUpModal 0.3s ease;
+}
+
+@keyframes slideUpModal {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-header-detalle {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+  flex-shrink: 0;
+}
+
+.modal-icono {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+}
+
+.modal-icono svg {
+  color: #ffffff;
+}
+
+.modal-header-detalle h3 {
+  flex: 1;
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.2px;
+}
+
+.btn-cerrar-modal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  border-radius: 8px;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-cerrar-modal:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.05);
+}
+
+.btn-cerrar-modal:active {
+  transform: scale(0.95);
+}
+
+.modal-body-detalle {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+  background: #ffffff;
+}
+
+.modal-body-detalle p {
+  margin: 0;
+  color: #374151;
+  font-size: 15px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Scrollbar personalizado */
+.modal-body-detalle::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-body-detalle::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.modal-body-detalle::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.modal-body-detalle::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* ====================================================
+   🌙 MODO OSCURO - MODAL DETALLE (Mismo estilo azul)
+   ==================================================== */
+::ng-deep body.dark-mode .modal-overlay-detalle {
+  background: rgba(0, 0, 0, 0.85) !important;
+  backdrop-filter: blur(10px);
+}
+
+::ng-deep body.dark-mode .modal-vista {
+  background: #1e3a5f !important;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6), 
+              0 0 40px rgba(59, 130, 246, 0.15) !important;
+  border: 1px solid rgba(59, 130, 246, 0.3) !important;
+}
+
+::ng-deep body.dark-mode .modal-header-detalle {
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%) !important;
+}
+
+::ng-deep body.dark-mode .modal-icono {
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+::ng-deep body.dark-mode .modal-icono svg {
+  stroke: #ffffff !important;
+  color: #ffffff !important;
+}
+
+::ng-deep body.dark-mode .modal-header-detalle h3 {
+  color: #ffffff !important;
+}
+
+::ng-deep body.dark-mode .btn-cerrar-modal {
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+::ng-deep body.dark-mode .btn-cerrar-modal:hover {
+  background: rgba(255, 255, 255, 0.3) !important;
+}
+
+::ng-deep body.dark-mode .btn-cerrar-modal svg {
+  stroke: #ffffff !important;
+}
+
+::ng-deep body.dark-mode .modal-body-detalle {
+  background: #1e3a5f !important;
+}
+
+::ng-deep body.dark-mode .modal-body-detalle p {
+  color: #e2e8f0 !important;
+}
+
+::ng-deep body.dark-mode .modal-body-detalle::-webkit-scrollbar-track {
+  background: #0f172a !important;
+}
+
+::ng-deep body.dark-mode .modal-body-detalle::-webkit-scrollbar-thumb {
+  background: #3b82f6 !important;
+}
+
+::ng-deep body.dark-mode .modal-body-detalle::-webkit-scrollbar-thumb:hover {
+  background: #60a5fa !important;
+}
+
+/* ====================================================
+   🌙 MODO OSCURO - MODAL ELIMINAR
+   ==================================================== */
+::ng-deep body.dark-mode .modal-backdrop {
+  background: rgba(0, 0, 0, 0.85) !important;
+  backdrop-filter: blur(8px);
+}
+
+::ng-deep body.dark-mode .modal-box {
+  background: linear-gradient(145deg, #1e293b, #334155) !important;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5), 
+              0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+::ng-deep body.dark-mode .modal-box h3 {
+  color: #f8fafc !important;
+}
+
+::ng-deep body.dark-mode .modal-box p {
+  color: #94a3b8 !important;
+}
+
+::ng-deep body.dark-mode .modal-box::before {
+  background: linear-gradient(135deg, #450a0a, #7f1d1d) !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' fill='none' stroke='%23f87171' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'%3E%3C/circle%3E%3Cline x1='12' y1='8' x2='12' y2='12'%3E%3C/line%3E%3Cline x1='12' y1='16' x2='12.01' y2='16'%3E%3C/line%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 32px;
+}
+
+::ng-deep body.dark-mode .btn-cancelar {
+  background: #334155 !important;
+  color: #f8fafc !important;
+}
+
+::ng-deep body.dark-mode .btn-cancelar:hover {
+  background: #475569 !important;
+}
+
+::ng-deep body.dark-mode .btn-confirmar {
+  background: linear-gradient(135deg, #dc2626, #b91c1c) !important;
+  box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4) !important;
+}
+
+::ng-deep body.dark-mode .btn-confirmar:hover {
+  background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+  box-shadow: 0 10px 30px rgba(220, 38, 38, 0.5) !important;
 }

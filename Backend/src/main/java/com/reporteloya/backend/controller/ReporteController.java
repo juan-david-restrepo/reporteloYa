@@ -15,6 +15,7 @@ import com.reporteloya.backend.dto.ReporteSocketDTO;
 import com.reporteloya.backend.dto.EstadisticasDashboardDTO;
 import com.reporteloya.backend.dto.EstadisticasCompletasDTO;
 import com.reporteloya.backend.entity.Reporte;
+import com.reporteloya.backend.entity.Usuario;
 import com.reporteloya.backend.service.ReporteService;
 
 @RestController
@@ -70,10 +71,21 @@ public class ReporteController {
             Authentication authentication) {
 
         try {
-            // ✅ Se pasa el email (authentication.getName()) al servicio
-            Reporte actualizado = reporteService.tomarReporte(id, authentication.getName());
+            String email = authentication.getName();
+            Usuario usuario = (Usuario) authentication.getPrincipal();
+            Long userId = usuario.getId();
+            
+            System.out.println("=== ACEPTAR REPORTE (SOLO) ===");
+            System.out.println("Reporte ID: " + id);
+            System.out.println("Email del token: " + email);
+            System.out.println("User ID: " + userId);
+            System.out.println("User Nombre: " + usuario.getNombreCompleto());
+            System.out.println("===============================");
+            
+            Reporte actualizado = reporteService.tomarReporte(id, email, userId);
             return ResponseEntity.ok(reporteService.convertirADTO(actualizado));
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
@@ -94,10 +106,22 @@ public class ReporteController {
         }
 
         try {
+            String email = authentication.getName();
+            Usuario usuario = (Usuario) authentication.getPrincipal();
+            Long userId = usuario.getId();
+            
+            System.out.println("=== ACEPTAR REPORTE (ACOMPAÑADO) ===");
+            System.out.println("Reporte ID: " + id);
+            System.out.println("Email: " + email);
+            System.out.println("User ID: " + userId);
+            System.out.println("Placa Compañero: " + placaCompanero);
+            System.out.println("==================================");
+            
             Reporte actualizado = reporteService.tomarReporteConCompanero(
-                    id, authentication.getName(), placaCompanero);
+                    id, email, placaCompanero, userId);
             return ResponseEntity.ok(reporteService.convertirADTO(actualizado));
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
@@ -111,7 +135,11 @@ public class ReporteController {
             Authentication authentication) {
 
         try {
-            Reporte actualizado = reporteService.rechazarReporte(id, authentication.getName());
+            String email = authentication.getName();
+            Usuario usuario = (Usuario) authentication.getPrincipal();
+            Long userId = usuario.getId();
+            
+            Reporte actualizado = reporteService.rechazarReporte(id, email, userId);
             return ResponseEntity.ok(reporteService.convertirADTO(actualizado));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -130,8 +158,12 @@ public class ReporteController {
         String resumen = body.get("resumen");
 
         try {
+            String email = authentication.getName();
+            Usuario usuario = (Usuario) authentication.getPrincipal();
+            Long userId = usuario.getId();
+            
             Reporte actualizado = reporteService.finalizarReporte(
-                    id, authentication.getName(), resumen);
+                    id, email, resumen, userId);
             return ResponseEntity.ok(reporteService.convertirADTO(actualizado));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -147,8 +179,12 @@ public class ReporteController {
             Authentication authentication) {
 
         try {
+            String email = authentication.getName();
+            Usuario usuario = (Usuario) authentication.getPrincipal();
+            Long userId = usuario.getId();
+            
             return ResponseEntity.ok(
-                reporteService.obtenerReportesDTOParaAgente(authentication.getName())
+                reporteService.obtenerReportesDTOParaAgente(email, userId)
             );
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
@@ -164,8 +200,12 @@ public class ReporteController {
             Authentication authentication) {
 
         try {
+            String email = authentication.getName();
+            Usuario usuario = (Usuario) authentication.getPrincipal();
+            Long userId = usuario.getId();
+            
             return ResponseEntity.ok(
-                reporteService.obtenerHistorialAgente(authentication.getName())
+                reporteService.obtenerHistorialAgente(email, userId)
             );
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
@@ -248,8 +288,12 @@ public class ReporteController {
             Authentication authentication) {
 
         try {
+            String email = authentication.getName();
+            Usuario usuario = (Usuario) authentication.getPrincipal();
+            Long userId = usuario.getId();
+            
             return ResponseEntity.ok(
-                reporteService.obtenerEstadisticasCompletas(authentication.getName(), fechaInicio, fechaFin)
+                reporteService.obtenerEstadisticasCompletas(email, userId, fechaInicio, fechaFin)
             );
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());

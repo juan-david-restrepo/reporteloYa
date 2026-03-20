@@ -5,6 +5,7 @@ export interface Tarea {
   fecha: string;
   hora: string;
   descripcion: string;
+  resumenOperativo?: string;
   estado: 'PENDIENTE' | 'EN PROCESO' | 'FINALIZADO' | 'RECHAZADO';
   prioridad: 'BAJA' | 'MEDIA' | 'ALTA ';
 }

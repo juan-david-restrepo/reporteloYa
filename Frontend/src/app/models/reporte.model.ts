@@ -6,5 +6,6 @@ export interface Reporte {
   ubicacion: string;
   tipoIncidente: string;
   descripcion: string; // 👈 faltaba (qué hizo el agente)
-  resenaCiudadano: string; // 👈 sin ñ para evitar errores
+  resenaCiudadano: string;
+  resumenOperativo?: string;
 }

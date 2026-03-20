@@ -6,16 +6,18 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { InfraccionService } from '../../service/infraccion.service';
 
-type EstadoInfraccion = 'PENDIENTE' | 'RECHAZADO' | 'EN_PROCESO' | 'FINALIZADO';
+type EstadoInfraccion = 'PENDIENTE' | 'RECHAZADO' | 'EN PROCESO' | 'FINALIZADO';
 
 interface Infraccion {
   id: number;
   fecha: string;
   tipo: string;
   agente: string;
-  placa: string;
   estado: EstadoInfraccion;
   ref: string;
+  descripcion?: string;
+  resumen?: string;
+  ubicacion?: string;
 }
 
 interface ItemFiltrado {
@@ -33,23 +35,28 @@ interface ItemFiltrado {
 })
 export class Admin implements OnInit, AfterViewInit, OnDestroy {
 
+  // Propiedades de Estado
   menuAbierto = false;
   modalAbierto = false;
   tituloModal = '';
   tipoModalActivo: 'barras' | 'infraccion' = 'barras';
 
+  // Datos
   infracciones: Infraccion[] = []; 
   infraccionesAMostrar: Infraccion[] = []; 
   itemsFiltrados: ItemFiltrado[] = [];
   infraccionSeleccionada: Infraccion | null = null;
 
+  // Filtros de Gráfica
   filtroTipoGrafico: string = 'todos';
   filtroTiempoGrafico: string = 'mes';
 
-  tiposInfracciones: string[] = [];
+  // Filtros de Tabla
+  filtroTablaTipo: string = '';
+  filtroTablaEstado: string = '';
 
-  cargando: boolean = true;
-  errorCarga: string = '';
+  // Filtro del Modal
+  filtroEstadoModal: string = '';
 
   private chartBarras?: Chart;
 
@@ -59,11 +66,10 @@ export class Admin implements OnInit, AfterViewInit, OnDestroy {
     const isDark = localStorage.getItem('darkMode') === 'true';
     if (isDark) document.body.classList.add('dark-mode');
 
-    const isColorBlind = localStorage.getItem('colorBlind') === 'true';
-    if (isColorBlind) document.body.classList.add('color-blind');
-
-    const savedSize = localStorage.getItem('fontSize') || 'normal';
-    document.body.classList.add(`font-${savedSize}`);
+    const savedSize = localStorage.getItem('fontSize');
+    if (savedSize) {
+      document.body.style.setProperty('--admin-font-size', savedSize + 'px');
+    }
   }
 
   ngOnInit(): void {
@@ -71,10 +77,12 @@ export class Admin implements OnInit, AfterViewInit, OnDestroy {
     this.cargarInfracciones();
   }
 
+  refreshData(): void {
+    this.cargarInfracciones();
+  }
+
   ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.crearGraficoBarras();
-    }, 300);
+    this.crearGraficoBarras();
   }
 
   ngOnDestroy(): void {
@@ -83,105 +91,44 @@ export class Admin implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  // =========================
+  // CARGA DE DATOS
+  // =========================
   private cargarInfracciones(): void {
-    this.cargando = true;
-    this.errorCarga = '';
-    
-    this.infraccionService.getAllReportes().subscribe({
-      next: (data) => {
-        console.log('Datos recibidos del backend:', data);
-        
-        if (!data || data.length === 0) {
-          console.warn('No hay reportes en la respuesta');
-          this.infracciones = [];
-          this.infraccionesAMostrar = [];
-          this.cargando = false;
-          return;
-        }
-
-        this.infracciones = this.mapearDatosInfraccion(data);
-        this.infraccionesAMostrar = [...this.infracciones];
-        
-        console.log('Infracciones mapeadas:', this.infracciones);
-        
-        this.extraerTiposInfracciones();
-        this.cargando = false;
-        
-        setTimeout(() => {
-          this.actualizarGraficoBarras();
-        }, 100);
-      },
-      error: (err) => {
-        console.error('Error al cargar reportes:', err);
-        this.errorCarga = 'Error al conectar con el servidor';
-        this.cargando = false;
-        this.infracciones = [];
-        this.infraccionesAMostrar = [];
-      }
-    });
-  }
-
-  private mapearDatosInfraccion(data: any[]): Infraccion[] {
-    return data.map((item: any) => {
-      console.log('Mapeando item:', item);
+    this.infraccionService.getInfracciones().subscribe(data => {
+      this.infracciones = data;
+      this.infraccionesAMostrar = data; 
       
-      const agenteNombre = item.agente?.nombreCompleto || item.agente?.nombre || item.agente || 'Sin asignar';
-      
-      return {
-        id: item.id || item.id_reporte,
-        fecha: this.formatearFecha(item.createdAt || item.fechaIncidente || item.fecha),
-        tipo: item.tipoInfraccion || item.tipo || 'Sin tipo',
-        agente: agenteNombre,
-        placa: item.placa || '',
-        estado: this.mapearEstado(item.estado),
-        ref: `INF-${item.id || item.id_reporte}`
-      };
+      // Pequeño delay para asegurar que el canvas exista
+      setTimeout(() => this.actualizarGraficoBarras(), 50);
     });
   }
 
-  private formatearFecha(fecha: string | undefined): string {
-    if (!fecha) return new Date().toLocaleDateString('es-CO');
-    try {
-      const date = new Date(fecha);
-      return date.toLocaleDateString('es-CO', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
-      });
-    } catch {
-      return String(fecha);
-    }
-  }
-
-  private mapearEstado(estado: string | undefined): EstadoInfraccion {
-    if (!estado) return 'PENDIENTE';
-    
-    const mapeo: Record<string, EstadoInfraccion> = {
-      'PENDIENTE': 'PENDIENTE',
-      'EN_PROCESO': 'EN_PROCESO',
-      'EN PROCESO': 'EN_PROCESO',
-      'FINALIZADO': 'FINALIZADO',
-      'RECHAZADO': 'RECHAZADO'
-    };
-    return mapeo[estado] || 'PENDIENTE';
-  }
-
-  private extraerTiposInfracciones(): void {
-    const tiposSet = new Set<string>();
-    this.infracciones.forEach(inf => {
-      if (inf.tipo) {
-        tiposSet.add(inf.tipo);
-      }
-    });
-    this.tiposInfracciones = Array.from(tiposSet);
-    console.log('Tipos de infracciones:', this.tiposInfracciones);
+  // =========================
+  // MUNDO TABLA
+  // =========================
+  filtrarTablaPorTipo(event: Event): void {
+    this.filtroTablaTipo = (event.target as HTMLSelectElement).value;
+    this.aplicarFiltrosTabla();
   }
 
   aplicarFiltro(event: Event): void {
-    const estado = (event.target as HTMLSelectElement).value;
-    this.infraccionesAMostrar = !estado 
-      ? [...this.infracciones] 
-      : this.infracciones.filter(inf => inf.estado === estado);
+    this.filtroTablaEstado = (event.target as HTMLSelectElement).value;
+    this.aplicarFiltrosTabla();
+  }
+
+  private aplicarFiltrosTabla(): void {
+    let filtradas = [...this.infracciones];
+
+    if (this.filtroTablaTipo) {
+      filtradas = filtradas.filter(inf => this.getNombreTipo(inf.tipo) === this.filtroTablaTipo);
+    }
+
+    if (this.filtroTablaEstado) {
+      filtradas = filtradas.filter(inf => inf.estado === this.filtroTablaEstado);
+    }
+
+    this.infraccionesAMostrar = filtradas;
   }
 
   getClaseEstado(estado: EstadoInfraccion): string {
@@ -189,11 +136,48 @@ export class Admin implements OnInit, AfterViewInit, OnDestroy {
       'PENDIENTE': 'estado-pendiente',
       'FINALIZADO': 'estado-finalizado',
       'RECHAZADO': 'estado-rechazado',
-      'EN_PROCESO': 'estado-proceso'
+      'EN PROCESO': 'estado-proceso'
     };
     return clases[estado] || '';
   }
 
+  getNombreTipo(tipo: string): string {
+    const nombres: Record<string, string> = {
+      'Accidente de tránsito': 'Accidente de tránsito',
+      'Vehículo mal estacionado': 'Vehículo mal estacionado',
+      'Semáforo dañado': 'Semáforo dañado',
+      'Conducción peligrosa': 'Conducción peligrosa',
+      'Otros': 'Otros',
+      'Exceso de velocidad': 'Accidente de tránsito',
+      'Semáforo en Rojo': 'Semáforo dañado',
+      'Accidente': 'Accidente de tránsito',
+      'Manejo errático': 'Conducción peligrosa'
+    };
+    return nombres[tipo] || tipo;
+  }
+
+  getCountByEstado(estado: string): number {
+    return this.infraccionesAMostrar.filter(inf => inf.estado === estado).length;
+  }
+
+  filtrarPorEstadoModal(estado: string): void {
+    this.filtroEstadoModal = this.filtroEstadoModal === estado ? '' : estado;
+  }
+
+  get reportesFiltrados(): Infraccion[] {
+    if (!this.filtroEstadoModal) {
+      return this.infraccionesAMostrar;
+    }
+    return this.infraccionesAMostrar.filter(inf => inf.estado === this.filtroEstadoModal);
+  }
+
+  isEstadoActivo(estado: string): boolean {
+    return this.filtroEstadoModal === estado;
+  }
+
+  // =========================
+  // MUNDO GRÁFICO & FILTROS
+  // =========================
   filtrarPorTiempo(event: Event): void {
     this.filtroTiempoGrafico = (event.target as HTMLSelectElement).value;
     this.actualizarGraficoBarras();
@@ -206,10 +190,7 @@ export class Admin implements OnInit, AfterViewInit, OnDestroy {
 
   private crearGraficoBarras(): void {
     const canvas = document.getElementById('barChart') as HTMLCanvasElement;
-    if (!canvas) {
-      console.warn('Canvas no encontrado');
-      return;
-    }
+    if (!canvas) return;
 
     this.chartBarras = new Chart(canvas, {
       type: 'bar',
@@ -229,13 +210,7 @@ export class Admin implements OnInit, AfterViewInit, OnDestroy {
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { 
-          legend: { display: false },
-          title: {
-            display: true,
-            text: 'Distribución de Reportes por Tipo'
-          }
-        },
+        plugins: { legend: { display: false } },
         scales: {
           x: { grid: { display: false } },
           y: {
@@ -245,19 +220,16 @@ export class Admin implements OnInit, AfterViewInit, OnDestroy {
         }
       }
     });
-
-    this.actualizarGraficoBarras();
   }
 
   private actualizarGraficoBarras(): void {
     if (!this.chartBarras) return;
 
-    console.log('Actualizando gráfico con:', this.infracciones);
-
     const ahora = new Date();
     const datosFiltrados = this.infracciones.filter(inf => {
       const fechaInf = new Date(inf.fecha);
       
+      // Lógica de Tiempo
       let cumpleTiempo = true;
       if (this.filtroTiempoGrafico === 'hoy') {
         cumpleTiempo = fechaInf.toDateString() === ahora.toDateString();
@@ -271,59 +243,54 @@ export class Admin implements OnInit, AfterViewInit, OnDestroy {
         cumpleTiempo = fechaInf.getFullYear() === ahora.getFullYear();
       }
 
-      const cumpleTipo = this.filtroTipoGrafico === 'todos' || inf.tipo === this.filtroTipoGrafico;
+      // Lógica de Tipo
+      const cumpleTipo = this.filtroTipoGrafico === 'todos' || this.getNombreTipo(inf.tipo) === this.filtroTipoGrafico;
 
       return cumpleTiempo && cumpleTipo;
     });
 
     const conteo: Record<string, number> = {};
     datosFiltrados.forEach(inf => {
-      conteo[inf.tipo] = (conteo[inf.tipo] || 0) + 1;
+      const tipoNormalizado = this.getNombreTipo(inf.tipo);
+      conteo[tipoNormalizado] = (conteo[tipoNormalizado] || 0) + 1;
     });
 
-    const labels = Object.keys(conteo);
+    // Mapeo de tipos a labels cortos
+    const labelsMap: Record<string, string> = {
+      'Accidente de tránsito': 'Accidente',
+      'Vehículo mal estacionado': 'Mal Estacionado',
+      'Semáforo dañado': 'Semáforo Dañado',
+      'Conducción peligrosa': 'Conducción Peligrosa',
+      'Otros': 'Otros'
+    };
+
+    const labels = Object.keys(conteo).map(tipo => labelsMap[tipo] || tipo);
     const data = Object.values(conteo);
 
-    console.log('Datos para gráfico - Labels:', labels, 'Data:', data);
+    this.chartBarras.data.labels = labels;
+    this.chartBarras.data.datasets[0].data = data;
+    
+    // Colores específicos para cada tipo
+    const simpleColors: Array<{ bg: string; border: string }> = [
+      { bg: 'rgba(239, 68, 68, 0.8)', border: 'rgba(239, 68, 68, 1)' },      // Rojo - Accidente
+      { bg: 'rgba(249, 115, 22, 0.8)', border: 'rgba(249, 115, 22, 1)' },    // Naranja - Mal Estacionado
+      { bg: 'rgba(234, 179, 8, 0.8)', border: 'rgba(234, 179, 8, 1)' },       // Amarillo - Semáforo
+      { bg: 'rgba(139, 92, 246, 0.8)', border: 'rgba(139, 92, 246, 1)' },     // Púrpura - Conducción Peligrosa
+      { bg: 'rgba(107, 114, 128, 0.8)', border: 'rgba(107, 114, 128, 1)' }    // Gris - Otros
+    ];
 
-    if (labels.length === 0) {
-      this.chartBarras.data.labels = ['Sin datos'];
-      this.chartBarras.data.datasets[0].data = [0];
-      this.chartBarras.data.datasets[0].backgroundColor = ['rgba(200, 200, 200, 0.5)'];
-    } else {
-      this.chartBarras.data.labels = labels;
-      this.chartBarras.data.datasets[0].data = data;
-      
-      const colores = [
-        'rgba(13, 110, 253, 0.75)', 
-        'rgba(255, 193, 7, 0.75)',  
-        'rgba(220, 53, 69, 0.75)',  
-        'rgba(25, 135, 84, 0.75)',  
-        'rgba(111, 66, 193, 0.75)'  
-      ];
-
-      this.chartBarras.data.datasets[0].backgroundColor = labels.map((_, i) => colores[i % colores.length]);
-      this.chartBarras.data.datasets[0].borderColor = labels.map((_, i) => colores[i % colores.length].replace('0.75', '1'));
-    }
+    this.chartBarras.data.datasets[0].backgroundColor = labels.map((_, i) => simpleColors[i % simpleColors.length].bg);
+    this.chartBarras.data.datasets[0].borderColor = labels.map((_, i) => simpleColors[i % simpleColors.length].border);
 
     this.chartBarras.update();
   }
 
+  // =========================
+  // MODALES Y NAVEGACIÓN
+  // =========================
   abrirModalBarras(): void {
     this.tipoModalActivo = 'barras';
-    this.tituloModal = 'Análisis Estadístico de Infracciones';
-
-    const conteoPorTipo: Record<string, number> = {};
-    this.infracciones.forEach(inf => {
-      conteoPorTipo[inf.tipo] = (conteoPorTipo[inf.tipo] || 0) + 1;
-    });
-
-    this.itemsFiltrados = Object.keys(conteoPorTipo).map(tipo => ({
-      ref: tipo,
-      descripcion: `Reportes registrados en el sistema`,
-      cantidad: conteoPorTipo[tipo]
-    }));
-
+    this.tituloModal = 'Análisis de Reportes';
     this.modalAbierto = true;
     document.body.classList.add('modal-open');
   }
