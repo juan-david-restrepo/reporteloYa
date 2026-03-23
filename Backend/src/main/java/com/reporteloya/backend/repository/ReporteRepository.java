@@ -46,8 +46,9 @@ public interface ReporteRepository extends JpaRepository<Reporte, Long> {
     // Contar reportes por estado (para dashboard)
     int countByEstado(String estado);
 
-    // Contar reportes creados en una fecha específica (para reportes hoy)
-    int countByCreatedAtBetween(LocalDateTime startOfDay, LocalDateTime endOfDay);
+    // Contar reportes creados en un rango de fechas (para reportes del período)
+    @Query("SELECT COUNT(r) FROM Reporte r WHERE r.createdAt BETWEEN :inicio AND :fin")
+    int countReportesCreadosEntre(@Param("inicio") LocalDateTime inicio, @Param("fin") LocalDateTime fin);
 
     // Contar reportes finalizados en un rango de fechas
     @Query("SELECT COUNT(r) FROM Reporte r WHERE r.estado = 'FINALIZADO' AND r.fechaFinalizado BETWEEN :inicio AND :fin")
@@ -61,16 +62,24 @@ public interface ReporteRepository extends JpaRepository<Reporte, Long> {
     @Query("SELECT r FROM Reporte r WHERE r.estado = 'FINALIZADO' AND (r.agente.placa = :placa OR r.agenteCompanero.placa = :placa)")
     List<Reporte> findFinalizadosByAgente(@Param("placa") String placa);
 
-    // Contar reportes finalizados por agente en un rango de fechas
-    @Query("SELECT COUNT(r) FROM Reporte r WHERE r.agente.placa = :placa AND r.estado = 'FINALIZADO' AND r.fechaFinalizado BETWEEN :inicio AND :fin")
+    // Contar reportes finalizados por agente en un rango de fechas (incluye compañero)
+    @Query("SELECT COUNT(r) FROM Reporte r " +
+           "JOIN r.agente a " +
+           "LEFT JOIN r.agenteCompanero ac " +
+           "WHERE (a.placa = :placa OR ac.placa = :placa) " +
+           "AND r.estado = 'FINALIZADO' AND r.fechaFinalizado BETWEEN :inicio AND :fin")
     int countByAgentePlacaAndEstadoAndFechaFinalizadoBetween(
         @Param("placa") String placa, 
         @Param("estado") String estado, 
         @Param("inicio") LocalDateTime inicio, 
         @Param("fin") LocalDateTime fin);
 
-    // Contar reportes rechazados por agente en un rango de fechas
-    @Query("SELECT COUNT(r) FROM Reporte r WHERE r.agente.placa = :placa AND r.estado = 'RECHAZADO' AND r.fechaRechazado BETWEEN :inicio AND :fin")
+    // Contar reportes rechazados por agente en un rango de fechas (incluye compañero)
+    @Query("SELECT COUNT(r) FROM Reporte r " +
+           "JOIN r.agente a " +
+           "LEFT JOIN r.agenteCompanero ac " +
+           "WHERE (a.placa = :placa OR ac.placa = :placa) " +
+           "AND r.estado = 'RECHAZADO' AND r.fechaRechazado BETWEEN :inicio AND :fin")
     int countByAgentePlacaAndEstadoAndFechaRechazadoBetween(
         @Param("placa") String placa, 
         @Param("estado") String estado, 

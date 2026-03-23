@@ -38,20 +38,23 @@
         <button (click)="cambiarModoGrafica('DIA')" [class.active]="modoGrafica === 'DIA'">
           Día
         </button>
+
+        <button (click)="resetFiltros()" class="btn-reset" title="Sin filtros">
+          <i class="fa-solid fa-rotate-left"></i> Reset
+        </button>
       </div>
     </div>
 
     <!-- ================= TARJETAS ================= -->
     <!-- Las tarjetas se actualizan con los filtros de fecha (fechaInicio/fechaFin) -->
     <div class="dashboard-cards mt-4">
-      <!-- Reportes hoy: reportes que han llegado en el día -->
+      <!-- Reportes período: reportes según el filtro seleccionado -->
       <div class="dash-card" (click)="irReportes.emit()">
         <div class="icono-titulo">
           <i class="fa-solid fa-bell"></i>
-          <span>Reportes hoy</span>
+          <span>{{ tituloReportes }}</span>
         </div>
-        <!-- Reportes que han llegado hoy (datos reales desde el backend) -->
-        <h2>{{ reportesHoy }}</h2>
+        <h2>{{ reportesPeriodo }}</h2>
       </div>
 
       <!-- Pendientes: reportes en estado pendiente -->
@@ -68,7 +71,7 @@
       <div class="dash-card" (click)="irResueltos.emit()">
         <div class="icono-titulo">
           <i class="fa-solid fa-check-circle"></i>
-          <span>Resueltos</span>
+          <span>{{ tituloResueltos }}</span>
         </div>
         <!-- Total de reportes resueltos (datos reales desde el backend) -->
         <h2>{{ reportesResueltos }}</h2>
@@ -78,7 +81,7 @@
       <div class="dash-card" (click)="irRechazados.emit()">
         <div class="icono-titulo">
           <i class="fa-solid fa-times-circle"></i>
-          <span>Rechazados</span>
+          <span>{{ tituloRechazados }}</span>
         </div>
         <!-- Total de reportes rechazados (datos reales desde el backend) -->
         <h2>{{ reportesRechazados }}</h2>

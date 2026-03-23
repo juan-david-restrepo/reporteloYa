@@ -22,6 +22,12 @@
 
   <div class="reportes-scroll">
 
+      <!-- Lista vacía -->
+    <div *ngIf="reportesFiltrados.length === 0" class="reportes-vacio">
+      <i class="fa-solid fa-folder-open"></i>
+      <p>No hay reportes disponibles</p>
+    </div>
+
     <div
       class="card reporte-list"
       *ngFor="let r of reportesFiltrados"

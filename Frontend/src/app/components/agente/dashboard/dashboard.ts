@@ -27,7 +27,7 @@ export class Dashboard implements AfterViewInit, OnInit, OnDestroy, OnChanges {
   // DATOS PARA LAS TARJETAS DEL DASHBOARD
   // =============================
   // Reportes que han llegada en el día (del backend)
-  reportesHoy: number = 0;
+  reportesPeriodo: number = 0;
   // Reportes en estado pendiente (del backend)
   reportesPendientes: number = 0;
   // Reportes resueltos en el rango de fechas (del backend)
@@ -67,6 +67,24 @@ export class Dashboard implements AfterViewInit, OnInit, OnDestroy, OnChanges {
     this.cargarEstadisticas();
   }
 
+  get tituloReportes(): string {
+    if (this.modoGrafica === 'SEMANA') return 'Reportes semana';
+    if (this.modoGrafica === 'ANIO') return 'Reportes año';
+    return 'Reportes hoy';
+  }
+
+  get tituloResueltos(): string {
+    if (this.modoGrafica === 'SEMANA') return 'Resueltos semana';
+    if (this.modoGrafica === 'ANIO') return 'Resueltos año';
+    return 'Resueltos hoy';
+  }
+
+  get tituloRechazados(): string {
+    if (this.modoGrafica === 'SEMANA') return 'Rechazados semana';
+    if (this.modoGrafica === 'ANIO') return 'Rechazados año';
+    return 'Rechazados hoy';
+  }
+
   ngOnChanges(changes: SimpleChanges) {
     if (changes['tiempoActivo']) {
       this.tiempoFormateado = changes['tiempoActivo'].currentValue;
@@ -90,7 +108,7 @@ export class Dashboard implements AfterViewInit, OnInit, OnDestroy, OnChanges {
     this.agenteService.getEstadisticasCompletas(this.fechaInicio, this.fechaFin).subscribe({
       next: (data) => {
         // Actualizar las tarjetas con los datos del backend
-        this.reportesHoy = data.reportesHoy || 0;
+        this.reportesPeriodo = data.reportesHoy || 0;
         this.reportesPendientes = data.totalPendientes || 0;
         this.reportesResueltos = data.reportesResueltos || 0;
         this.reportesRechazados = data.reportesRechazados || 0;
@@ -119,7 +137,7 @@ export class Dashboard implements AfterViewInit, OnInit, OnDestroy, OnChanges {
       error: (err) => {
         console.error('Error cargando estadísticas del dashboard', err);
         // En caso de error, usar valores por defecto
-        this.reportesHoy = 0;
+        this.reportesPeriodo = 0;
         this.reportesPendientes = 0;
         this.reportesResueltos = 0;
         this.reportesRechazados = 0;
@@ -246,15 +264,13 @@ export class Dashboard implements AfterViewInit, OnInit, OnDestroy, OnChanges {
   chart!: Chart;
   tipoGrafica: 'bar' | 'line' | 'pie' = 'bar';
 
-  modoGrafica: 'SEMANA' | 'ANIO' | 'DIA' = 'SEMANA';
+  modoGrafica: 'SEMANA' | 'ANIO' | 'DIA' = 'DIA';
 
   ngAfterViewInit() {
     const hoy = new Date();
-    const hace7Dias = new Date();
-    hace7Dias.setDate(hoy.getDate() - 7);
     
     this.fechaFin = hoy.toISOString().split('T')[0];
-    this.fechaInicio = hace7Dias.toISOString().split('T')[0];
+    this.fechaInicio = hoy.toISOString().split('T')[0];
     
     this.crearGrafica();
   }
@@ -353,6 +369,32 @@ export class Dashboard implements AfterViewInit, OnInit, OnDestroy, OnChanges {
 
   cambiarModoGrafica(modo: 'SEMANA' | 'ANIO' | 'DIA') {
     this.modoGrafica = modo;
+    this.actualizarFechasPorModo(modo);
+    this.cargarEstadisticas();
+    this.crearGrafica();
+  }
+
+  actualizarFechasPorModo(modo: 'SEMANA' | 'ANIO' | 'DIA') {
+    const hoy = new Date();
+    if (modo === 'SEMANA') {
+      const hace7Dias = new Date();
+      hace7Dias.setDate(hoy.getDate() - 7);
+      this.fechaFin = hoy.toISOString().split('T')[0];
+      this.fechaInicio = hace7Dias.toISOString().split('T')[0];
+    } else if (modo === 'ANIO') {
+      const inicioAnio = new Date(hoy.getFullYear(), 0, 1);
+      this.fechaInicio = inicioAnio.toISOString().split('T')[0];
+      this.fechaFin = hoy.toISOString().split('T')[0];
+    } else {
+      this.fechaInicio = hoy.toISOString().split('T')[0];
+      this.fechaFin = hoy.toISOString().split('T')[0];
+    }
+  }
+
+  resetFiltros() {
+    this.modoGrafica = 'DIA';
+    this.actualizarFechasPorModo('DIA');
+    this.cargarEstadisticas();
     this.crearGrafica();
   }
 

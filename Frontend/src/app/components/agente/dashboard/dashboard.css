@@ -102,6 +102,20 @@
   box-shadow: 0 6px 18px rgba(37,99,235,.4);
 }
 
+.chart-filtros .btn-reset {
+  background: #ef4444;
+  color: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chart-filtros .btn-reset:hover {
+  background: #dc2626;
+  transform: translateY(-2px);
+}
+
 /* ---------- TARJETAS ---------- */
 .dashboard-cards {
   display: grid;

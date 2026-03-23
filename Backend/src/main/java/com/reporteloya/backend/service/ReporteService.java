@@ -592,7 +592,7 @@ public class ReporteService {
         LocalDate hoy = LocalDate.now();
         LocalDateTime inicioDia = hoy.atStartOfDay();
         LocalDateTime finDia = hoy.plusDays(1).atStartOfDay().minusSeconds(1);
-        int reportesHoy = reporteRepository.countByCreatedAtBetween(inicioDia, finDia);
+        int reportesHoy = reporteRepository.countReportesCreadosEntre(inicioDia, finDia);
 
         // Contar resueltos en el rango de fechas
         int reportesResueltos = reporteRepository.countFinalizadosEntre(inicio, fin);
@@ -712,22 +712,19 @@ public class ReporteService {
         // Obtener reportes pendientes (global)
         int totalPendientes = reporteRepository.countByEstado("PENDIENTE");
 
-        // Contar reportes de hoy (creados hoy)
-        LocalDate hoy = LocalDate.now();
-        LocalDateTime inicioDia = hoy.atStartOfDay();
-        LocalDateTime finDia = hoy.plusDays(1).atStartOfDay().minusSeconds(1);
-        int reportesHoy = reporteRepository.countByCreatedAtBetween(inicioDia, finDia);
-
         // Determinar rango de fechas para filtrar
         LocalDate fechaIni = (fechaInicio != null && !fechaInicio.isBlank()) 
             ? LocalDate.parse(fechaInicio) 
-            : LocalDate.now().minusDays(7);
+            : LocalDate.now();
         LocalDate fechaF = (fechaFin != null && !fechaFin.isBlank()) 
             ? LocalDate.parse(fechaFin) 
             : LocalDate.now();
         
         LocalDateTime fechaInicioDateTime = fechaIni.atStartOfDay();
         LocalDateTime fechaFinDateTime = fechaF.plusDays(1).atStartOfDay().minusSeconds(1);
+
+        // Contar reportes en el rango de fechas seleccionado (para filtros)
+        int reportesEnRango = reporteRepository.countReportesCreadosEntre(fechaInicioDateTime, fechaFinDateTime);
 
         // Obtener resueltos y rechazados en el rango de fechas seleccionado
         int reportesResueltos = reporteRepository.countByAgentePlacaAndEstadoAndFechaFinalizadoBetween(
@@ -751,7 +748,7 @@ public class ReporteService {
 
         return new EstadisticasCompletasDTO(
             totalPendientes,
-            reportesHoy,
+            reportesEnRango,
             reportesResueltos,
             reportesRechazados,
             fechaIni.toString(),

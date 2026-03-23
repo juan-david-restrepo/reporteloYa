@@ -25,6 +25,11 @@
 
 <div *ngIf="!tareaSeleccionada" class="tareas-grid">
 
+    <!-- Lista vacía -->
+    <div *ngIf="tareasFiltradas.length === 0" class="tareas-vacio">
+      <i class="fa-solid fa-folder-open"></i>
+      <p>No hay tareas disponibles</p>
+    </div>
 
   <!-- TARJETAS -->
   <div class="tarea-card" *ngFor="let t of tareasFiltradas" (click)="abrir(t)">
