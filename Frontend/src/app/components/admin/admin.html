@@ -89,16 +89,6 @@
       </div>
 
       <div class="table-responsive">
-        <!-- Debug info -->
-        <div *ngIf="debugInfo" style="padding: 10px; background: #f0f0f0; margin-bottom: 10px; border-radius: 5px;">
-          Debug: {{ debugInfo }}
-        </div>
-        <div *ngIf="errorCarga" style="padding: 10px; background: #ffcccc; margin-bottom: 10px; border-radius: 5px; color: red;">
-          Error: {{ errorCarga }}
-        </div>
-        <div *ngIf="infraccionesAMostrar.length === 0 && !cargando" style="padding: 20px; text-align: center; color: #666;">
-          No hay reportes para mostrar
-        </div>
         <table class="data-table">
           <thead>
             <tr>
