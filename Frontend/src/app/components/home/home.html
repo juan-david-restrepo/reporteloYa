@@ -1,22 +1,21 @@
 <app-nav></app-nav>
 <header class="interfaz">
   <div class="header-carousel">
-
     <button class="arrow left" (click)="prevSlide()">❮</button>
-    <div 
-      class="slide" 
+    <div
+      class="slide"
       *ngFor="let item of headerSlides; let i = index"
       [class.active]="i === headerIndex"
       [style.--slide-image]="'url(' + item.image + ')'"
     >
-
       <div class="text-box" [class.animate-slide]="i === headerIndex">
         <h1 [innerHTML]="item.text"></h1>
 
-        <button 
+        <button
           *ngIf="item.buttonText"
           class="slide-btn"
-          [routerLink]="item.buttonLink">
+          [routerLink]="item.buttonLink"
+        >
           {{ item.buttonText }}
           <span>→</span>
         </button>
@@ -24,22 +23,23 @@
     </div>
 
     <button class="arrow right" (click)="nextSlide()">❯</button>
-
   </div>
 
   <div class="dots">
-    <span 
+    <span
       *ngFor="let item of headerSlides; let i = index"
       [class.active]="i === headerIndex"
       (click)="headerIndex = i"
     ></span>
   </div>
-
 </header>
 
-    <div class="container" data-aos="fade-up">
-    <div class="title" data-aos="fade-down">Módulos y Servicios</div>
-    <p data-aos="fade-up">Explora nuestros módulos y descubre todas las funcionalidades que tenemos para ti.</p>
+<div class="container" data-aos="fade-up">
+  <div class="title" data-aos="fade-down">Módulos y Servicios</div>
+  <p data-aos="fade-up">
+    Explora nuestros módulos y descubre todas las funcionalidades que tenemos
+    para ti.
+  </p>
   <div class="modules">
     <div class="module-link" (click)="openModal('subir-reporte')">
       <div class="module" data-aos="fade-up">
@@ -49,7 +49,7 @@
           </div>
           <i class="bx bx-camera"></i>
         </div>
-        <div class="text">Foto Multas</div>
+        <div class="text">Subir Reporte </div>
       </div>
     </div>
     <div class="module-link" (click)="openModal('multas')">
@@ -60,7 +60,7 @@
           </div>
           <i class="bx bx-file"></i>
         </div>
-        <div class="text">Multas</div>
+        <div class="text">Consultar Comparendos</div>
       </div>
     </div>
     <div class="module-link" (click)="openModal('pico-placa')">
@@ -71,7 +71,7 @@
           </div>
           <i class="bx bx-car"></i>
         </div>
-        <div class="text">Consulta del <br>Pico y Placa</div>
+        <div class="text">Consulta del <br />Pico y Placa</div>
       </div>
     </div>
     <div class="module-link" (click)="openModal('parking')">
@@ -80,9 +80,9 @@
           <div class="layer">
             <span></span><span></span><span></span><span></span><span></span>
           </div>
-          <span class="bx" style="font-size: 24px; font-weight: bold;">PAR</span>
+          <span class="bx" style="font-size: 24px; font-weight: bold">PAR</span>
         </div>
-        <div class="text">Localización de <br>Parqueaderos</div>
+        <div class="text">Localización de <br />Parqueaderos</div>
       </div>
     </div>
   </div>
@@ -94,13 +94,18 @@
       <i class="fa-solid fa-xmark"></i>
     </button>
     <div class="modal-image">
-      <img [src]="selectedModule?.image" [alt]="selectedModule?.title">
+      <img [src]="selectedModule?.image" [alt]="selectedModule?.title" />
       <div class="fade-overlay"></div>
     </div>
     <div class="modal-body">
-      <h2>{{ selectedModule?.title || 'Explora nuestras funciones' }}</h2>
-      <p>{{ selectedModule?.description || 'Accede para descubrir todas las herramientas que tenemos para ti.' }}</p>
-      <hr>
+      <h2>{{ selectedModule?.title || "Explora nuestras funciones" }}</h2>
+      <p>
+        {{
+          selectedModule?.description ||
+            "Accede para descubrir todas las herramientas que tenemos para ti."
+        }}
+      </p>
+      <hr />
       <p class="access-text">¡Accede y empieza a usar nuestras funciones!</p>
       <button class="btn-login" (click)="redirectToLogin()">Acceder</button>
     </div>
@@ -112,8 +117,9 @@
     <h2>Armenia Quindío</h2>
 
     <p>
-      Consulta la información más reciente sobre las restricciones de pico y placa en Armenia,
-      Quindío. Mantente informado para evitar multas y contribuir a la movilidad vial.
+      Consulta la información más reciente sobre las restricciones de pico y
+      placa en Armenia, Quindío. Mantente informado para evitar multas y
+      contribuir a la movilidad vial.
     </p>
 
     <button class="pyp-btn" routerLink="/pico-placa">
@@ -122,14 +128,14 @@
   </div>
 
   <div class="pyp-right" data-aos="fade-left">
-
     <div class="accordion" data-aos="zoom-in">
       <div class="accordion-header">
         ¿Qué días aplica el pico y placa en Armenia?
         <span class="icon">+</span>
       </div>
       <div class="accordion-body">
-        La restricción aplica de lunes a viernes según el último dígito de la placa.
+        La restricción aplica de lunes a viernes según el último dígito de la
+        placa.
       </div>
     </div>
 
@@ -139,7 +145,8 @@
         <span class="icon">+</span>
       </div>
       <div class="accordion-body">
-        El horario es generalmente entre 7:00 am – 7:00 pm. Puede variar según la normativa local.
+        El horario es generalmente entre 7:00 am – 7:00 pm. Puede variar según
+        la normativa local.
       </div>
     </div>
 
@@ -149,18 +156,19 @@
         <span class="icon">+</span>
       </div>
       <div class="accordion-body">
-        Sí, hay excepciones para vehículos de emergencia, transporte público, eléctricos
-        y aquellos con permisos especiales.
+        Sí, hay excepciones para vehículos de emergencia, transporte público,
+        eléctricos y aquellos con permisos especiales.
       </div>
     </div>
 
-    <div class="accordion"  data-aos="zoom-in" data-aos-delay="300">
+    <div class="accordion" data-aos="zoom-in" data-aos-delay="300">
       <div class="accordion-header">
         ¿Dónde puedo consultar mi día de pico y placa?
         <span class="icon">+</span>
       </div>
       <div class="accordion-body">
-        Puedes consultar los días actualizados en en apartado consulta del pico y placa de reportelo ya.
+        Puedes consultar los días actualizados en en apartado consulta del pico
+        y placa de reportelo ya.
       </div>
     </div>
 
@@ -170,25 +178,27 @@
         <span class="icon">+</span>
       </div>
       <div class="accordion-body">
-        Incumplir la norma puede resultar en multas económicas y sanciones de tránsito.
+        Incumplir la norma puede resultar en multas económicas y sanciones de
+        tránsito.
       </div>
     </div>
-
   </div>
 </div>
 
-
 <div class="features-carousel" data-aos="fade-up">
   <div class="features-header" data-aos="fade-down">
-    <h1>Plataforma digital para <br><span>Infracciones y Vialidad</span></h1>
-    <p>Una solución integral para la gestión de infracciones vehiculares y el acceso a información vial relevante en la región de Quindío.</p>
+    <h1>Plataforma digital para <br /><span>Infracciones y Vialidad</span></h1>
+    <p>
+      Una solución integral para la gestión de infracciones vehiculares y el
+      acceso a información vial relevante en la región de Quindío.
+    </p>
   </div>
 
   <div class="features-content">
     <!-- Navegación lateral -->
     <div class="features-nav">
-      <div 
-        class="nav-item" 
+      <div
+        class="nav-item"
         *ngFor="let section of sections; let i = index"
         [class.active]="selectedSection === section"
         (click)="selectSection(section)"
@@ -213,7 +223,11 @@
       <div class="panel-card" *ngIf="selectedSection === 'infracciones'">
         <div class="card-content">
           <h2>Registro de Infracciones</h2>
-          <p>Captura y gestiona infracciones vehiculares de forma eficiente. Nuestro sistema te permite documentar incidentes con evidencias fotográficas y generar reportes detallados.</p>
+          <p>
+            Captura y gestiona infracciones vehiculares de forma eficiente.
+            Nuestro sistema te permite documentar incidentes con evidencias
+            fotográficas y generar reportes detallados.
+          </p>
           <div class="card-stats">
             <div class="stat">
               <span class="stat-number">100%</span>
@@ -226,7 +240,10 @@
           </div>
         </div>
         <div class="card-image">
-          <img src="https://www.armenia.gov.co/wp-content/uploads/1/2025/FOTOS_22_DE_ABRIL_/Intercambiador.jpeg" alt="Infracciones">
+          <img
+            src="https://www.armenia.gov.co/wp-content/uploads/1/2025/FOTOS_22_DE_ABRIL_/Intercambiador.jpeg"
+            alt="Infracciones"
+          />
           <div class="image-overlay"></div>
         </div>
       </div>
@@ -234,7 +251,11 @@
       <div class="panel-card" *ngIf="selectedSection === 'informacionVial'">
         <div class="card-content">
           <h2>Información Vial en Tiempo Real</h2>
-          <p>Consulta el estado de las vías, cierres, desvíos y normativas de tránsito vigentes en Quindío. Mantente informado sobre las condiciones de las carreteras.</p>
+          <p>
+            Consulta el estado de las vías, cierres, desvíos y normativas de
+            tránsito vigentes en Quindío. Mantente informado sobre las
+            condiciones de las carreteras.
+          </p>
           <div class="card-stats">
             <div class="stat">
               <span class="stat-number">50+</span>
@@ -247,7 +268,10 @@
           </div>
         </div>
         <div class="card-image">
-          <img src="https://cronicadelquindio.com/wp-content/uploads/2019/08/120191208070045.jpg" alt="Información Vial">
+          <img
+            src="https://cronicadelquindio.com/wp-content/uploads/2019/08/120191208070045.jpg"
+            alt="Información Vial"
+          />
           <div class="image-overlay"></div>
         </div>
       </div>
@@ -255,7 +279,10 @@
       <div class="panel-card" *ngIf="selectedSection === 'integracion'">
         <div class="card-content">
           <h2>Integración con Autoridades</h2>
-          <p>Conexión directa con organismos de tránsito y seguridad locales. Coordina acciones y comparte información de manera eficiente.</p>
+          <p>
+            Conexión directa con organismos de tránsito y seguridad locales.
+            Coordina acciones y comparte información de manera eficiente.
+          </p>
           <div class="card-stats">
             <div class="stat">
               <span class="stat-number">5</span>
@@ -268,7 +295,10 @@
           </div>
         </div>
         <div class="card-image">
-          <img src="https://i0.wp.com/ciudadregion.com/uploads/2025/10/transito-armenia.jpg?resize=780%2C470&ssl=1" alt="Integración">
+          <img
+            src="https://i0.wp.com/ciudadregion.com/uploads/2025/10/transito-armenia.jpg?resize=780%2C470&ssl=1"
+            alt="Integración"
+          />
           <div class="image-overlay"></div>
         </div>
       </div>
@@ -276,7 +306,10 @@
       <div class="panel-card" *ngIf="selectedSection === 'notificaciones'">
         <div class="card-content">
           <h2>Notificaciones en Tiempo Real</h2>
-          <p>Recibe alertas instantáneas sobre novedades viales, estado de infracciones y actualizaciones importantes.</p>
+          <p>
+            Recibe alertas instantáneas sobre novedades viales, estado de
+            infracciones y actualizaciones importantes.
+          </p>
           <div class="card-stats">
             <div class="stat">
               <span class="stat-number">0</span>
@@ -289,14 +322,17 @@
           </div>
         </div>
         <div class="card-image">
-          <img src="https://www.idtq.gov.co/medios/imagenes/Plan_Seguridad_IDTQ.jpg" alt="Notificaciones">
+          <img
+            src="https://www.idtq.gov.co/medios/imagenes/Plan_Seguridad_IDTQ.jpg"
+            alt="Notificaciones"
+          />
           <div class="image-overlay"></div>
         </div>
       </div>
 
       <!-- Indicadores de navegación -->
       <div class="panel-dots">
-        <span 
+        <span
           *ngFor="let section of sections; let i = index"
           [class.active]="selectedSection === section"
           (click)="selectSection(section)"

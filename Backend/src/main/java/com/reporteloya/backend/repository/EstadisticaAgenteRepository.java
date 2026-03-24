@@ -37,4 +37,13 @@ public interface EstadisticaAgenteRepository extends JpaRepository<EstadisticaAg
     int contarPorPlacaPeriodoYTipo(@Param("placa") String placa, @Param("periodo") String periodo, @Param("tipo") String tipo);
 
     void deleteByAgentePlaca(String placa);
+
+    @Query("SELECT e FROM EstadisticaAgente e WHERE e.periodo = :periodo ORDER BY e.etiqueta")
+    List<EstadisticaAgente> buscarPorPeriodo(@Param("periodo") String periodo);
+
+    @Query("SELECT e FROM EstadisticaAgente e WHERE e.periodo = :periodo AND e.tipo = :tipo ORDER BY e.etiqueta")
+    List<EstadisticaAgente> buscarPorPeriodoYTipo(@Param("periodo") String periodo, @Param("tipo") String tipo);
+
+    @Query("SELECT COALESCE(SUM(e.cantidad), 0) FROM EstadisticaAgente e WHERE e.tipo = :tipo")
+    int contarPorTipo(@Param("tipo") String tipo);
 }

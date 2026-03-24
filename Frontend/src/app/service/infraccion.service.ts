@@ -1,21 +1,62 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { delay } from 'rxjs/operators';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 export type EstadoInfraccion =
   | 'PENDIENTE'
   | 'RECHAZADO'
-  | 'EN PROCESO'
+  | 'EN_PROCESO'
   | 'FINALIZADO';
 
 export interface Infraccion {
   id: number;
-  fecha: string;
-  tipo: string;
-  agente: string;
-  placa: string;   // 🔥 agregado
-  estado: EstadoInfraccion;
-  ref: string;
+  ref?: string;
+  fecha?: string;
+  tipo?: string;
+  tipoInfraccion?: string;
+  agente?: string;
+  nombreAgente?: string;
+  placaAgente?: string;
+  placa?: string;
+  estado: string;
+  descripcion?: string;
+  resumen?: string;
+  resumenOperativo?: string;
+  ubicacion?: string;
+  direccion?: string;
+  prioridad?: string;
+  fechaIncidente?: string;
+  horaIncidente?: string;
+  urlFoto?: string;
+  fechaAceptado?: string;
+  fechaFinalizado?: string;
+  fechaRechazado?: string;
+  createdAt?: string;
+}
+
+export interface PageResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+}
+
+export interface AdminDashboard {
+  totalReportes: number;
+  pendientes: number;
+  enProceso: number;
+  finalizados: number;
+  rechazados: number;
+  reportesHoy: number;
+  estadisticasTipo?: StatItem[];
+  estadisticasMes?: StatItem[];
+  estadisticasSemana?: StatItem[];
+}
+
+export interface StatItem {
+  etiqueta: string;
+  cantidad: number;
 }
 
 @Injectable({
@@ -23,50 +64,27 @@ export interface Infraccion {
 })
 export class InfraccionService {
 
-  private infraccionesMock: Infraccion[] = [
-    {
-      id: 1,
-      ref: 'INF-001',
-      fecha: '2026-03-03',
-      tipo: 'Exceso de velocidad',
-      agente: 'Agente Martínez',
-      placa: 'ABC-123',
-      estado: 'PENDIENTE'
-    },
-    {
-      id: 2,
-      ref: 'INF-002',
-      fecha: '2026-03-02',
-      tipo: 'Vehículo mal estacionado',
-      agente: 'Agente López',
-      placa: 'XYZ-456',
-      estado: 'FINALIZADO'
-    },
-    {
-      id: 3,
-      ref: 'INF-003',
-      fecha: '2026-03-01',
-      tipo: 'Semáforo dañado',
-      agente: 'Agente Pérez',
-      placa: 'LMN-789',
-      estado: 'RECHAZADO'
-    },
-    {
-      id: 4,
-      ref: 'INF-004',
-      fecha: '2026-02-28',
-      tipo: 'Manejo errático',
-      agente: 'Agente García',
-      placa: 'QWE-321',
-      estado: 'EN PROCESO'
-    }
-  ];
+  private apiUrl = 'http://localhost:8080/api/reportes';
 
-  constructor() {}
+  constructor(private http: HttpClient) {}
 
-  getInfracciones(): Observable<Infraccion[]> {
-    return of(this.infraccionesMock).pipe(
-      delay(800)
-    );
+  getInfracciones(page: number = 0, size: number = 100): Observable<PageResponse<Infraccion>> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+    
+    return this.http.get<PageResponse<Infraccion>>(`${this.apiUrl}/todos`, { params });
+  }
+
+  getInfraccionesSimple(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/todos?page=0&size=100`);
+  }
+
+  getPendientes(): Observable<Infraccion[]> {
+    return this.http.get<Infraccion[]>(`${this.apiUrl}/pendientes`);
+  }
+
+  getEstadisticasAdmin(): Observable<AdminDashboard> {
+    return this.http.get<AdminDashboard>(`${this.apiUrl}/estadisticas-admin`);
   }
 }

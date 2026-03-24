@@ -14,6 +14,7 @@ import com.reporteloya.backend.dto.AgenteDisponibleDTO;
 import com.reporteloya.backend.dto.ReporteSocketDTO;
 import com.reporteloya.backend.dto.EstadisticasDashboardDTO;
 import com.reporteloya.backend.dto.EstadisticasCompletasDTO;
+import com.reporteloya.backend.dto.AdminDashboardDTO;
 import com.reporteloya.backend.entity.Reporte;
 import com.reporteloya.backend.entity.Usuario;
 import com.reporteloya.backend.service.ReporteService;
@@ -281,6 +282,18 @@ public class ReporteController {
             return ResponseEntity.ok(
                 reporteService.obtenerEstadisticasDashboard(fechaInicio, fechaFin)
             );
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    // ================================
+    // ESTADÍSTICAS GLOBALES ADMIN
+    // ================================
+    @GetMapping("/estadisticas-admin")
+    public ResponseEntity<?> obtenerEstadisticasAdmin() {
+        try {
+            return ResponseEntity.ok(reporteService.obtenerEstadisticasAdmin());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
