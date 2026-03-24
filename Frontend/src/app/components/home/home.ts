@@ -118,6 +118,36 @@ export class Home implements OnInit, OnDestroy, AfterViewInit {
     this.currentIndex = this.sections.indexOf(section);
   }
 
+  getSectionIcon(section: string): string {
+    const icons: Record<string, string> = {
+      'infracciones': 'fa-clipboard-list',
+      'informacionVial': 'fa-road',
+      'integracion': 'fa-handshake',
+      'notificaciones': 'fa-bell'
+    };
+    return icons[section] || 'fa-circle';
+  }
+
+  getSectionTitle(section: string): string {
+    const titles: Record<string, string> = {
+      'infracciones': 'Registro de Infracciones',
+      'informacionVial': 'Información Vial',
+      'integracion': 'Integración con Autoridades',
+      'notificaciones': 'Notificaciones en Tiempo Real'
+    };
+    return titles[section] || section;
+  }
+
+  getSectionDescription(section: string): string {
+    const descriptions: Record<string, string> = {
+      'infracciones': 'Captura y gestión eficiente de infracciones vehiculares.',
+      'informacionVial': 'Estado de vías, cierres y normativas de tránsito.',
+      'integracion': 'Conexión directa con organismos de tránsito.',
+      'notificaciones': 'Alertas instantáneas sobre novedades viales.'
+    };
+    return descriptions[section] || '';
+  }
+
   /* ------------------------------------------
      Carrusel del HEADER (principal)
   ------------------------------------------- */

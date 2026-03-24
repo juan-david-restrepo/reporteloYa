@@ -1,0 +1,65 @@
+<app-nav></app-nav>
+
+<div class="servicios-container">
+  <button class="back-home-btn" routerLink="/home">
+    <i class="fa-solid fa-arrow-left"></i> Volver al Inicio
+  </button>
+
+  <div class="header-section" data-aos="fade-down">
+    <h1>Servicios</h1>
+    <p>Explora los servicios que Reportelo Ya ofrece para mejorar tu experiencia vial</p>
+  </div>
+
+  <div class="tabs-container" data-aos="fade-up">
+    <a 
+      *ngFor="let servicio of servicios"
+      class="tab-btn" 
+      [class.active]="activeService === servicio.id"
+      [routerLink]="['/servicios-footer']"
+      [fragment]="servicio.id"
+      (click)="setActiveService(servicio.id)"
+    >
+      <i [class]="servicio.icon"></i> {{ servicio.titulo }}
+    </a>
+  </div>
+
+  <div class="content-area">
+    <div class="detalle-content" *ngFor="let servicio of servicios" [hidden]="activeService !== servicio.id" data-aos="fade-up">
+      <div class="detalle-header">
+        <div class="detalle-icon" [style.background]="'linear-gradient(135deg, ' + servicio.color + ' 0%, ' + servicio.color + '99 100%)'">
+          <i [class]="servicio.icon"></i>
+        </div>
+        <h2>{{ servicio.titulo }}</h2>
+      </div>
+
+      <p class="detalle-descripcion">{{ servicio.descripcion }}</p>
+
+      <div class="caracteristicas-list">
+        <h4><i class="fa-solid fa-list-check"></i> Características</h4>
+        <ul>
+          <li *ngFor="let carac of servicio.caracteristicas; let i = index" data-aos="fade-right" [attr.data-aos-delay]="i * 100">
+            <i class="fa-solid fa-check-circle"></i>
+            {{ carac }}
+          </li>
+        </ul>
+      </div>
+
+      <button class="btn-acceder" (click)="goToService(servicio.id)">
+        <i class="fa-solid fa-external-link-alt"></i> Acceder al Servicio
+      </button>
+    </div>
+  </div>
+
+  <div class="info-adicional" data-aos="fade-up">
+    <div class="info-card">
+      <i class="fa-solid fa-phone-volume"></i>
+      <div>
+        <h4>¿Necesitas ayuda?</h4>
+        <p>Contáctanos soporte técnico</p>
+        <a routerLink="/soporte">Ir a Soporte</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-footer></app-footer>

@@ -1,4 +1,4 @@
-import { Component,  OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { PicoPlacaDia } from '../../models/pico-placa.model';
 import { PicoPlacaService } from '../../service/pico-placa';
 import { CommonModule } from '@angular/common';
@@ -12,27 +12,57 @@ import { Nav } from '../../shared/nav/nav';
   styleUrl: './pico-placa.css'
 })
 export class PicoPlaca {
-private picoPlacaService = inject(PicoPlacaService);
+  private picoPlacaService = inject(PicoPlacaService);
   
   restricciones: PicoPlacaDia[] = [];
   restriccionHoy: PicoPlacaDia | undefined;
   diaActual: string = '';
+  horaActual: string = '';
+  isAnimating: boolean = false;
+
+  private diasOrden = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
 
   ngOnInit(): void {
     this.restricciones = this.picoPlacaService.getRestricciones();
     this.establecerDiaActual();
+    this.actualizarHora();
+    setInterval(() => this.actualizarHora(), 60000);
   }
 
   establecerDiaActual(): void {
     const today = new Date();
-    
-    // Obtener el nombre del día en español (ej. "martes")
     const diaHoyLower = today.toLocaleDateString('es-CO', { weekday: 'long' });
-    
-    // Convertir la primera letra a mayúscula (ej. "Martes") para coincidir con los datos del servicio
     this.diaActual = diaHoyLower.charAt(0).toUpperCase() + diaHoyLower.slice(1);
-
-    // Encontrar la restricción para el día actual
     this.restriccionHoy = this.restricciones.find(d => d.diaSemana === this.diaActual);
+    this.triggerAnimation();
+  }
+
+  actualizarHora(): void {
+    const now = new Date();
+    this.horaActual = now.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  triggerAnimation(): void {
+    this.isAnimating = true;
+    setTimeout(() => this.isAnimating = false, 2000);
+  }
+
+  getDayIcon(dia: string): string {
+    const iconos: { [key: string]: string } = {
+      'Lunes': 'fa-earth-americas',
+      'Martes': 'fa-earth-americas',
+      'Miércoles': 'fa-earth-americas',
+      'Jueves': 'fa-earth-americas',
+      'Viernes': 'fa-earth-americas',
+      'Sábado': 'fa-umbrella-beach',
+      'Domingo': 'fa-church'
+    };
+    return iconos[dia] || 'fa-calendar';
+  }
+
+  isPastDay(dia: string): boolean {
+    const indiceDiaActual = this.diasOrden.indexOf(this.diaActual);
+    const indiceDia = this.diasOrden.indexOf(dia);
+    return indiceDia < indiceDiaActual;
   }
 }

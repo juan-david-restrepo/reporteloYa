@@ -94,7 +94,7 @@ public class AuthController {
 
         ResponseCookie cookie = ResponseCookie.from("jwt", "")
                 .httpOnly(true)
-                .secure(false) // true en producción
+                .secure(true) // true en producción
                 .path("/")
                 .maxAge(0)
                 .sameSite("Lax")
@@ -134,7 +134,7 @@ public class AuthController {
     private void setJwtCookie(HttpServletResponse response, String token) {
         ResponseCookie cookie = ResponseCookie.from("jwt", token)
                 .httpOnly(true)
-                .secure(false) // true en producción con HTTPS
+                .secure(true) // true en producción con HTTPS
                 .path("/")
                 .maxAge(20 * 60) // 20 minutos
                 .sameSite("Lax")

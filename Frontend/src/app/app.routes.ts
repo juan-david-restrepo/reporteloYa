@@ -25,6 +25,9 @@ import { SidebarAdmin } from './components/admin/sidebar-admin/sidebar-admin';
 import { Admin } from './components/admin/admin';
 import { Routes } from '@angular/router';
 import { SenalesComponent } from './components/senales/senales';
+import { SobreNosotros } from './components/sobre-nosotros/sobre-nosotros';
+import { ServiciosFooter } from './components/servicios-footer/servicios-footer';
+import { PreguntasFrecuentes } from './components/preguntas-frecuentes/preguntas-frecuentes';
 
 
 export const routes: Routes = [
@@ -54,4 +57,7 @@ export const routes: Routes = [
   {path: 'mapa-reportes', component: MapaReportesComponent},
   { path: 'admin', component: Admin, },
   { path: 'senales', component: SenalesComponent },
+  { path: 'sobre-nosotros', component: SobreNosotros },
+  { path: 'servicios-footer', component: ServiciosFooter },
+  { path: 'preguntas-frecuentes', component: PreguntasFrecuentes },
 ];

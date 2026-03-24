@@ -178,69 +178,130 @@
 </div>
 
 
-<div class="main-container" data-aos="fade-up">
-  <div class="header-content" data-aos="fade-down">
+<div class="features-carousel" data-aos="fade-up">
+  <div class="features-header" data-aos="fade-down">
     <h1>Plataforma digital para <br><span>Infracciones y Vialidad</span></h1>
-    <p>Una solución integral para la gestión de infracciones vehiculares y el acceso a información vial relevante en la región de Quindío. Nuestro objetivo es mejorar la seguridad y la fluidez del tráfico para todos los ciudadanos.</p>
+    <p>Una solución integral para la gestión de infracciones vehiculares y el acceso a información vial relevante en la región de Quindío.</p>
   </div>
 
-  <div class="content-section">
-    <div class="sidebar" data-aos="fade-right">
-      <div class="sidebar-item" [class.active]="selectedSection === 'infracciones'">
-        <div class="icon-placeholder"></div> <h3>Registro de Infracciones</h3>
-        <p>Facilita la captura y gestión de infracciones vehiculares de forma eficiente.</p>
-      </div>
-      <div class="sidebar-item" [class.active]="selectedSection === 'informacionVial'">
-        <div class="icon-placeholder"></div> <h3>Consulta de Información Vial</h3>
-        <p>Accede a datos actualizados sobre el estado de las vías y normativas.</p>
-      </div>
-      <div class="sidebar-item" [class.active]="selectedSection === 'integracion'">
-        <div class="icon-placeholder"></div> <h3>Integración con Autoridades</h3>
-        <p>Conexión directa con organismos de tránsito y seguridad locales.</p>
-      </div>
-      <div class="sidebar-item" [class.active]="selectedSection === 'notificaciones'">
-        <div class="icon-placeholder"></div> <h3>Notificaciones en Tiempo Real</h3>
-        <p>Recibe alertas instantáneas sobre novedades viales y estado de infracciones.</p>
+  <div class="features-content">
+    <!-- Navegación lateral -->
+    <div class="features-nav">
+      <div 
+        class="nav-item" 
+        *ngFor="let section of sections; let i = index"
+        [class.active]="selectedSection === section"
+        (click)="selectSection(section)"
+        data-aos="fade-right"
+        [attr.data-aos-delay]="i * 100"
+      >
+        <div class="nav-icon">
+          <i class="fa-solid" [class]="getSectionIcon(section)"></i>
+        </div>
+        <div class="nav-text">
+          <h3>{{ getSectionTitle(section) }}</h3>
+          <p>{{ getSectionDescription(section) }}</p>
+        </div>
+        <div class="nav-arrow">
+          <i class="fa-solid fa-chevron-right"></i>
+        </div>
       </div>
     </div>
 
-    <div class="main-content" data-aos="fade-left">
-      <div class="card" *ngIf="selectedSection === 'infracciones'" data-aos="fade-up">
-        <h2>Registro de Infracciones</h2>
-        <p>Aquí puedes agregar el contenido específico para el registro de infracciones.</p>
-
-        <div class="image-container ">
-          <img src="https://www.armenia.gov.co/wp-content/uploads/1/2025/FOTOS_22_DE_ABRIL_/Intercambiador.jpeg">
+    <!-- Panel de contenido -->
+    <div class="features-panel" data-aos="fade-left">
+      <div class="panel-card" *ngIf="selectedSection === 'infracciones'">
+        <div class="card-content">
+          <h2>Registro de Infracciones</h2>
+          <p>Captura y gestiona infracciones vehiculares de forma eficiente. Nuestro sistema te permite documentar incidentes con evidencias fotográficas y generar reportes detallados.</p>
+          <div class="card-stats">
+            <div class="stat">
+              <span class="stat-number">100%</span>
+              <span class="stat-label">Digital</span>
+            </div>
+            <div class="stat">
+              <span class="stat-number">24/7</span>
+              <span class="stat-label">Disponible</span>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="card" *ngIf="selectedSection === 'informacionVial'" data-aos="fade-up" data-aos-delay="100">
-        <h2>Información vial al alcance de tu mano.</h2>
-        <p>
-          Los ciudadanos pueden consultar el estado de las vías, cierres, desvíos
-          y normativas de tránsito vigentes en Quindío.
-        </p>
-
-        <div class="image-container ">
-          <img src="https://cronicadelquindio.com/wp-content/uploads/2019/08/120191208070045.jpg">
-        </div>
-      </div>
-      <div class="card" *ngIf="selectedSection === 'integracion'" data-aos="fade-up" data-aos-delay="200">
-        <h2>Integración con Autoridades</h2>
-        <p>Aquí puedes agregar el contenido específico para la integración con autoridades.</p>
-
-        <div class="image-container">
-          <img src="https://i0.wp.com/ciudadregion.com/uploads/2025/10/transito-armenia.jpg?resize=780%2C470&ssl=1">
-        </div>
-      </div>
-      <div class="card" *ngIf="selectedSection === 'notificaciones'" data-aos="fade-up" data-aos-delay="300">
-        <h2>Notificaciones en Tiempo Real</h2>
-        <p>Aquí puedes agregar el contenido específico para las notificaciones en tiempo real.</p>
-
-        <div class="image-container">
-          <img src="https://www.idtq.gov.co/medios/imagenes/Plan_Seguridad_IDTQ.jpg" alt="">
+        <div class="card-image">
+          <img src="https://www.armenia.gov.co/wp-content/uploads/1/2025/FOTOS_22_DE_ABRIL_/Intercambiador.jpeg" alt="Infracciones">
+          <div class="image-overlay"></div>
         </div>
       </div>
 
+      <div class="panel-card" *ngIf="selectedSection === 'informacionVial'">
+        <div class="card-content">
+          <h2>Información Vial en Tiempo Real</h2>
+          <p>Consulta el estado de las vías, cierres, desvíos y normativas de tránsito vigentes en Quindío. Mantente informado sobre las condiciones de las carreteras.</p>
+          <div class="card-stats">
+            <div class="stat">
+              <span class="stat-number">50+</span>
+              <span class="stat-label">Vías monitoreadas</span>
+            </div>
+            <div class="stat">
+              <span class="stat-number">实时</span>
+              <span class="stat-label">Actualizado</span>
+            </div>
+          </div>
+        </div>
+        <div class="card-image">
+          <img src="https://cronicadelquindio.com/wp-content/uploads/2019/08/120191208070045.jpg" alt="Información Vial">
+          <div class="image-overlay"></div>
+        </div>
+      </div>
+
+      <div class="panel-card" *ngIf="selectedSection === 'integracion'">
+        <div class="card-content">
+          <h2>Integración con Autoridades</h2>
+          <p>Conexión directa con organismos de tránsito y seguridad locales. Coordina acciones y comparte información de manera eficiente.</p>
+          <div class="card-stats">
+            <div class="stat">
+              <span class="stat-number">5</span>
+              <span class="stat-label">Entidades conectadas</span>
+            </div>
+            <div class="stat">
+              <span class="stat-number">100%</span>
+              <span class="stat-label">Sincronizado</span>
+            </div>
+          </div>
+        </div>
+        <div class="card-image">
+          <img src="https://i0.wp.com/ciudadregion.com/uploads/2025/10/transito-armenia.jpg?resize=780%2C470&ssl=1" alt="Integración">
+          <div class="image-overlay"></div>
+        </div>
+      </div>
+
+      <div class="panel-card" *ngIf="selectedSection === 'notificaciones'">
+        <div class="card-content">
+          <h2>Notificaciones en Tiempo Real</h2>
+          <p>Recibe alertas instantáneas sobre novedades viales, estado de infracciones y actualizaciones importantes.</p>
+          <div class="card-stats">
+            <div class="stat">
+              <span class="stat-number">0</span>
+              <span class="stat-label">Retraso</span>
+            </div>
+            <div class="stat">
+              <span class="stat-number">100%</span>
+              <span class="stat-label">Tiempo real</span>
+            </div>
+          </div>
+        </div>
+        <div class="card-image">
+          <img src="https://www.idtq.gov.co/medios/imagenes/Plan_Seguridad_IDTQ.jpg" alt="Notificaciones">
+          <div class="image-overlay"></div>
+        </div>
+      </div>
+
+      <!-- Indicadores de navegación -->
+      <div class="panel-dots">
+        <span 
+          *ngFor="let section of sections; let i = index"
+          [class.active]="selectedSection === section"
+          (click)="selectSection(section)"
+        ></span>
+      </div>
     </div>
   </div>
 </div>

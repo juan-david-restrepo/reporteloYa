@@ -78,13 +78,20 @@ export class MapaReportesComponent implements AfterViewInit, OnInit, OnDestroy {
     this.websocketService.connect();
 
     
-    this.websocketService.reportes$.subscribe((reporte) => {
-      if (!reporte) return;
+  this.websocketService.reportes$.subscribe((reporte) => {
+    if (!reporte) return;
 
-      console.log('Reporte en tiempo real:', reporte);
+     console.log('Reporte en tiempo real:', reporte);
 
+    const existe = this.reportes.find((r) => r.id === reporte.id);
+
+
+    if (existe) {
+      this.actualizarReporte(reporte);
+    } else {
       this.agregarReporte(reporte);
-    });
+    }
+  });
   }
 
   ngAfterViewInit(): void {
@@ -113,7 +120,7 @@ export class MapaReportesComponent implements AfterViewInit, OnInit, OnDestroy {
         longitud: r.longitud,
         fechaIncidente: new Date(r.fechaIncidente),
         horaIncidente: new Date(r.horaIncidente),
-        estado: r.estado.toLowerCase(),
+        estado: r.estado.toUpperCase(),
       }));
 
       this.actualizarContadores();
@@ -131,16 +138,19 @@ export class MapaReportesComponent implements AfterViewInit, OnInit, OnDestroy {
     this.actualizarContadores();
   }
 
-  private actualizarReporte(reporteActualizado: Reporte): void {
-    const index = this.reportes.findIndex(
-      (r) => r.id === reporteActualizado.id,
-    );
-    if (index === -1) return;
-    reporteActualizado.fechaIncidente = new Date(reporteActualizado.fechaIncidente);
-    this.reportes[index] = reporteActualizado;
-    if (this.mapaListo) this.refrescarMapa();
-    this.actualizarContadores();
-  }
+private actualizarReporte(reporteActualizado: Reporte): void {
+  const index = this.reportes.findIndex(r => r.id === reporteActualizado.id);
+  if (index === -1) return;
+
+  this.reportes[index] = {
+    ...this.reportes[index],
+    ...reporteActualizado,
+    fechaIncidente: new Date(reporteActualizado.fechaIncidente)
+  };
+
+  if (this.mapaListo) this.refrescarMapa();
+  this.actualizarContadores();
+}
 
   private actualizarContadores(): void {
     this.pendientes = this.reportes.filter(

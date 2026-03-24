@@ -1,61 +1,107 @@
 <app-nav></app-nav>
 <div class="pico-placa-container">
-      
+    
+    <!-- Header con animación -->
     <header class="header">
-        <h1>Pico y Placa Armenia Quindío</h1>
-        <p>Restricción para vehículos particulares y motocicletas.</p>
+        <div class="logo-container">
+            <img src="assets/images/LogoNuevo2.png" alt="Logo" class="logo">
+            <i class="fa-solid fa-car-on-way"></i>
+        </div>
+        <h1>Pico y Placa</h1>
+        <p class="subtitle">Armenia - Quindío</p>
+        <p class="description">Restricción vehicular para particulares y motocicletas</p>
     </header>
 
-    <hr class="separator">
-
-    <section class="restriccion-hoy-section">
-        <h2 class="section-title">Hoy es {{ diaActual }}</h2>
-        
-        <div class="tarjeta-hoy">
-            <p class="placa-label">Terminación de Placa:</p>
-
-            <div class="numero-container">
-                <p class="restriccion-numero"
-                   [ngClass]="{'rojo': restriccionHoy?.restriccion !== 'No aplica', 
-                              'verde': restriccionHoy?.restriccion === 'No aplica'}">
-
-                    <span *ngIf="restriccionHoy?.restriccion !== 'No aplica'; else noAplica">
-                        {{ restriccionHoy?.restriccion }}
+    <!-- Tarjeta Principal del Día Actual -->
+    <section class="today-section">
+        <div class="today-card" [ngClass]="{'restricted': restriccionHoy?.restriccion !== 'No aplica', 'free': restriccionHoy?.restriccion === 'No aplica'}">
+            <div class="today-header">
+                <i class="fa-regular fa-calendar-day"></i>
+                <span class="today-label">HOY</span>
+                <span class="day-name">{{ diaActual }}</span>
+            </div>
+            
+            <div class="restriction-display">
+                <div class="digit-wheel">
+                    <div class="digit-circle" [ngClass]="{'pulse': isAnimating}">
+                        <span class="digit">{{ restriccionHoy?.restriccion }}</span>
+                    </div>
+                </div>
+                
+                <div class="restriction-text">
+                    <span class="status" [ngClass]="{'restricted': restriccionHoy?.restriccion !== 'No aplica', 'free': restriccionHoy?.restriccion === 'No aplica'}">
+                        <i class="fa-solid" [ngClass]="{'fa-ban': restriccionHoy?.restriccion !== 'No aplica', 'fa-circle-check': restriccionHoy?.restriccion === 'No aplica'}"></i>
+                        <span *ngIf="restriccionHoy?.restriccion !== 'No aplica'">RESTRICCIÓN ACTIVA</span>
+                        <span *ngIf="restriccionHoy?.restriccion === 'No aplica'">SIN RESTRICCIÓN</span>
                     </span>
-                    <ng-template #noAplica>
-                        {{ restriccionHoy?.restriccion }}
-                    </ng-template>
-                </p>
+                </div>
+            </div>
+
+            <div class="time-info">
+                <i class="fa-regular fa-clock"></i>
+                <span>{{ horaActual }}</span>
+            </div>
+        </div>
+
+        <!-- Horario de restricción -->
+        <div class="schedule-info" *ngIf="restriccionHoy?.restriccion !== 'No aplica'">
+            <div class="schedule-item">
+                <i class="fa-solid fa-sun"></i>
+                <span>Mañana: 6:00 AM - 8:30 AM</span>
+            </div>
+            <div class="schedule-item">
+                <i class="fa-solid fa-moon"></i>
+                <span>Tarde: 5:00 PM - 7:30 PM</span>
             </div>
         </div>
     </section>
 
-    <hr class="separator">
-
-    <section class="restricciones-semanales">
-        <h3 class="section-title">Restricción Semanal Completa</h3>
+    <!-- Semanas con diseño de tarjetas -->
+    <section class="week-section">
+        <h2 class="section-title">
+            <i class="fa-solid fa-calendar-week"></i>
+            Semanal
+        </h2>
         
-        <div class="table-wrapper">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Día de la Semana</th>
-                        <th>Placas Restringidas</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let dia of restricciones" 
-                        [ngClass]="{'dia-actual': dia.diaSemana === diaActual}">
-                        <td class="dia">{{ dia.diaSemana }}</td>
-                        <td class="placa">{{ dia.restriccion }}</td>
-                    </tr>
-                </tbody>
-            </table>
+        <div class="week-grid">
+            <div class="day-card" 
+                 *ngFor="let dia of restricciones; let i = index"
+                 [ngClass]="{'active': dia.diaSemana === diaActual, 'past': isPastDay(dia.diaSemana)}">
+                
+                <div class="day-icon">
+                    <i class="fa-solid" [class]="getDayIcon(dia.diaSemana)"></i>
+                </div>
+                
+                <div class="day-name">{{ dia.diaSemana }}</div>
+                
+                <div class="day-restriction" [ngClass]="{'no-restriction': dia.restriccion === 'No aplica'}">
+                    <span class="restriction-digit" [ngClass]="{'animate-digit': dia.diaSemana === diaActual}">
+                        {{ dia.restriccion === 'No aplica' ? '✓' : dia.restriccion }}
+                    </span>
+                </div>
+            </div>
         </div>
     </section>
 
+    <!-- Información adicional -->
+    <section class="info-section">
+        <div class="info-card">
+            <i class="fa-solid fa-circle-info"></i>
+            <div class="info-content">
+                <h3>Información Importante</h3>
+                <ul>
+                    <li>La restricción aplica a vehículos particulares y motos</li>
+                    <li>Horarios: Mañana 6:00-8:30 AM | Tarde 5:00-7:30 PM</li>
+                    <li>Exentos: Transporte público, emergencia, servicios esenciales</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
     <footer class="footer">
-        Datos de restricción sujetos a cambios por decretos municipales.
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <span>Sujeto a cambios por decreto municipal</span>
     </footer>
 </div>
 

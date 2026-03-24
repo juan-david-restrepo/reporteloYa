@@ -12,9 +12,14 @@ export interface Usuario {
   telefono: string;
   placa?: string;
   estado: 'DISPONIBLE' | 'OCUPADO' | 'FUERA_SERVICIO';
+  foto?: string;
+  resumenProfesional1?: string;
+  resumenProfesional2?: string;
+  resumenProfesional3?: string;
+  resumenProfesional4?: string;
 }
 
-// ✅ NUEVO: DTO que devuelve el backend al buscar compañero
+//  NUEVO: DTO que devuelve el backend al buscar compañero
 export interface AgenteDisponible {
   placa: string;
   nombre: string;
@@ -36,6 +41,28 @@ export class AgenteServiceTs {
   // =============================
   getPerfil(): Observable<Usuario> {
     return this.http.get<Usuario>(`${this.apiAgente}/perfil`, {
+      withCredentials: true
+    });
+  }
+
+  actualizarPerfil(datos: {
+    placa?: string;
+    telefono?: string;
+    nombre?: string;
+    documento?: string;
+    correo?: string;
+    resumenProfesional1?: string;
+    resumenProfesional2?: string;
+    resumenProfesional3?: string;
+    resumenProfesional4?: string;
+  }): Observable<any> {
+    return this.http.put(`${this.apiAgente}/perfil`, datos, {
+      withCredentials: true
+    });
+  }
+
+  actualizarFotoPerfil(foto: string): Observable<any> {
+    return this.http.put(`${this.apiAgente}/perfil/foto`, { foto }, {
       withCredentials: true
     });
   }
@@ -150,5 +177,43 @@ export class AgenteServiceTs {
       url += `&prioridad=${prioridad}`;
     }
     return this.http.get<any>(url, { withCredentials: true });
+  }
+
+  // =============================
+  // ESTADÍSTICAS PARA DASHBOARD
+  // =============================
+  getEstadisticasDashboard(fechaInicio?: string, fechaFin?: string): Observable<any> {
+    let url = `${this.apiReportes}/estadisticas`;
+    if (fechaInicio && fechaFin) {
+      url += `?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`;
+    }
+    return this.http.get<any>(url, { withCredentials: true });
+  }
+
+  // =============================
+  // ESTADÍSTICAS COMPLETAS (TARJETAS + GRÁFICAS)
+  // =============================
+  getEstadisticasCompletas(fechaInicio?: string, fechaFin?: string): Observable<any> {
+    let url = `${this.apiReportes}/estadisticas-completas`;
+    const params: string[] = [];
+    if (fechaInicio) params.push(`fechaInicio=${fechaInicio}`);
+    if (fechaFin) params.push(`fechaFin=${fechaFin}`);
+    if (params.length > 0) url += `?${params.join('&')}`;
+    return this.http.get<any>(url, { withCredentials: true });
+  }
+
+  // =============================
+  // NOTIFICACIONES NO LEÍDAS
+  // =============================
+  getNotificacionesNoLeidas(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiAgente}/notificaciones`, {
+      withCredentials: true
+    });
+  }
+
+  marcarNotificacionLeida(id: number): Observable<any> {
+    return this.http.put(`${this.apiAgente}/notificaciones/${id}/leida`, {}, {
+      withCredentials: true
+    });
   }
 }

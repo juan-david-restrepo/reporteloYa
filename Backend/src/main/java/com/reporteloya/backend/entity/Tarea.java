@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.ToString;
 import lombok.EqualsAndHashCode;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "tareas")
@@ -24,6 +25,9 @@ public class Tarea {
     private String hora;
     private String prioridad;
     private String estado;
+
+    private LocalDateTime fechaInicio;
+    private LocalDateTime fechaFin;
 
 
     @ManyToOne(fetch = FetchType.LAZY)

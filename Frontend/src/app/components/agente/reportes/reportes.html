@@ -22,6 +22,12 @@
 
   <div class="reportes-scroll">
 
+      <!-- Lista vacía -->
+    <div *ngIf="reportesFiltrados.length === 0" class="reportes-vacio">
+      <i class="fa-solid fa-folder-open"></i>
+      <p>No hay reportes disponibles</p>
+    </div>
+
     <div
       class="card reporte-list"
       *ngFor="let r of reportesFiltrados"
@@ -149,8 +155,8 @@
         <div class="dato" *ngIf="r.acompanado">
           <i class="fa-solid fa-user-group"></i>
           <div class="label-datos">
-            <span class="info-label">Compañero</span>
-            {{ r.nombreCompanero || r.placaCompanero }}
+            <span class="info-label">{{ r.esCompanero ? 'Agente principal' : 'Compañero' }}</span>
+            {{ r.esCompanero ? (r.placaAgente | uppercase) : (r.nombreCompanero || r.placaCompanero) }}
           </div>
         </div>
 
@@ -219,8 +225,50 @@
   </div>
 
   <!-- Mapa -->
-  <div class="detalle-mapa">
-    <iframe *ngIf="mapaUrl" [src]="mapaUrl" loading="lazy"></iframe>
+  <div class="detalle-mapa" [class.fullscreen]="isFullscreen">
+    <div class="mapa-header">
+      <i class="fa-solid fa-location-dot"></i>
+      <span>Ubicación del reporte</span>
+      <div class="mapa-actions">
+        <!-- Botón de ruta (solo si hay reporte en proceso y tiene coordenadas) -->
+        <button 
+          *ngIf="reporteSeleccionado?.estado === EstadoReporte.EN_PROCESO && tieneCoordenadas"
+          class="btn-ruta" 
+          (click)="showRoute ? clearRoute() : getLocation()"
+          [title]="showRoute ? 'Ocultar ruta' : 'Mostrar cómo llegar'"
+        >
+          <i class="fa-solid" [class.fa-route]="!showRoute" [class.fa-xmark]="showRoute"></i>
+          {{ showRoute ? 'Ocultar' : 'Llegar' }}
+        </button>
+        
+        <!-- Botón de pantalla completa -->
+        <button 
+          class="btn-fullscreen" 
+          (click)="toggleFullscreen()"
+          [title]="isFullscreen ? 'Salir de pantalla completa' : 'Pantalla completa'"
+        >
+          <i class="fa-solid" [class.fa-expand]="!isFullscreen" [class.fa-compress]="isFullscreen"></i>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Mensaje de error de ubicación -->
+    <div *ngIf="locationError" class="location-error">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      {{ locationError }}
+    </div>
+    
+    <!-- Indicador delocalizando -->
+    <div *ngIf="isLocating" class="locating-indicator">
+      <i class="fa-solid fa-location-arrow fa-spin"></i>
+      Obteniendo ubicación...
+    </div>
+    
+    <div id="detalle-mapa" class="mapa-container"></div>
+    <div *ngIf="!tieneCoordenadas" class="sin-coordenadas">
+      <i class="fa-solid fa-map-location-dot"></i>
+      <span>No hay coordenadas disponibles para este reporte</span>
+    </div>
   </div>
 </div>
 

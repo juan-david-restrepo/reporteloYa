@@ -52,7 +52,7 @@ public class SecurityConfig {
                                                 .requestMatchers("/api/auth/me").authenticated()
 
                                                 .requestMatchers("/admin/**").hasAnyRole("ADMIN", "AGENTE")
-
+                                                .requestMatchers("/api/reportes/mapa").permitAll()
                                                 .requestMatchers("/agente/**").hasAnyRole("AGENTE", "ADMIN")
 
                                                 .requestMatchers("/api/ciudadano/**").hasRole("CIUDADANO")
