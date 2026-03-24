@@ -215,13 +215,41 @@ private actualizarReporte(reporteActualizado: Reporte): void {
       fillOpacity: 1,
     });
 
-    const div = document.createElement('div');
-    div.innerHTML = `<b>${reporte.tipo}</b><br>${new Date(reporte.fechaIncidente).toLocaleTimeString()}<br><button class='detalle-btn'>Ver detalles</button>`;
+    const estadoClass = reporte.estado === 'PENDIENTE' ? 'pendiente' : reporte.estado === 'EN_PROCESO' ? 'proceso' : 'resuelto';
+    const estadoText = reporte.estado === 'EN_PROCESO' ? 'EN PROCESO' : reporte.estado;
+    const fecha = new Date(reporte.fechaIncidente).toLocaleDateString('es-CO');
+    const hora = new Date(reporte.fechaIncidente).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
 
-    const btn = div.querySelector('.detalle-btn') as HTMLButtonElement;
+    const div = document.createElement('div');
+    div.className = 'popup-content';
+    div.innerHTML = `
+      <div class="popup-header">
+        <h3>${reporte.tipo}</h3>
+      </div>
+      <div class="popup-body">
+        <div class="popup-row">
+          <span class="popup-label">Fecha</span>
+          <span class="popup-value">${fecha}</span>
+        </div>
+        <div class="popup-row">
+          <span class="popup-label">Hora</span>
+          <span class="popup-value">${hora}</span>
+        </div>
+        <div class="popup-row">
+          <span class="popup-label">Estado</span>
+          <span class="popup-badge ${estadoClass}">${estadoText}</span>
+        </div>
+        <button class="popup-btn">Ver detalles</button>
+      </div>
+    `;
+
+    const btn = div.querySelector('.popup-btn') as HTMLButtonElement;
     btn.onclick = () => this.zone.run(() => this.abrirDetalle(reporte));
 
-    marker.bindPopup(div);
+    marker.bindPopup(div, {
+      closeButton: false,
+      className: 'custom-popup'
+    });
     marker.on('click', () =>
       this.map.flyTo([reporte.latitud, reporte.longitud], 17, {
         duration: 0.5,

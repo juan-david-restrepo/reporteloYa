@@ -188,8 +188,8 @@ app-sidebar-admin {
 .btn-ir:hover { background: #1565c0; }
 
 /* =========================================
-   ELEMENTOS MÓVILES (BOTÓN HAMBURGUESA)
-   ========================================= */
+    ELEMENTOS MÓVILES (BOTÓN HAMBURGUESA)
+    ========================================= */
 .mobile-menu-btn {
     left: 20px;
     display: none;
@@ -210,6 +210,176 @@ app-sidebar-admin {
   inset: 0;
   background: rgba(0,0,0,0.5);
   z-index: 1050;
+}
+
+/* =========================================
+    LEAFLET POPUP ESTILOS
+    ========================================= */
+::ng-deep .leaflet-popup-content-wrapper {
+  border-radius: 12px !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2) !important;
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+::ng-deep .leaflet-popup-content {
+  margin: 0 !important;
+  width: auto !important;
+  min-width: 220px;
+}
+
+::ng-deep .leaflet-popup-tip {
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+}
+
+::ng-deep .popup-content {
+  padding: 0;
+}
+
+::ng-deep .popup-header {
+  background: linear-gradient(135deg, #274690, #1e3a6e);
+  color: white;
+  padding: 12px 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+::ng-deep .popup-header h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+::ng-deep .popup-close {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: background 0.2s;
+}
+
+::ng-deep .popup-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+::ng-deep .popup-body {
+  padding: 15px;
+}
+
+::ng-deep .popup-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+::ng-deep .popup-row:last-child {
+  border-bottom: none;
+}
+
+::ng-deep .popup-label {
+  color: #6c757d;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+::ng-deep .popup-value {
+  color: #1f2d3d;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+::ng-deep .popup-badge {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+::ng-deep .popup-badge.pendiente {
+  background: linear-gradient(135deg, #fcd34d, #f59e0b);
+  color: #fff;
+}
+
+::ng-deep .popup-badge.proceso {
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
+  color: #fff;
+}
+
+::ng-deep .popup-badge.resuelto, ::ng-deep .popup-badge.finalizado {
+  background: linear-gradient(135deg, #4ade80, #22c55e);
+  color: #fff;
+}
+
+::ng-deep .popup-btn {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin-top: 12px;
+  background: #274690;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+::ng-deep .popup-btn:hover {
+  background: #1e3a6e;
+}
+
+/* Dark mode para popup */
+::ng-deep body.dark-mode .leaflet-popup-content-wrapper {
+  background: #1e293b !important;
+}
+
+::ng-deep body.dark-mode .popup-header {
+  background: linear-gradient(135deg, #334155, #1e293b);
+}
+
+::ng-deep body.dark-mode .popup-row {
+  border-bottom-color: #334155;
+}
+
+::ng-deep body.dark-mode .popup-label {
+  color: #94a3b8;
+}
+
+::ng-deep body.dark-mode .popup-value {
+  color: #f8fafc;
+}
+
+::ng-deep body.dark-mode .popup-badge.pendiente {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+::ng-deep body.dark-mode .popup-badge.proceso {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+
+::ng-deep body.dark-mode .popup-badge.resuelto,
+::ng-deep body.dark-mode .popup-badge.finalizado {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+}
+
+::ng-deep body.dark-mode .popup-btn {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+
+::ng-deep body.dark-mode .popup-btn:hover {
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
 }
 
 /* =========================================
