@@ -14,7 +14,7 @@ interface Reporte {
   latitud: number;
   longitud: number;
   fechaIncidente: Date ;
-  horaIncidente: Date ;
+  horaIncidente?: Date | null;
   estado: 'PENDIENTE' | 'EN_PROCESO' | 'FINALIZADO';
   agente?: string;
   foto?: string;
@@ -119,7 +119,8 @@ export class MapaReportesComponent implements AfterViewInit, OnInit, OnDestroy {
         latitud: r.latitud,
         longitud: r.longitud,
         fechaIncidente: new Date(r.fechaIncidente),
-        horaIncidente: new Date(r.horaIncidente),
+        horaIncidente: r.horaIncidente || null,
+        direccion: r.direccion || '',
         estado: r.estado.toUpperCase(),
       }));
 
@@ -217,14 +218,32 @@ private actualizarReporte(reporteActualizado: Reporte): void {
 
     const estadoClass = reporte.estado === 'PENDIENTE' ? 'pendiente' : reporte.estado === 'EN_PROCESO' ? 'proceso' : 'resuelto';
     const estadoText = reporte.estado === 'EN_PROCESO' ? 'EN PROCESO' : reporte.estado;
-    const fecha = new Date(reporte.fechaIncidente).toLocaleDateString('es-CO');
-    const hora = new Date(reporte.fechaIncidente).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+    
+    const fechaObj = new Date(reporte.fechaIncidente);
+    let hora = '--:--';
+    
+    if (reporte.horaIncidente) {
+      const horaStr = String(reporte.horaIncidente);
+      if (horaStr && horaStr.includes(':')) {
+        const [h, m] = horaStr.split(':');
+        const horaDate = new Date();
+        horaDate.setHours(parseInt(h, 10), parseInt(m, 10), 0, 0);
+        hora = horaDate.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+      } else if (!isNaN(fechaObj.getTime())) {
+        hora = fechaObj.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+      }
+    } else if (fechaObj && !isNaN(fechaObj.getTime())) {
+      hora = fechaObj.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+    }
+    
+    const fecha = fechaObj.toLocaleDateString('es-CO');
 
     const div = document.createElement('div');
     div.className = 'popup-content';
     div.innerHTML = `
       <div class="popup-header">
         <h3>${reporte.tipo}</h3>
+        <button class="popup-close" onclick="document.querySelector('.leaflet-popup-close-button')?.click()">✕</button>
       </div>
       <div class="popup-body">
         <div class="popup-row">
@@ -245,6 +264,12 @@ private actualizarReporte(reporteActualizado: Reporte): void {
 
     const btn = div.querySelector('.popup-btn') as HTMLButtonElement;
     btn.onclick = () => this.zone.run(() => this.abrirDetalle(reporte));
+
+    const closeBtn = div.querySelector('.popup-close') as HTMLButtonElement;
+    closeBtn.onclick = (e) => {
+      e.stopPropagation();
+      this.map.closePopup();
+    };
 
     marker.bindPopup(div, {
       closeButton: false,
@@ -283,9 +308,37 @@ private actualizarReporte(reporteActualizado: Reporte): void {
     this.reporteSeleccionado = undefined;
   }
 
-  navegarADetalle(id: number): void {
+navegarADetalle(id: number): void {
     this.router.navigate(['/admin/reporte', id]);
   }
 
- 
+  getClaseEstado(estado: string): string {
+    switch (estado) {
+      case 'PENDIENTE': return 'estado-pendiente';
+      case 'EN_PROCESO': return 'estado-proceso';
+      case 'FINALIZADO': return 'estado-finalizado';
+      default: return '';
+    }
+  }
+
+  getHoraFormateada(reporte: Reporte): string {
+    if (reporte.horaIncidente) {
+      const horaStr = String(reporte.horaIncidente);
+      if (horaStr && horaStr.includes(':')) {
+        const [h, m] = horaStr.split(':');
+        const horaDate = new Date();
+        horaDate.setHours(parseInt(h, 10), parseInt(m, 10), 0, 0);
+        return horaDate.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+      }
+    }
+    if (reporte.fechaIncidente) {
+      const fechaObj = new Date(reporte.fechaIncidente);
+      if (!isNaN(fechaObj.getTime())) {
+        return fechaObj.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+      }
+    }
+    return '--:--';
+  }
+
+  
 }
