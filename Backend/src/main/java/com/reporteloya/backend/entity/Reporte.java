@@ -22,6 +22,8 @@ import jakarta.persistence.PreUpdate;
 import jakarta.persistence.CascadeType;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 
 @Entity
@@ -37,6 +39,7 @@ public class Reporte {
 
     @ManyToOne
     @JoinColumn(name = "id_usuario")
+    @JsonIgnore
     private Usuario usuario;
 
     @ManyToOne
@@ -44,9 +47,9 @@ public class Reporte {
     @JsonBackReference
     private Agentes agente;
 
-    // ✅ NUEVO: agente compañero (referencia al segundo agente)
     @ManyToOne
     @JoinColumn(name = "id_agente_companero")
+    @JsonIgnore
     private Agentes agenteCompanero;
 
     @Enumerated(EnumType.STRING)
@@ -59,15 +62,15 @@ public class Reporte {
     private Double longitud;
     private String placa;
 
-    private String estado; // PENDIENTE, EN_PROCESO, FINALIZADO, RECHAZADO
+    private String estado;
 
-    // ✅ NUEVO: flag para saber si fue atendido en dupla
     private Boolean acompanado = false;
 
     private LocalDate fechaIncidente;
     private LocalTime horaIncidente;
 
     @OneToMany(mappedBy = "reporte", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Evidencia> evidencias;
 
     @PrePersist
@@ -82,9 +85,11 @@ public class Reporte {
     }
 
     @Column(name = "created_at")
+    @JsonIgnore
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
+    @JsonIgnore
     private LocalDateTime updatedAt;
 
     @Column(length = 1000)

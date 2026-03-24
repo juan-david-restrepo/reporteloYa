@@ -15,6 +15,7 @@ import com.reporteloya.backend.dto.AgenteDisponibleDTO;
 import com.reporteloya.backend.dto.EstadoAgenteDTO;
 import com.reporteloya.backend.dto.EstadisticasDashboardDTO;
 import com.reporteloya.backend.dto.EstadisticasCompletasDTO;
+import com.reporteloya.backend.dto.AdminDashboardDTO;
 import com.reporteloya.backend.entity.Agentes;
 import com.reporteloya.backend.entity.Evidencia;
 import com.reporteloya.backend.entity.Prioridad;
@@ -25,16 +26,19 @@ import com.reporteloya.backend.repository.AgenteRepository;
 import com.reporteloya.backend.repository.EvidenciaRepository;
 import com.reporteloya.backend.repository.EstadisticaAgenteRepository;
 
+
+
+
 import java.time.LocalDateTime;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.DayOfWeek;
+
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import java.io.IOException;
-import java.util.Optional;
+
 
 @Service
 public class ReporteService {
@@ -764,6 +768,55 @@ public class ReporteService {
             statsAnio,
             statsDia
         );
+    }
+
+    // ================================
+    // ESTADÍSTICAS GLOBALES PARA ADMIN
+    // ================================
+    public AdminDashboardDTO obtenerEstadisticasAdmin() {
+        LocalDate hoy = LocalDate.now();
+        LocalDateTime inicioDia = hoy.atStartOfDay();
+        LocalDateTime finDia = hoy.plusDays(1).atStartOfDay().minusSeconds(1);
+        
+        int totalReportes = (int) reporteRepository.count();
+        int pendientes = reporteRepository.countByEstado("PENDIENTE");
+        int enProceso = reporteRepository.countByEstado("EN_PROCESO");
+        int finalizados = reporteRepository.countByEstado("FINALIZADO");
+        int rechazados = reporteRepository.countByEstado("RECHAZADO");
+        int reportesHoy = reporteRepository.countByCreatedAtBetween(inicioDia, finDia);
+
+        List<EstadisticaGraficaDTO.StatItem> statsSemana = obtenerStatsGlobales("SEMANA", 
+            new String[]{"Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom"});
+        List<EstadisticaGraficaDTO.StatItem> statsMes = obtenerStatsGlobales("ANIO", 
+            new String[]{"Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"});
+        
+        AdminDashboardDTO dto = new AdminDashboardDTO();
+        dto.setTotalReportes(totalReportes);
+        dto.setPendientes(pendientes);
+        dto.setEnProceso(enProceso);
+        dto.setFinalizados(finalizados);
+        dto.setRechazados(rechazados);
+        dto.setReportesHoy(reportesHoy);
+        dto.setEstadisticasSemana(statsSemana);
+        dto.setEstadisticasMes(statsMes);
+        
+        return dto;
+    }
+
+    private List<EstadisticaGraficaDTO.StatItem> obtenerStatsGlobales(String periodo, String[] etiquetasDefault) {
+        List<EstadisticaAgente> statsBD = estadisticaAgenteRepository.buscarPorPeriodo(periodo);
+
+        Map<String, Integer> mapa = new HashMap<>();
+        for (EstadisticaAgente stat : statsBD) {
+            String key = stat.getEtiqueta();
+            mapa.put(key, mapa.getOrDefault(key, 0) + stat.getCantidad());
+        }
+
+        List<EstadisticaGraficaDTO.StatItem> result = new ArrayList<>();
+        for (String etiqueta : etiquetasDefault) {
+            result.add(new EstadisticaGraficaDTO.StatItem(etiqueta, mapa.getOrDefault(etiqueta, 0)));
+        }
+        return result;
     }
 
     private List<EstadisticaGraficaDTO.StatItem> obtenerStatsDesdeBDPorFechas(String placa, String periodo, String[] etiquetasDefault, LocalDateTime fechaInicio, LocalDateTime fechaFin) {

@@ -51,8 +51,9 @@ public class SecurityConfig {
                                                 // Reportes - solo crear requiere autenticación
                                                 .requestMatchers("/api/reportes/crear").authenticated()
                                                 .requestMatchers("/api/reportes/mapa").permitAll()
-                                                .requestMatchers("/api/reportes/pendientes").hasAnyRole("ADMIN", "AGENTE")
-                                                .requestMatchers("/api/reportes/todos").hasAnyRole("ADMIN", "AGENTE")
+                                                .requestMatchers("/api/reportes/pendientes").permitAll()
+                                                .requestMatchers("/api/reportes/todos").permitAll()
+                                                .requestMatchers("/api/reportes/estadisticas-admin").permitAll()
                                                 .requestMatchers("/api/reportes").permitAll()
 
                                                 .requestMatchers("/api/auth/me").authenticated()
