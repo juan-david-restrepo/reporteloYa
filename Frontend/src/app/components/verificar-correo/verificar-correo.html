@@ -1,0 +1,60 @@
+<app-nav></app-nav>
+
+<div class="verification-container">
+  <div class="verification-card">
+    <!-- Estado: Verificando -->
+    <div *ngIf="verificando" class="verification-content">
+      <div class="spinner"></div>
+      <h2>Verificando correo...</h2>
+      <p>Por favor espera mientras verificamos tu correo electrónico.</p>
+    </div>
+
+    <!-- Estado: Verificado exitosamente -->
+    <div *ngIf="!verificando && verificado" class="verification-content success">
+      <div class="icon-success">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+      <h2>¡Correo verificado!</h2>
+      <p>{{ mensaje }}</p>
+      <p class="redirect-text">Serás redirigido al login en unos segundos...</p>
+      <a routerLink="/login" class="btn-primary">Ir al Login</a>
+    </div>
+
+    <!-- Estado: Error -->
+    <div *ngIf="!verificando && !verificado" class="verification-content error">
+      <div class="icon-error">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </div>
+      <h2>Error de verificación</h2>
+      <p>{{ mensaje }}</p>
+
+      <!-- Formulario para reenviar correo -->
+      <div *ngIf="mostrarReenviar" class="resend-form">
+        <p class="resend-label">¿No recibiste el correo?</p>
+        <div class="input-group">
+          <input 
+            type="email" 
+            [(ngModel)]="email" 
+            placeholder="Tu correo electrónico"
+            class="form-input"
+          >
+          <button 
+            (click)="reenviarCorreo()" 
+            [disabled]="reenviando"
+            class="btn-secondary"
+          >
+            {{ reenviando ? 'Enviando...' : 'Reenviar' }}
+          </button>
+        </div>
+      </div>
+
+      <a routerLink="/login" class="btn-primary">Ir al Login</a>
+    </div>
+  </div>
+</div>
+
+<app-footer></app-footer>

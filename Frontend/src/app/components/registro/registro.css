@@ -81,7 +81,6 @@ select {
   position: relative;
   display: flex;
   align-items: center; /* centra verticalmente */
-  margin-bottom: 20px;
 }
 
 .input-group i {
@@ -106,6 +105,34 @@ select {
 .input-group select:focus {
   border-color: #3c46cc;
   outline: none;
+}
+
+.input-segura {
+  border-color: #28a745 !important;
+}
+
+.requisitos-contrasena {
+  margin-bottom: 15px;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 5px;
+  font-size: 13px;
+}
+
+.requisitos-contrasena p {
+  margin: 5px 0;
+  color: #dc3545;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.requisitos-contrasena p.cumple {
+  color: #28a745;
+}
+
+.requisitos-contrasena p i {
+  width: 16px;
 }
 
 

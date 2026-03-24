@@ -17,8 +17,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -28,39 +31,64 @@ public class AuthController {
     private final AuthService authService;
     private final JwtService jwtService;
 
-    // =========================
-    // REGISTER (Ciudadano - 5 horas)
-    // =========================
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request,
                                       HttpServletResponse response) {
         try {
-            AuthResult result = authService.register(request);
-            Usuario usuario = result.usuario();
+            Map<String, Object> result = authService.register(request);
 
-            long maxAgeSeconds = jwtService.getExpirationSecondsByRole(Role.CIUDADANO);
-            setJwtCookie(response, result.token(), maxAgeSeconds);
-
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(
-                            AuthResponse.builder()
-                                    .userId(usuario.getId())
-                                    .email(usuario.getEmail())
-                                    .role(usuario.getRole())
-                                    .build()
-                    );
+            return ResponseEntity.status(HttpStatus.CREATED).body(result);
 
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.internalServerError()
-                    .body("Error interno al registrar el usuario.");
+                    .body("Error interno al registrar el usuario: " + e.getMessage());
         }
     }
 
-    // =========================
-    // LOGIN (Tiempo según rol)
-    // =========================
+    @GetMapping("/verify-email")
+    public ResponseEntity<?> verifyEmail(@RequestParam String token, HttpServletResponse response) {
+        try {
+            AuthResult result = authService.verifyEmail(token);
+            Usuario usuario = result.usuario();
+
+            Role role = usuario.getRole();
+            long maxAgeSeconds = jwtService.getExpirationSecondsByRole(role);
+            setJwtCookie(response, result.token(), maxAgeSeconds);
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "Correo electrónico verificado exitosamente.",
+                    "verified", true,
+                    "userId", usuario.getId(),
+                    "email", usuario.getEmail(),
+                    "role", role.name()
+            ));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "message", e.getMessage(),
+                    "verified", false
+            ));
+        }
+    }
+
+    @PostMapping("/resend-verification")
+    public ResponseEntity<?> resendVerification(@RequestBody Map<String, String> request) {
+        try {
+            String email = request.get("email");
+            if (email == null || email.isBlank()) {
+                return ResponseEntity.badRequest().body("El correo electrónico es requerido.");
+            }
+            authService.resendVerification(email);
+            return ResponseEntity.ok(Map.of(
+                    "message", "Correo de verificación enviado exitosamente."
+            ));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request,
                                    HttpServletResponse response) {
@@ -80,6 +108,8 @@ public class AuthController {
                             .build()
             );
 
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         } catch (Exception e) {
@@ -88,9 +118,6 @@ public class AuthController {
         }
     }
 
-    // =========================
-    // LOGOUT
-    // =========================
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletResponse response) {
 
@@ -109,32 +136,25 @@ public class AuthController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
 
-            // =========================
-        // GET CURRENT USER
-        // =========================
-        @GetMapping("/me")
-        public ResponseEntity<?> getCurrentUser() {
-            var authentication = SecurityContextHolder.getContext().getAuthentication();
-
-            if (authentication == null || !authentication.isAuthenticated()) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-            }
-
-            Usuario usuario = (Usuario) authentication.getPrincipal();
-
-            return ResponseEntity.ok(
-                    AuthResponse.builder()
-                            .userId(usuario.getId())
-                            .email(usuario.getEmail())
-                            .role(usuario.getRole())
-                            .build()
-            );
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-    // =========================
-    // COOKIE HELPER (Sincronizado con tiempo del token)
-    // =========================
+        Usuario usuario = (Usuario) authentication.getPrincipal();
+
+        return ResponseEntity.ok(
+                AuthResponse.builder()
+                        .userId(usuario.getId())
+                        .email(usuario.getEmail())
+                        .role(usuario.getRole())
+                        .build()
+        );
+    }
+
     private void setJwtCookie(HttpServletResponse response, String token, long maxAgeSeconds) {
         ResponseCookie cookie = ResponseCookie.from("jwt", token)
                 .httpOnly(true)

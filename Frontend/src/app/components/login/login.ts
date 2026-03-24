@@ -42,7 +42,6 @@ export class Login {
 
     const { email, password } = this.formLogin.value;
 
-    // 🔹 Login usando cookies HttpOnly
     this.authService.login(email, password).subscribe({
       next: (user: AuthUser | null) => {
         if (!user) {
@@ -54,11 +53,8 @@ export class Login {
           return;
         }
 
-        // 🔹 Usuario ya actualizado en authService.currentUser$
-        // Cargar avatar desde AvatarService
         this.avatarService.loadAvatarForUser(user.userId);
 
-        // 🔹 Mensaje de éxito
         Swal.fire({
           icon: 'success',
           title: 'Bienvenido!',
@@ -67,7 +63,6 @@ export class Login {
           showConfirmButton: false,
         });
 
-        // 🔹 Redirección según rol
         const role = user.role.toUpperCase();
         if (role === 'CIUDADANO') this.router.navigate(['/home']);
         else if (role === 'AGENTE') this.router.navigate(['/agente']);
@@ -75,10 +70,46 @@ export class Login {
       },
       error: (err) => {
         console.error('Error login:', err);
+        const errorMessage = err.error || 'Credenciales incorrectas';
+        
+        if (errorMessage.includes('verificar') || errorMessage.includes('correo')) {
+          Swal.fire({
+            icon: 'warning',
+            title: 'Correo no verificado',
+            html: `<p>${errorMessage}</p><p>¿Deseas reenviar el correo de verificación?</p>`,
+            showCancelButton: true,
+            confirmButtonText: 'Reenviar correo',
+            cancelButtonText: 'Cancelar',
+          }).then((result) => {
+            if (result.isConfirmed) {
+              this.reenviarVerificacion(email);
+            }
+          });
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error al iniciar sesión',
+            text: errorMessage,
+          });
+        }
+      },
+    });
+  }
+
+  reenviarVerificacion(email: string): void {
+    this.authService.resendVerification(email).subscribe({
+      next: () => {
+        Swal.fire({
+          icon: 'success',
+          title: 'Correo enviado',
+          html: `<p>Hemos enviado un nuevo correo de verificación a <strong>${email}</strong>.</p>`,
+        });
+      },
+      error: () => {
         Swal.fire({
           icon: 'error',
-          title: 'Error al iniciar sesión',
-          text: err.error || 'Credenciales incorrectas',
+          title: 'Error',
+          text: 'No se pudo reenviar el correo de verificación.',
         });
       },
     });

@@ -41,6 +41,9 @@ public class Usuario implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Column(name = "email_verificado", nullable = false)
+    private boolean emailVerificado = false;
+
     // ===== UserDetails =====
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -69,6 +72,11 @@ public class Usuario implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return emailVerificado;
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
     }
 }

@@ -13,7 +13,7 @@
 
   <div class="input-group">
     <i class="fa-solid fa-id-card"></i>
-    <select formControlName="tipoDocumento" required>
+    <select formControlName="tipoDocumento" required (change)="onTipoDocumentoChange()">
       <option value="">Escoge Una Opción</option>
       <option value="CC">Cédula De Ciudadanía</option>
       <option value="PASAPORTE">Pasaporte</option>
@@ -22,7 +22,7 @@
 
   <div class="input-group">
     <i class="fa-solid fa-hashtag"></i>
-    <input type="text" formControlName="numeroDocumento" placeholder="Número de documento" required />
+    <input type="text" formControlName="numeroDocumento" [placeholder]="placeholderDocumento" required />
   </div>
 
   <div class="input-group">
@@ -37,7 +37,37 @@
 
   <div class="input-group">
     <i class="fa-solid fa-lock"></i>
-    <input type="password" formControlName="contrasena" placeholder="********" required />
+    <input 
+      type="password" 
+      formControlName="contrasena" 
+      placeholder="********" 
+      required 
+      (input)="onContrasenaChange()"
+      [class.input-segura]="contrasenaSegura"
+    />
+  </div>
+
+  <div class="requisitos-contrasena" *ngIf="registroForm.get('contrasena')?.value">
+    <p [class.cumple]="requisitosContrasena.longitud">
+      <i [class]="requisitosContrasena.longitud ? 'fa-solid fa-check' : 'fa-solid fa-xmark'"></i>
+      Mínimo 8 caracteres
+    </p>
+    <p [class.cumple]="requisitosContrasena.mayuscula">
+      <i [class]="requisitosContrasena.mayuscula ? 'fa-solid fa-check' : 'fa-solid fa-xmark'"></i>
+      Una letra mayúscula
+    </p>
+    <p [class.cumple]="requisitosContrasena.minuscula">
+      <i [class]="requisitosContrasena.minuscula ? 'fa-solid fa-check' : 'fa-solid fa-xmark'"></i>
+      Una letra minúscula
+    </p>
+    <p [class.cumple]="requisitosContrasena.numero">
+      <i [class]="requisitosContrasena.numero ? 'fa-solid fa-check' : 'fa-solid fa-xmark'"></i>
+      Un número
+    </p>
+    <p [class.cumple]="requisitosContrasena.especial">
+      <i [class]="requisitosContrasena.especial ? 'fa-solid fa-check' : 'fa-solid fa-xmark'"></i>
+      Un carácter especial (@$!%*?&)
+    </p>
   </div>
 
   <button type="submit" class="btn-secundary">

@@ -100,4 +100,6 @@ public interface ReporteRepository extends JpaRepository<Reporte, Long> {
 
     @Query("SELECT COUNT(r) FROM Reporte r WHERE r.usuario.id = :usuarioId AND r.estado = :estado")
     int countByUsuarioIdAndEstado(@Param("usuarioId") Long usuarioId, @Param("estado") String estado);
+
+
 }

@@ -25,6 +25,7 @@ import com.reporteloya.backend.repository.ReporteRepository;
 import com.reporteloya.backend.repository.AgenteRepository;
 import com.reporteloya.backend.repository.EvidenciaRepository;
 import com.reporteloya.backend.repository.EstadisticaAgenteRepository;
+import com.reporteloya.backend.dto.AdminDashboardDTO;
 
 
 

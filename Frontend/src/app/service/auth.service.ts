@@ -47,11 +47,22 @@ export class AuthService {
   register(data: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/register`, data, {
       withCredentials: true,
-    }).pipe(
-      tap(() => {
-        this.refreshUser().subscribe();
-      }),
-    );
+      observe: 'response',
+    });
+  }
+
+  verifyEmail(token: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/verify-email`, {
+      params: { token },
+      withCredentials: true,
+      observe: 'response',
+    });
+  }
+
+  resendVerification(email: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/resend-verification`, { email }, {
+      withCredentials: true,
+    });
   }
 
   logout(): Observable<any> {
@@ -114,6 +125,10 @@ export class AuthService {
 
   setAuthenticated(isAuth: boolean) {
     this.authState.next(isAuth);
+  }
+
+  setCurrentUser(user: AuthUser) {
+    this.currentUser.next(user);
   }
 
   // =========================

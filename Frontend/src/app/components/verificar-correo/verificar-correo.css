@@ -1,0 +1,161 @@
+.verification-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
+  padding: 20px;
+}
+
+.verification-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  max-width: 480px;
+  width: 100%;
+  padding: 40px;
+  text-align: center;
+}
+
+.verification-content h2 {
+  color: #1e3a5f;
+  margin-bottom: 16px;
+  font-size: 24px;
+}
+
+.verification-content p {
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #2563eb;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 24px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.icon-success {
+  width: 80px;
+  height: 80px;
+  background: #dcfce7;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+}
+
+.icon-success svg {
+  width: 40px;
+  height: 40px;
+  color: #16a34a;
+}
+
+.verification-content.success h2 {
+  color: #16a34a;
+}
+
+.icon-error {
+  width: 80px;
+  height: 80px;
+  background: #fee2e2;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+}
+
+.icon-error svg {
+  width: 40px;
+  height: 40px;
+  color: #dc2626;
+}
+
+.verification-content.error h2 {
+  color: #dc2626;
+}
+
+.btn-primary {
+  display: inline-block;
+  background: #2563eb;
+  color: white;
+  padding: 12px 32px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background 0.3s;
+}
+
+.btn-primary:hover {
+  background: #1d4ed8;
+}
+
+.redirect-text {
+  font-size: 14px;
+  color: #888 !important;
+  margin-bottom: 20px !important;
+}
+
+.resend-form {
+  background: #f8fafc;
+  padding: 20px;
+  border-radius: 12px;
+  margin: 24px 0;
+}
+
+.resend-label {
+  font-weight: 600;
+  color: #1e3a5f;
+  margin-bottom: 12px !important;
+}
+
+.input-group {
+  display: flex;
+  gap: 10px;
+}
+
+.form-input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.form-input:focus {
+  border-color: #2563eb;
+}
+
+.btn-secondary {
+  background: #64748b;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s;
+  white-space: nowrap;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #475569;
+}
+
+.btn-secondary:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+}

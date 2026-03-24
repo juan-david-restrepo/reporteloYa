@@ -21,6 +21,21 @@ import { Avatar } from '../../service/avatar';
 })
 export class Registro {
   registroForm: FormGroup;
+  requisitosContrasena = {
+    longitud: false,
+    mayuscula: false,
+    minuscula: false,
+    numero: false,
+    especial: false,
+  };
+  contrasenaSegura = false;
+  tipoDocumentoSeleccionado = '';
+
+  get placeholderDocumento(): string {
+    return this.tipoDocumentoSeleccionado === 'PASAPORTE' 
+      ? 'Número de pasaporte' 
+      : 'Número de documento';
+  }
 
   constructor(
     private fb: FormBuilder,
@@ -49,7 +64,8 @@ export class Registro {
         '',
         [
           Validators.required,
-          Validators.minLength(6),
+          Validators.minLength(8),
+          Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/),
         ],
       ],
       tipoDocumento: ['', Validators.required],
@@ -64,6 +80,43 @@ export class Registro {
       ],
       rol: ['CIUDADANO', Validators.required],
     });
+  }
+
+  validarContrasena(password: string): void {
+    this.requisitosContrasena = {
+      longitud: password.length >= 8,
+      mayuscula: /[A-Z]/.test(password),
+      minuscula: /[a-z]/.test(password),
+      numero: /\d/.test(password),
+      especial: /[@$!%*?&]/.test(password),
+    };
+    this.contrasenaSegura = Object.values(this.requisitosContrasena).every(Boolean);
+  }
+
+  onContrasenaChange(): void {
+    const password = this.registroForm.get('contrasena')?.value || '';
+    this.validarContrasena(password);
+  }
+
+  onTipoDocumentoChange(): void {
+    this.tipoDocumentoSeleccionado = this.registroForm.get('tipoDocumento')?.value || '';
+    const numeroDoc = this.registroForm.get('numeroDocumento');
+    
+    if (this.tipoDocumentoSeleccionado === 'PASAPORTE') {
+      numeroDoc?.setValidators([
+        Validators.required,
+        Validators.minLength(6),
+        Validators.maxLength(12),
+      ]);
+    } else {
+      numeroDoc?.setValidators([
+        Validators.required,
+        Validators.pattern(/^\d+$/),
+        Validators.minLength(6),
+        Validators.maxLength(10),
+      ]);
+    }
+    numeroDoc?.updateValueAndValidity();
   }
 
   /** Redirección según rol */
@@ -90,6 +143,11 @@ export class Registro {
       return;
     }
 
+    if (!this.contrasenaSegura) {
+      Swal.fire('Contraseña insegura', 'La contraseña debe cumplir todos los requisitos de seguridad.', 'warning');
+      return;
+    }
+
     const data = {
       nombreCompleto: this.registroForm.value.nombre,
       email: this.registroForm.value.correo,
@@ -99,41 +157,30 @@ export class Registro {
       rol: this.registroForm.value.rol,
     };
 
-    // Registramos al usuario
     this.authService.register(data).subscribe({
-      next: () => {
-        // 🔹 Nos suscribimos al Observable currentUser$ para obtener el usuario actualizado
-        const sub = this.authService.currentUser$.subscribe({
-          next: (user: AuthUser | null) => {
-            if (!user) return;
-
-            Swal.fire({
-              icon: 'success',
-              title: '¡Registro exitoso!',
-              timer: 1500,
-              showConfirmButton: false,
-            }).then(() => {
-              this.redirigirSegunRol(user.role);
-            });
-
-            // Cancelamos la suscripción para no escuchar más cambios
-            sub.unsubscribe();
-          },
-          error: (err) => {
-            console.error('Error al obtener usuario:', err);
-            Swal.fire({
-              icon: 'error',
-              title: 'Error',
-              text: 'No se pudo obtener la información del usuario después del registro.',
-            });
-          },
+      next: (response: any) => {
+        const body = response.body || response;
+        localStorage.setItem('pendingEmail', data.email);
+        
+        Swal.fire({
+          icon: 'success',
+          title: '¡Registro exitoso!',
+          html: `
+            <p>Hemos enviado un correo de verificación a <strong>${data.email}</strong>.</p>
+            <p>Por favor, revisa tu bandeja de entrada y verifica tu correo para activar tu cuenta.</p>
+          `,
+          confirmButtonText: 'Entendido',
+        }).then(() => {
+          this.router.navigate(['/login']);
         });
       },
       error: (err) => {
+        console.error('Error en registro:', err);
+        const mensaje = err.error?.message || err.error || 'Hubo un problema durante el registro.';
         Swal.fire({
           icon: 'error',
           title: 'Error al registrar',
-          text: err.error || 'Hubo un problema durante el registro.',
+          text: mensaje,
         });
       },
     });

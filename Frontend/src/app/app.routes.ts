@@ -2,6 +2,7 @@ import { authGuard } from './guards/auth-guard';
 import { Home } from './components/home/home';
 import { Login } from './components/login/login';
 import { Recuperar } from './components/recuperar/recuperar';
+import { VerificarCorreo } from './components/verificar-correo/verificar-correo';
 import { Registro } from './components/registro/registro';
 import { SubirReporteComponent } from './components/subir-reporte/subir-reporte';
 import { Parking } from './components/parking/parking';
@@ -36,6 +37,7 @@ export const routes: Routes = [
   { path: 'home', component: Home },
   { path: 'login', component: Login },
   { path: 'recuperar', component: Recuperar },
+  { path: 'verificar-correo', component: VerificarCorreo },
   { path: 'registro', component: Registro },
   { path: 'subir-reporte', component: SubirReporteComponent, canActivate: [authGuard] },
   { path: 'parking', component: Parking, canActivate: [authGuard] },
