@@ -1,0 +1,9 @@
+.floating-actions {
+  position: fixed;
+  bottom: 5px;
+  right: 1px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  z-index: 1500; 
+}
