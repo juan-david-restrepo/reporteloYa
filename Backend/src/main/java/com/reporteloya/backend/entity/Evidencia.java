@@ -1,6 +1,7 @@
 package com.reporteloya.backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -22,6 +23,7 @@ public class Evidencia {
 
     @ManyToOne
     @JoinColumn(name = "reporte_id")
+    @JsonIgnore
     private Reporte reporte;
 
     public void setTipo(String tipo) {
