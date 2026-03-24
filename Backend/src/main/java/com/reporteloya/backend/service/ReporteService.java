@@ -577,6 +577,12 @@ public class ReporteService {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         return reporteRepository.findAll(pageable);
     }
+
+    public Page<ReporteSocketDTO> obtenerTodosLosReportesDTO(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<Reporte> reportesPage = reporteRepository.findAll(pageable);
+        return reportesPage.map(this::convertirADTO);
+    }
  
     // ================================
     // ESTADÍSTICAS PARA DASHBOARD DEL AGENTE

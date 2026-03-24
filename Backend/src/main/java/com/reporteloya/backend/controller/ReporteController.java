@@ -263,11 +263,11 @@ public class ReporteController {
     // OBTENER TODOS LOS REPORTES (dashboard admin)
     // ================================
     @GetMapping("/todos")
-    public Page<Reporte> obtenerTodosLosReportes(
+    public Page<ReporteSocketDTO> obtenerTodosLosReportes(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "100") int size) {
 
-        return reporteService.obtenerTodosLosReportes(page, size);
+        return reporteService.obtenerTodosLosReportesDTO(page, size);
     }
 
     // ================================

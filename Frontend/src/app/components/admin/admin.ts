@@ -217,6 +217,7 @@ export class Admin implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private transformarReporte(data: any): ReporteAdmin {
+    console.log('Transformando:', JSON.stringify(data, null, 2));
     console.log('Transformando:', data);
     
     let urlFoto = '';

@@ -63,6 +63,7 @@ app-sidebar-admin {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  border-left: 4px solid transparent;
 }
 
 .stat-card h3 {
@@ -78,10 +79,33 @@ app-sidebar-admin {
   margin-top: 10px;
 }
 
-.stat-card.pendiente span { color: #e74c3c; }
-.stat-card.proceso span { color: #f39c12; }
-.stat-card.resuelto span { color: #27ae60; }
-.stat-card.total span { color: #1f3c88; }
+.stat-card.pendiente {
+  border-left-color: #f59e0b;
+}
+.stat-card.pendiente span { 
+  color: #f59e0b; 
+}
+
+.stat-card.proceso {
+  border-left-color: #3b82f6;
+}
+.stat-card.proceso span { 
+  color: #3b82f6; 
+}
+
+.stat-card.resuelto {
+  border-left-color: #22c55e;
+}
+.stat-card.resuelto span { 
+  color: #22c55e; 
+}
+
+.stat-card.total {
+  border-left-color: #274690;
+}
+.stat-card.total span { 
+  color: #274690; 
+}
 
 /* =========================================
    MAPA
@@ -637,9 +661,24 @@ app-sidebar-admin {
   color: #94a3b8 !important;
 }
 
-::ng-deep body.dark-mode .stat-card.pendiente span { color: #f87171 !important; }
-::ng-deep body.dark-mode .stat-card.proceso span { color: #fbbf24 !important; }
-::ng-deep body.dark-mode .stat-card.resuelto span { color: #4ade80 !important; }
+::ng-deep body.dark-mode .stat-card.pendiente {
+  border-left-color: #f59e0b !important;
+}
+::ng-deep body.dark-mode .stat-card.pendiente span { color: #f59e0b !important; }
+
+::ng-deep body.dark-mode .stat-card.proceso {
+  border-left-color: #3b82f6 !important;
+}
+::ng-deep body.dark-mode .stat-card.proceso span { color: #3b82f6 !important; }
+
+::ng-deep body.dark-mode .stat-card.resuelto {
+  border-left-color: #22c55e !important;
+}
+::ng-deep body.dark-mode .stat-card.resuelto span { color: #22c55e !important; }
+
+::ng-deep body.dark-mode .stat-card.total {
+  border-left-color: #60a5fa !important;
+}
 ::ng-deep body.dark-mode .stat-card.total span { color: #60a5fa !important; }
 
 ::ng-deep body.dark-mode .map-card {

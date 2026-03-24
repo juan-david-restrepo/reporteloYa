@@ -17,6 +17,7 @@ interface Reporte {
   horaIncidente?: Date | null;
   estado: 'PENDIENTE' | 'EN_PROCESO' | 'FINALIZADO';
   agente?: string;
+  placaAcompanante?: string;
   foto?: string;
   direccion?: string;
 }
@@ -110,19 +111,50 @@ export class MapaReportesComponent implements AfterViewInit, OnInit, OnDestroy {
   // --- Gestión de Datos ---
   private cargarReportesIniciales(): void {
     this.reportesService.obtenerReportes().then((data: any) => {
-      console.log('Reportes recibidos:', data);
+      if (data.content && data.content.length > 0) {
+        console.log('Primer reporte (debug):', JSON.stringify(data.content[0], null, 2));
+      }
+      console.log('Reportes recibidos:', JSON.stringify(data.content, null, 2));
 
-      this.reportes = data.content.map((r: any) => ({
-        id: r.id,
-        tipo: r.tipoInfraccion,
-        descripcion: r.descripcion,
-        latitud: r.latitud,
-        longitud: r.longitud,
-        fechaIncidente: new Date(r.fechaIncidente),
-        horaIncidente: r.horaIncidente || null,
-        direccion: r.direccion || '',
-        estado: r.estado.toUpperCase(),
-      }));
+      this.reportes = data.content.map((r: any) => {
+        const estado = r.estado.toUpperCase();
+        const esAtendido = estado === 'EN_PROCESO' || estado === 'FINALIZADO';
+        
+        let agente = '';
+        let placaAcompanante = '';
+        
+        if (esAtendido) {
+          if (r.agente?.placa) {
+            agente = r.agente.placa;
+          } else if (r.placaAgente) {
+            agente = r.placaAgente;
+          }
+          
+          if (r.agenteCompanero?.placa) {
+            placaAcompanante = r.agenteCompanero.placa;
+          } else if (r.placaCompanero) {
+            placaAcompanante = r.placaCompanero;
+          } else if (r.nombreCompanero) {
+            placaAcompanante = r.nombreCompanero;
+          } else if (r.acompanado && !placaAcompanante) {
+            placaAcompanante = 'Con acompañante';
+          }
+        }
+        
+        return {
+          id: r.id,
+          tipo: r.tipoInfraccion,
+          descripcion: r.descripcion,
+          latitud: r.latitud,
+          longitud: r.longitud,
+          fechaIncidente: new Date(r.fechaIncidente),
+          horaIncidente: r.horaIncidente || null,
+          direccion: r.direccion || '',
+          agente: agente,
+          placaAcompanante: placaAcompanante,
+          estado: estado,
+        };
+      });
 
       this.actualizarContadores();
 
@@ -132,16 +164,59 @@ export class MapaReportesComponent implements AfterViewInit, OnInit, OnDestroy {
     });
   }
 
-  private agregarReporte(reporte: Reporte): void {
+  private agregarReporte(reporte: any): void {
     reporte.fechaIncidente = new Date(reporte.fechaIncidente);
-    this.reportes.push(reporte);
-    if (this.mapaListo) this.crearMarcador(reporte);
+    
+    const estado = reporte.estado?.toUpperCase();
+    const esAtendido = estado === 'EN_PROCESO' || estado === 'FINALIZADO';
+    
+    if (esAtendido) {
+      if (reporte.agente?.placa) {
+        reporte.agente = reporte.agente.placa;
+      } else if (reporte.placaAgente) {
+        reporte.agente = reporte.placaAgente;
+      }
+      
+      if (reporte.agenteCompanero?.placa) {
+        reporte.placaAcompanante = reporte.agenteCompanero.placa;
+      } else if (reporte.placaCompanero) {
+        reporte.placaAcompanante = reporte.placaCompanero;
+      } else if (reporte.nombreCompanero) {
+        reporte.placaAcompanante = reporte.nombreCompanero;
+      } else if (reporte.acompanado && !reporte.placaAcompanante) {
+        reporte.placaAcompanante = 'Con acompañante';
+      }
+    }
+    
+    this.reportes.push(reporte as Reporte);
+    if (this.mapaListo) this.crearMarcador(reporte as Reporte);
     this.actualizarContadores();
   }
 
-private actualizarReporte(reporteActualizado: Reporte): void {
+private actualizarReporte(reporteActualizado: any): void {
   const index = this.reportes.findIndex(r => r.id === reporteActualizado.id);
   if (index === -1) return;
+
+  const estado = reporteActualizado.estado?.toUpperCase();
+  const esAtendido = estado === 'EN_PROCESO' || estado === 'FINALIZADO';
+  
+  if (esAtendido) {
+    if (reporteActualizado.agente?.placa) {
+      reporteActualizado.agente = reporteActualizado.agente.placa;
+    } else if (reporteActualizado.placaAgente) {
+      reporteActualizado.agente = reporteActualizado.placaAgente;
+    }
+    
+    if (reporteActualizado.agenteCompanero?.placa) {
+      reporteActualizado.placaAcompanante = reporteActualizado.agenteCompanero.placa;
+    } else if (reporteActualizado.placaCompanero) {
+      reporteActualizado.placaAcompanante = reporteActualizado.placaCompanero;
+    } else if (reporteActualizado.nombreCompanero) {
+      reporteActualizado.placaAcompanante = reporteActualizado.nombreCompanero;
+    } else if (reporteActualizado.acompanado && !reporteActualizado.placaAcompanante) {
+      reporteActualizado.placaAcompanante = 'Con acompañante';
+    }
+  }
 
   this.reportes[index] = {
     ...this.reportes[index],
@@ -287,11 +362,11 @@ private actualizarReporte(reporteActualizado: Reporte): void {
   private getColorEstado(estado: string): string {
     switch (estado) {
       case 'PENDIENTE':
-        return '#ffc107';
+        return '#f59e0b';
       case 'EN_PROCESO':
-        return '#fd7e14';
+        return '#3b82f6';
       case 'FINALIZADO':
-        return '#28a745';
+        return '#22c55e';
       default:
         return '#6c757d';
     }

@@ -87,6 +87,10 @@
               <span class="detalle-item-label">Agente</span>
               <span class="detalle-item-value">{{ reporteSeleccionado.agente }}</span>
             </div>
+            <div class="detalle-item" *ngIf="reporteSeleccionado.placaAcompanante">
+              <span class="detalle-item-label">Acompañante</span>
+              <span class="detalle-item-value">{{ reporteSeleccionado.placaAcompanante }}</span>
+            </div>
           </div>
         </div>
 
