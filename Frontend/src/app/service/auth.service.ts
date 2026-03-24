@@ -77,6 +77,10 @@ export class AuthService {
             // Guardar solo en memoria
             this.currentUser.next(user);
             this.authState.next(true);
+
+            localStorage.setItem('userId', user.userId);
+            localStorage.setItem('email', user.email);
+            localStorage.setItem('role', user.role);
           } else {
             this.clearUserState();
           }
@@ -118,5 +122,8 @@ export class AuthService {
   private clearUserState(): void {
     this.currentUser.next(null);
     this.authState.next(false);
+    localStorage.removeItem('userId');
+    localStorage.removeItem('email');
+    localStorage.removeItem('role');
   }
 }

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.reporteloya.backend.entity.Reporte;
+import com.reporteloya.backend.entity.Usuario;
 import com.reporteloya.backend.dto.ReporteSocketDTO;
 import com.reporteloya.backend.dto.AgenteDisponibleDTO;
 import com.reporteloya.backend.dto.EstadoAgenteDTO;
@@ -76,7 +77,8 @@ public class ReporteService {
             String fechaIncidente,
             String horaIncidente,
             String tipoInfraccion,
-            List<MultipartFile> archivos) {
+            List<MultipartFile> archivos,
+            Usuario usuario) {
 
         if (archivos == null || archivos.isEmpty()) {
             throw new RuntimeException("Debe subir al menos una imagen");
@@ -104,6 +106,7 @@ public class ReporteService {
         }
 
         Reporte reporte = new Reporte();
+        reporte.setUsuario(usuario);
         reporte.setDescripcion(descripcion);
         reporte.setDireccion(direccion);
         reporte.setLatitud(latitud);
@@ -138,7 +141,11 @@ public class ReporteService {
         Reporte guardado = reporteRepository.save(reporte);
         guardarEvidencias(archivos, guardado);
 
-        // Recargar para obtener las evidencias asociadas
+        System.out.println("=== REPORTE CREADO ===");
+        System.out.println("Reporte ID: " + guardado.getId());
+        System.out.println("Usuario ID: " + (usuario != null ? usuario.getId() : "NULL"));
+        System.out.println("======================");
+
         Reporte reporteCompleto = reporteRepository.findById(guardado.getId()).orElse(guardado);
         ReporteSocketDTO dto = convertirADTO(reporteCompleto);
         messagingTemplate.convertAndSend("/topic/reportes", dto);
@@ -790,5 +797,99 @@ public class ReporteService {
         }
         return result;
     }
+
+
+    public void eliminarReporte(Long reporteId, Long usuarioId) {
+        Reporte reporte = reporteRepository.findById(reporteId)
+                .orElseThrow(() -> new RuntimeException("Reporte no encontrado"));
+        
+        if (!"PENDIENTE".equals(reporte.getEstado())) {
+            throw new RuntimeException("Solo puede eliminar reportes pendientes");
+        }
+        
+        if (reporte.getUsuario() == null || !reporte.getUsuario().getId().equals(usuarioId)) {
+            throw new RuntimeException("No tiene permiso para eliminar este reporte");
+        }
+        
+        reporteRepository.delete(reporte);
+    }
+
+
+    public List<Reporte> obtenerReportesPorUsuario(Long usuarioId) {
+        return reporteRepository.findByUsuario_IdOrderByCreatedAtDesc(usuarioId);
+    }
+
+
+
+    public Reporte actualizarReporte(Long reporteId, Long usuarioId, String descripcion, String direccion, 
+            Double latitud, Double longitud, String placa, String fechaIncidente, String horaIncidente,
+            String tipoInfraccion) {
+        Reporte reporte = reporteRepository.findById(reporteId)
+                .orElseThrow(() -> new RuntimeException("Reporte no encontrado"));
+        
+        if (!"PENDIENTE".equals(reporte.getEstado())) {
+            throw new RuntimeException("Solo puede editar reportes pendientes");
+        }
+        
+        if (reporte.getUsuario() == null || !reporte.getUsuario().getId().equals(usuarioId)) {
+            throw new RuntimeException("No tiene permiso para editar este reporte");
+        }
+        
+        if (descripcion != null) reporte.setDescripcion(descripcion);
+        if (direccion != null) reporte.setDireccion(direccion);
+        if (latitud != null) reporte.setLatitud(latitud);
+        if (longitud != null) reporte.setLongitud(longitud);
+        if (placa != null) reporte.setPlaca(placa.trim().toUpperCase());
+        if (tipoInfraccion != null) reporte.setTipoInfraccion(tipoInfraccion);
+        
+        if (fechaIncidente != null && !fechaIncidente.isBlank()) {
+            try {
+                reporte.setFechaIncidente(LocalDate.parse(fechaIncidente.trim()));
+            } catch (Exception e) {
+                throw new RuntimeException("Formato de fecha inválido");
+            }
+        }
+        
+        if (horaIncidente != null && !horaIncidente.isBlank()) {
+            try {
+                reporte.setHoraIncidente(LocalTime.parse(horaIncidente.trim().substring(0,5)));
+            } catch (Exception e) {
+                throw new RuntimeException("Formato de hora inválido");
+            }
+        }
+        
+        return reporteRepository.save(reporte);
+    }
+
+    public ReporteReportesDTO obtenerEstadisticas(Long usuarioId) {
+        int total = reporteRepository.countByUsuarioId(usuarioId);
+        int pendientes = reporteRepository.countByUsuarioIdAndEstado(usuarioId, "PENDIENTE");
+        int enProceso = reporteRepository.countByUsuarioIdAndEstado(usuarioId, "EN_PROCESO");
+        int finalizados = reporteRepository.countByUsuarioIdAndEstado(usuarioId, "FINALIZADO");
+        
+        return new ReporteReportesDTO(total, pendientes, enProceso, finalizados);
+    }
+
+        // DTO for statistics
+    public static class ReporteReportesDTO {
+        private int total;
+        private int pendientes;
+        private int enProceso;
+        private int finalizados;
+
+        public ReporteReportesDTO(int total, int pendientes, int enProceso, int finalizados) {
+            this.total = total;
+            this.pendientes = pendientes;
+            this.enProceso = enProceso;
+            this.finalizados = finalizados;
+        }
+
+        public int getTotal() { return total; }
+        public int getPendientes() { return pendientes; }
+        public int getEnProceso() { return enProceso; }
+        public int getFinalizados() { return finalizados; }
+    }
+
+
 }
 

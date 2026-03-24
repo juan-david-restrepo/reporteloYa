@@ -3,10 +3,11 @@ import { RouterOutlet } from '@angular/router';
 import { ScrollTopComponent } from './scroll-top/scroll-top';
 import { IdleService } from './service/idle.service';
 import { CommonModule } from '@angular/common';
+import { FloatingActionsComponent } from './shared/floating-actions/floating-actions';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, ScrollTopComponent, CommonModule],
+  imports: [RouterOutlet, ScrollTopComponent, CommonModule, FloatingActionsComponent],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

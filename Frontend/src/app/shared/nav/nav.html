@@ -22,16 +22,10 @@
                                 <p>Video de infracción</p>
                             </div>
                             <div class="dropdown-section">
-                                <h4>Mis Reportes</h4>
+                                <a routerLink="/mis-reportes"><h4>Mis Reportes</h4></a>
                                 <p>Ver historial de reportes enviados</p>
                                 <p>Estado del reporte</p>
                                 <p>Editar o eliminar reporte</p>
-                            </div>
-                            <div class="dropdown-section">
-                                <h4>Reportes Públicos</h4>
-                                <p>Mapa de infracciones reportadas</p>
-                                <p>Estadísticas por zona</p>
-                                <p>Alertas comunitarias</p>
                             </div>
                         </div>
                     </div>
@@ -71,8 +65,7 @@
                     </div>
 
                     <!-- LINKS NORMALES -->
-                    <a class="menu-item" routerLinkActive="active" (click)="$event.preventDefault()">Estadísticas</a>
-                    <a class="menu-item" routerLinkActive="active" (click)="$event.preventDefault()">Noticias</a>
+                    <a class="menu-item" routerLinkActive="active" (click)="$event.preventDefault()">Reportes Publicos</a>
                     <a routerLink="/soporte" class="menu-item" routerLinkActive="active">Soporte</a>
 
                 </div>

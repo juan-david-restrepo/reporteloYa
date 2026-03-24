@@ -11,7 +11,6 @@ export interface ReporteRequest {
   fechaIncidente: string | null;
   horaIncidente: string | null;
   tipoInfraccion: string;
-  estado: string;
 }
 
 @Injectable({
@@ -19,18 +18,20 @@ export interface ReporteRequest {
 })
 export class SubirReporteService {
   private apiUrl = 'http://localhost:8080/api/reportes/crear';
-  private formData: FormData | null = null;
 
   constructor(private http: HttpClient) {}
 
-  crearReporte(data: ReporteRequest, archivos: File[]) {
+  crearReporte(data: ReporteRequest, archivos: File[]): Observable<any> {
     const formData = new FormData();
 
     formData.append('descripcion', data.descripcion);
-    formData.append('placa', data.placa);
     formData.append('direccion', data.direccion);
     formData.append('latitud', data.latitud.toString());
     formData.append('longitud', data.longitud.toString());
+
+    if (data.placa) {
+      formData.append('placa', data.placa);
+    }
 
     if (data.fechaIncidente) {
       formData.append('fechaIncidente', data.fechaIncidente);
@@ -41,7 +42,6 @@ export class SubirReporteService {
     }
 
     formData.append('tipoInfraccion', data.tipoInfraccion);
-    formData.append('estado', data.estado);
 
     archivos.forEach((file) => {
       formData.append('archivos', file);

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core'; 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { Nav } from '../../shared/nav/nav';
 import { Footer } from '../../shared/footer/footer';
 import { Avatar } from '../../service/avatar';
@@ -8,11 +9,12 @@ import { UserService, Usuario } from '../../service/user.service';
 import { ModalComponent } from '../modal/modal.component';
 import Swal from 'sweetalert2';
 import { AuthService, AuthUser } from '../../service/auth.service';
+import { ActividadRecienteService, ActividadReciente } from '../../service/actividad-reciente.service';
 
 @Component({
   selector: 'app-perfil',
   standalone: true,
-  imports: [CommonModule, FormsModule, Nav, Footer, ModalComponent],
+  imports: [CommonModule, FormsModule, RouterModule, Nav, Footer, ModalComponent],
   templateUrl: './perfil.html',
   styleUrls: ['./perfil.css'],
 })
@@ -23,8 +25,11 @@ export class Perfil implements OnInit {
   isEditing = false;
 
   isModalOpen = false;
-  private userId: string | null = null; // ID del usuario logueado
+  private userId: string | null = null;
   isLoggedIn = false;
+  esCiudadano: boolean = true;
+  
+  actividades: ActividadReciente[] = [];
 
   user = {
     name: '',
@@ -37,11 +42,17 @@ export class Perfil implements OnInit {
   constructor(
     private avatarService: Avatar,
     private userService: UserService,
-    private authService: AuthService
+    private authService: AuthService,
+    private actividadService: ActividadRecienteService
   ) {}
 
   ngOnInit() {
-    // 🔹 Refrescar usuario desde cookie y sincronizar estado
+    this.esCiudadano = this.actividadService.esCiudadano();
+    
+    if (this.esCiudadano) {
+      this.actividadService.registrarAccesoModulo('Perfil');
+    }
+
     this.authService.refreshUser().subscribe({
       next: (currentUser: AuthUser | null) => {
         if (!currentUser || !currentUser.userId) {
@@ -53,20 +64,21 @@ export class Perfil implements OnInit {
         this.userId = currentUser.userId;
         this.isLoggedIn = true;
 
-        // 🔹 Cargar avatar sincronizado
         this.avatarService.loadAvatarForUser(this.userId);
         this.avatarService.avatar$.subscribe(avatar => {
           if (avatar) this.avatar = avatar;
         });
 
-        // 🔹 Cargar datos de perfil desde backend con cookies
         this.loadProfile();
 
-        // 🔹 Cargar total de reportes
         this.userService.getTotalReportes().subscribe({
           next: (res) => this.totalReportes = res.total_reportes,
           error: (err) => console.error('Error al obtener reportes:', err)
         });
+
+        if (this.esCiudadano) {
+          this.cargarActividades();
+        }
       },
       error: (err) => {
         console.error('Error al refrescar usuario:', err);
@@ -94,6 +106,12 @@ export class Perfil implements OnInit {
     });
   }
 
+  cargarActividades() {
+    this.actividadService.actividades$.subscribe(actividades => {
+      this.actividades = actividades;
+    });
+  }
+
   openAvatarModal() {
     this.isModalOpen = true;
   }
@@ -101,6 +119,9 @@ export class Perfil implements OnInit {
   onAvatarSelected(newAvatar: string) {
     if (this.userId) {
       this.avatarService.setAvatarForUser(this.userId, newAvatar);
+      if (this.esCiudadano) {
+        this.actividadService.registrarCambioAvatar();
+      }
     }
     this.isModalOpen = false;
   }
@@ -111,6 +132,9 @@ export class Perfil implements OnInit {
       const reader = new FileReader();
       reader.onload = (e: any) => {
         this.avatarService.setAvatarForUser(this.userId!, e.target.result);
+        if (this.esCiudadano) {
+          this.actividadService.registrarCambioAvatar();
+        }
       };
       reader.readAsDataURL(file);
     }
@@ -145,6 +169,9 @@ export class Perfil implements OnInit {
         });
         this.user.password = '';
         this.user.password2 = '';
+        if (this.esCiudadano) {
+          this.actividadService.registrarActualizacionPerfil();
+        }
       },
       error: err => {
         console.error('Error al guardar perfil:', err);
@@ -152,6 +179,26 @@ export class Perfil implements OnInit {
           icon: 'error',
           title: 'Error',
           text: 'Error al guardar los cambios'
+        });
+      }
+    });
+  }
+
+  limpiarActividades() {
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'Se eliminarán todas las actividades recientes',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, limpiar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.actividadService.limpiarActividades();
+        Swal.fire({
+          icon: 'success',
+          title: '¡Limpiado!',
+          text: 'Las actividades han sido eliminadas'
         });
       }
     });

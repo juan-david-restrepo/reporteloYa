@@ -24,7 +24,15 @@ public interface ReporteRepository extends JpaRepository<Reporte, Long> {
 
     List<Reporte> findByAgentePlacaIgnoreCaseAndEstado(String placa, String estado);
 
+
+    List<Reporte> findByUsuario_IdOrderByCreatedAtDesc(Long usuarioId);
+
     int countByUsuario_Id(Long idUsuario);
+
+    List<Reporte> findByUsuario_IdAndEstadoOrderByCreatedAtDesc(Long usuarioId, String estado);
+
+
+    
 
     Page<Reporte> findByPrioridad(Prioridad prioridad, Pageable pageable);
 
@@ -85,4 +93,11 @@ public interface ReporteRepository extends JpaRepository<Reporte, Long> {
         @Param("estado") String estado, 
         @Param("inicio") LocalDateTime inicio, 
         @Param("fin") LocalDateTime fin);
+
+
+    @Query("SELECT COUNT(r) FROM Reporte r WHERE r.usuario.id = :usuarioId")
+    int countByUsuarioId(@Param("usuarioId") Long usuarioId);
+
+    @Query("SELECT COUNT(r) FROM Reporte r WHERE r.usuario.id = :usuarioId AND r.estado = :estado")
+    int countByUsuarioIdAndEstado(@Param("usuarioId") Long usuarioId, @Param("estado") String estado);
 }

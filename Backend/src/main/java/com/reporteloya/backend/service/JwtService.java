@@ -1,6 +1,7 @@
 package com.reporteloya.backend.service;
 
 import com.reporteloya.backend.entity.Usuario;
+import com.reporteloya.backend.entity.Role;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -22,8 +23,17 @@ public class JwtService {
     @Value("${jwt.secret.key}")
     private String secretKey;
 
-    @Value("${jwt.expiration.ms}")
-    private long expirationTime;
+    @Value("${jwt.expiration.base.ms}")
+    private long baseExpirationMs;
+
+    @Value("${jwt.multiplier.admin}")
+    private int multiplierAdmin;
+
+    @Value("${jwt.multiplier.agente}")
+    private int multiplierAgente;
+
+    @Value("${jwt.multiplier.ciudadano}")
+    private int multiplierCiudadano;
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -39,7 +49,7 @@ public class JwtService {
     }
 
     /**
-     * Genera el token JWT incrustando el Rol y el ID del Usuario en los claims.
+     * Genera el token JWT con el tiempo de expiración estándar.
      */
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
 
@@ -53,9 +63,59 @@ public class JwtService {
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(
-                        new Date(System.currentTimeMillis() + expirationTime))
+                        new Date(System.currentTimeMillis() + baseExpirationMs))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
+    }
+
+    /**
+     * Genera el token JWT con tiempo de expiración según el ROL del usuario.
+     * - ADMIN: 5 días (120 horas)
+     * - AGENTE: 5 días (120 horas)
+     * - CIUDADANO: 5 horas
+     */
+    public String generateTokenWithRole(UserDetails userDetails, Role role) {
+        return generateTokenWithRole(new HashMap<>(), userDetails, role);
+    }
+
+    /**
+     * Genera el token JWT con claims extra y tiempo según el ROL.
+     */
+    public String generateTokenWithRole(Map<String, Object> extraClaims, UserDetails userDetails, Role role) {
+
+        if (userDetails instanceof Usuario customUsuario) {
+            extraClaims.put("role", customUsuario.getRole().name());
+            extraClaims.put("userId", customUsuario.getId());
+        }
+
+        long expirationMs = getExpirationByRole(role);
+
+        return Jwts.builder()
+                .setClaims(extraClaims)
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    /**
+     * Obtiene el tiempo de expiración en milisegundos según el rol.
+     */
+    public long getExpirationByRole(Role role) {
+        int multiplier = switch (role) {
+            case ADMIN -> multiplierAdmin;
+            case AGENTE -> multiplierAgente;
+            case CIUDADANO -> multiplierCiudadano;
+        };
+        return baseExpirationMs * multiplier;
+    }
+
+    /**
+     * Obtiene la expiración del token en segundos (para la cookie).
+     */
+    public long getExpirationSecondsByRole(Role role) {
+        return getExpirationByRole(role) / 1000;
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {

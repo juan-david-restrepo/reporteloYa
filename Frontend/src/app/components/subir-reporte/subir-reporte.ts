@@ -215,6 +215,14 @@ export class SubirReporteComponent implements OnInit, OnDestroy {
     this.urlImagenModal = null;
   }
 
+  mostrarConfirmacion() {
+    this.mostrarModalLegal = true;
+  }
+
+  cerrarModalLegal() {
+    this.mostrarModalLegal = false;
+  }
+
   // =============================
   // OCR Y UBICACIÓN
   // =============================
@@ -381,71 +389,13 @@ export class SubirReporteComponent implements OnInit, OnDestroy {
   }
 
   validarFecha(): boolean {
-    if (!this.fecha || !this.hora) {
-      this.fechaInvalida = false;
-      this.fechaErrorMsg = '';
-      return false;
-    }
 
-    const ahora = new Date();
-    const seleccionada = new Date(`${this.fecha}T${this.hora}`);
-    const diffMs = ahora.getTime() - seleccionada.getTime();
-    const diffHoras = diffMs / (1000 * 60 * 60);
-
-    if (seleccionada > ahora) {
-      this.fechaInvalida = true;
-      this.fechaErrorMsg = 'La fecha no puede ser futura';
-      return false;
-    }
-
-    if (diffHoras > 24) {
-      this.fechaInvalida = true;
-      this.fechaErrorMsg = 'El reporte debe hacerse dentro de las primeras 24 horas';
-      return false;
-    }
-
-    this.fechaInvalida = false;
-    this.fechaErrorMsg = '';
-    return true;
+    return !!this.fecha;
   }
 
-  private validarFechaHora(): boolean {
-    return this.validarFecha();
-  }
+  validarHora(): boolean {
+    return !!this.hora;
 
-  mostrarConfirmacion() {
-    if (!this.formularioValido()) {
-      if (this.evidenciaRequerida) {
-        Swal.fire(
-          'Evidencia requerida',
-          'Por favor adjunta al menos una foto o video como evidencia.',
-          'warning',
-        );
-        return;
-      }
-      
-      const ubicacionValida = this.direccion || (this.ubicacionManual && this.ubicacionManual.trim().length > 0);
-      if (!ubicacionValida) {
-        Swal.fire(
-          'Ubicación requerida',
-          'Por favor indica la ubicación del incidente.',
-          'warning',
-        );
-        return;
-      }
-      
-      Swal.fire(
-        'Formulario incompleto',
-        'Revisa los campos obligatorios.',
-        'warning',
-      );
-      return;
-    }
-    this.mostrarModalLegal = true;
-  }
-
-  cerrarModalLegal() {
-    this.mostrarModalLegal = false;
   }
 
   formularioValido(): boolean {
@@ -454,19 +404,40 @@ export class SubirReporteComponent implements OnInit, OnDestroy {
         ? this.detalleOtroIncidente?.trim()
         : this.tipoSeleccionado;
     
+
     this.evidenciaRequerida = this.fileList.length === 0;
     
     const ubicacionValida = this.direccion || (this.ubicacionManual && this.ubicacionManual.trim().length > 0);
     
+
     return !!(
       tipoFinal &&
       this.descripcion?.trim().length >= 10 &&
       this.validarFecha() &&
-      !this.fechaInvalida &&
-      this.validarPlaca() &&
-      this.fileList.length > 0 &&
-      ubicacionValida
+
+      this.validarHora() &&
+      this.validarPlaca()
+
     );
+  }
+
+  campoFaltante: string = '';
+
+  obtenerCampoFaltante(): string {
+    const tipoFinal =
+      this.tipoSeleccionado === 'Otros'
+        ? this.detalleOtroIncidente?.trim()
+        : this.tipoSeleccionado;
+
+    if (!tipoFinal) return 'Selecciona el tipo de incidente';
+    if (!this.descripcion?.trim() || this.descripcion.trim().length < 10) {
+      return 'La descripción debe tener al menos 10 caracteres';
+    }
+    if (!this.validarFecha()) return 'Selecciona la fecha del incidente';
+    if (!this.validarHora()) return 'Selecciona la hora del incidente';
+    if (!this.validarPlaca()) return 'La placa no es válida (formato: ABC123)';
+    
+    return '';
   }
 
   async enviarReporte() {
@@ -475,6 +446,16 @@ export class SubirReporteComponent implements OnInit, OnDestroy {
 
     const direccionFinal = this.direccion || this.ubicacionManual;
 
+    if (!direccionFinal.trim()) {
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Ubicación requerida',
+        text: 'Por favor ingresa o selecciona una ubicación para el reporte.'
+      });
+      this.isSubmitting = false;
+      return;
+    }
+
     try {
       const formData = new FormData();
 
@@ -482,17 +463,15 @@ export class SubirReporteComponent implements OnInit, OnDestroy {
       formData.append('direccion', direccionFinal);
       formData.append('latitud', this.coordenadas.split(',')[0] || '0');
       formData.append('longitud', this.coordenadas.split(',')[1] || '0');
-      formData.append('placa', this.placa);
-       formData.append(
-         'tipoInfraccion',
-         this.tipoSeleccionado === 'Otros'
-           ? this.detalleOtroIncidente
-           : this.tipoSeleccionado,
-       );
+      formData.append('placa', this.placa || '');
+      formData.append(
+        'tipoInfraccion',
+        this.tipoSeleccionado === 'Otros'
+          ? this.detalleOtroIncidente
+          : this.tipoSeleccionado,
+      );
       formData.append('fechaIncidente', this.fecha);
       formData.append('horaIncidente', this.hora);
-
-     
 
       for (let file of this.fileList) {
         formData.append('archivos', file);
@@ -504,15 +483,28 @@ export class SubirReporteComponent implements OnInit, OnDestroy {
         credentials: 'include',
       });
 
-      if (!response.ok) throw new Error('Error en servidor');
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        const errorMsg = data.error || 'Error al enviar el reporte';
+        throw new Error(errorMsg);
+      }
 
       await Swal.fire({
         icon: 'success',
-        title: 'Reporte enviado correctamente',
+        title: '¡Reporte enviado!',
+        text: 'Tu reporte ha sido recibido y está pendiente de atención.',
+        confirmButtonColor: '#1e40af'
       });
       this.resetFormulario();
-    } catch (error) {
-      await Swal.fire({ icon: 'error', title: 'Error al enviar reporte' });
+    } catch (error: any) {
+      console.error('Error al enviar reporte:', error);
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.message || 'No se pudo enviar el reporte. Intenta nuevamente.',
+        confirmButtonColor: '#ef4444'
+      });
     } finally {
       this.isSubmitting = false;
     }
