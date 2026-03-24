@@ -76,6 +76,7 @@ export class GestionAgentes implements OnInit, OnDestroy {
   horaTarea = '';
   prioridadTarea: 'BAJA' | 'MEDIA' | 'ALTA' = 'MEDIA';
   mensajeTarea = '';
+  fechaMinima = '';
 
   // =========================
   // 4. MODALES
@@ -104,8 +105,17 @@ export class GestionAgentes implements OnInit, OnDestroy {
     }
   }
 
+  private setFechaMinima(): void {
+    const hoy = new Date();
+    const año = hoy.getFullYear();
+    const mes = String(hoy.getMonth() + 1).padStart(2, '0');
+    const dia = String(hoy.getDate()).padStart(2, '0');
+    this.fechaMinima = `${año}-${mes}-${dia}`;
+  }
+
   ngOnInit(): void {
     this.loadSettings();
+    this.setFechaMinima();
     this.websocketService.connect('admin');
 
     this.websocketService.estadosAgentes$.subscribe((estado:any)=>{

@@ -63,7 +63,7 @@
 
         <div>
           <label>Fecha</label>
-          <input type="date" [(ngModel)]="fechaTarea" />
+          <input type="date" [(ngModel)]="fechaTarea" [min]="fechaMinima" />
         </div>
         <div>
           <label>Hora</label>
