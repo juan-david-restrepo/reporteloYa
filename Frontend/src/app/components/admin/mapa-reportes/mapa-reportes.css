@@ -93,10 +93,12 @@ app-sidebar-admin {
   color: #3b82f6; 
 }
 
-.stat-card.resuelto {
+.stat-card.resuelto,
+.stat-card.finalizados {
   border-left-color: #22c55e;
 }
-.stat-card.resuelto span { 
+.stat-card.resuelto span, 
+.stat-card.finalizados span { 
   color: #22c55e; 
 }
 
@@ -671,10 +673,12 @@ app-sidebar-admin {
 }
 ::ng-deep body.dark-mode .stat-card.proceso span { color: #3b82f6 !important; }
 
-::ng-deep body.dark-mode .stat-card.resuelto {
+::ng-deep body.dark-mode .stat-card.resuelto,
+::ng-deep body.dark-mode .stat-card.finalizados {
   border-left-color: #22c55e !important;
 }
-::ng-deep body.dark-mode .stat-card.resuelto span { color: #22c55e !important; }
+::ng-deep body.dark-mode .stat-card.resuelto span,
+::ng-deep body.dark-mode .stat-card.finalizados span { color: #22c55e !important; }
 
 ::ng-deep body.dark-mode .stat-card.total {
   border-left-color: #60a5fa !important;
@@ -809,7 +813,8 @@ app-sidebar-admin {
 ::ng-deep body.protanopia .finalizado,
 ::ng-deep body.protanopia .FINALIZADO,
 ::ng-deep body.protanopia .resuelto,
-::ng-deep body.protanopia .RESUELTO {
+::ng-deep body.protanopia .RESUELTO,
+::ng-deep body.protanopia .stat-card.finalizados span {
   background-color: #ffffff !important;
   color: #000000 !important;
   border: 2px solid #000000 !important;
@@ -847,7 +852,8 @@ app-sidebar-admin {
 ::ng-deep body.deuteranopia .finalizado,
 ::ng-deep body.deuteranopia .FINALIZADO,
 ::ng-deep body.deuteranopia .resuelto,
-::ng-deep body.deuteranopia .RESUELTO {
+::ng-deep body.deuteranopia .RESUELTO,
+::ng-deep body.deuteranopia .stat-card.finalizados span {
   background-color: #ffffff !important;
   color: #000000 !important;
   border: 2px solid #000000 !important;
@@ -885,7 +891,8 @@ app-sidebar-admin {
 ::ng-deep body.tritanopia .finalizado,
 ::ng-deep body.tritanopia .FINALIZADO,
 ::ng-deep body.tritanopia .resuelto,
-::ng-deep body.tritanopia .RESUELTO {
+::ng-deep body.tritanopia .RESUELTO,
+::ng-deep body.tritanopia .stat-card.finalizados span {
   background-color: #ffffff !important;
   color: #000000 !important;
   border: 2px solid #000000 !important;

@@ -45,7 +45,7 @@ export class MapaReportesComponent implements AfterViewInit, OnInit, OnDestroy {
   reportes: Reporte[] = [];
   pendientes = 0;
   enProceso = 0;
-  resueltos = 0;
+  finalizados = 0;
   reporteSeleccionado?: Reporte;
   mostrarDetalle = false;
 
@@ -235,7 +235,7 @@ private actualizarReporte(reporteActualizado: any): void {
     this.enProceso = this.reportes.filter(
       (r) => r.estado === 'EN_PROCESO',
     ).length;
-    this.resueltos = this.reportes.filter(
+    this.finalizados = this.reportes.filter(
       (r) => r.estado === 'FINALIZADO',
     ).length;
   }
@@ -291,7 +291,7 @@ private actualizarReporte(reporteActualizado: any): void {
       fillOpacity: 1,
     });
 
-    const estadoClass = reporte.estado === 'PENDIENTE' ? 'pendiente' : reporte.estado === 'EN_PROCESO' ? 'proceso' : 'resuelto';
+    const estadoClass = reporte.estado === 'PENDIENTE' ? 'pendiente' : reporte.estado === 'EN_PROCESO' ? 'proceso' : 'finalizado';
     const estadoText = reporte.estado === 'EN_PROCESO' ? 'EN PROCESO' : reporte.estado;
     
     const fechaObj = new Date(reporte.fechaIncidente);

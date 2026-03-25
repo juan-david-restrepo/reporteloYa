@@ -113,7 +113,7 @@
                   {{ inf.placaCompanero || inf.nombreCompanero || 'Sin placa' }}
                 </span>
                 <span *ngIf="!inf.acompanado" class="badge-solo">
-                  Va solo
+                  Sin acompañante
                 </span>
               </td>
               <td data-label="Estado">
@@ -221,7 +221,7 @@
           </div>
           <div class="detalle-item"><label>Acompañamiento</label>
             <p *ngIf="infraccionSeleccionada.acompanado" class="badge-acompanado">{{ infraccionSeleccionada.placaCompanero || infraccionSeleccionada.nombreCompanero || 'Sin placa' }}</p>
-            <p *ngIf="!infraccionSeleccionada.acompanado" class="badge-solo">Va solo</p>
+            <p *ngIf="!infraccionSeleccionada.acompanado" class="badge-solo">Sin acompañante</p>
           </div>
           <div class="detalle-item"><label>Estado</label>
             <p><span class="status-badge" [ngClass]="getClaseEstado(infraccionSeleccionada.estado)">{{
