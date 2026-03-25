@@ -25,7 +25,7 @@ export class SubirReporteComponent implements OnInit, OnDestroy {
   // =============================
   // CONFIGURACIÓN CONSTANTE
   // =============================
-  private readonly MAX_FILES = 5;
+  private readonly MAX_FILES = 1;
   private readonly MAX_SIZE_MB = 5;
   private readonly ALLOWED_TYPES = ['image/jpeg', 'image/png', 'video/mp4'];
   private readonly PLACA_REGEX = /^[A-Z]{3}\d{3}$/;
@@ -173,7 +173,7 @@ export class SubirReporteComponent implements OnInit, OnDestroy {
       }
 
       if (this.fileList.length >= this.MAX_FILES) {
-        Swal.fire('Límite alcanzado', 'Máximo 5 archivos.', 'warning');
+        Swal.fire('Límite alcanzado', 'Solo puedes subir 1 archivo (foto o video).', 'warning');
         break;
       }
 
