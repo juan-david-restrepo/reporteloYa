@@ -3,21 +3,28 @@
         <div class="navbar">
             <div class="logo"><a routerLink="/"><img src="assets/images/LogoNuevo2.png" alt="logo"></a></div>
 
-            <div class="menu-and-logo">
+            <!-- Botón hamburguesa -->
+            <button class="hamburger" (click)="toggleMobileMenu()" [class.active]="isMobileMenuOpen">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <div class="menu-and-logo" [class.mobile-open]="isMobileMenuOpen">
                 <div class="menu-buttons-group">
 
-                    <a routerLink="/" class="menu-item-home"  routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+                    <a routerLink="/" class="menu-item-home"  routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMobileMenu()">
                         <i class="fa-solid fa-house"></i> Inicio
                     </a>
 
                     <!-- REPORTES -->
                     <div class="menu-item-container" routerLinkActive="active">
-                        <a class="menu-item" (click)="$event.preventDefault()">
+                        <a class="menu-item" (click)="toggleDropdown($event)">
                             Reportes <i class='bx bx-chevron-down'></i>
                         </a>
                         <div class="dropdown">
                             <div class="dropdown-section">
-                                <a routerLink="/subir-reporte">Subir Evidencia</a>
+                                <a routerLink="/subir-reporte" (click)="closeMobileMenu()">Subir Evidencia</a>
                                 <p>Fotomultas y reportes ciudadanos</p>
                                 <p>Video de infracción</p>
                             </div>
@@ -32,16 +39,16 @@
 
                     <!-- EDUCACIÓN VIAL -->
                     <div class="menu-item-container" routerLinkActive="active">
-                        <a class="menu-item" (click)="$event.preventDefault()">
+                        <a class="menu-item" (click)="toggleDropdown($event)">
                             Educación Vial <i class='bx bx-chevron-down'></i>
                         </a>
                         <div class="dropdown">
                             <div class="dropdown-section">
-                                <a routerLink="/senales">Señales de Tránsito</a>
+                                <a routerLink="/senales" (click)="closeMobileMenu()">Señales de Tránsito</a>
                                 <p>Significado y ejemplos comunes</p>
                             </div>
                             <div class="dropdown-section">
-                                <a routerLink="/normas">Ver normas de tránsito</a>
+                                <a routerLink="/normas" (click)="closeMobileMenu()">Ver normas de tránsito</a>
                                 <p>Guía rápida para conductores y peatones</p>
                             </div>
                         </div>
@@ -49,7 +56,7 @@
 
                     <!-- SERVICIOS -->
                     <div class="menu-item-container" routerLinkActive="active">
-                        <a class="menu-item" (click)="$event.preventDefault()">
+                        <a class="menu-item" (click)="toggleDropdown($event)">
                             Servicios <i class='bx bx-chevron-down'></i>
                         </a>
                         <div class="dropdown">
@@ -66,11 +73,46 @@
 
                     <!-- LINKS NORMALES -->
                     <a class="menu-item" routerLinkActive="active" (click)="$event.preventDefault()">Reportes Publicos</a>
-                    <a routerLink="/soporte" class="menu-item" routerLinkActive="active">Soporte</a>
+                    <a routerLink="/soporte" class="menu-item" routerLinkActive="active" (click)="closeMobileMenu()">Soporte</a>
+
+                    <!-- Botones login/registro para móvil (no logueado) -->
+                    <div class="mobile-buttons mobile-auth-buttons" *ngIf="!isLoggedIn">
+                        <a routerLink="/login" class="button button-login" (click)="closeMobileMenu()">
+                            <i class='bx bx-user'></i> Iniciar sesión
+                        </a>
+                        <a routerLink="/registro" class="button button-signup" (click)="closeMobileMenu()">Registrarme</a>
+                    </div>
+
+                    <!-- Perfil para móvil (logueado) -->
+                    <div class="mobile-profile" *ngIf="isLoggedIn">
+                        <div class="mobile-profile-header">
+                            <img [src]="currentAvatar" alt="Perfil" class="mobile-avatar">
+                            <div class="mobile-profile-info">
+                                <span class="mobile-profile-name">Mi Perfil</span>
+                                <a routerLink="/perfil" (click)="closeMobileMenu()" class="mobile-profile-link">Ver perfil</a>
+                            </div>
+                        </div>
+                        <div class="mobile-profile-menu">
+                            <a routerLink="/perfil" (click)="closeMobileMenu()">
+                                <i class="bx bx-user-circle"></i> Mi Perfil
+                            </a>
+                            <a routerLink="/configuracion" (click)="closeMobileMenu()">
+                                <i class="bx bx-cog"></i> Configuración
+                            </a>
+                            <a routerLink="/mensajes" (click)="closeMobileMenu()">
+                                <i class="fas fa-bell"></i> Notificaciones
+                            </a>
+                            <a (click)="logout(); closeMobileMenu()" class="mobile-logout">
+                                <i class="bx bx-log-out"></i> Cerrar Sesión
+                            </a>
+                        </div>
+                    </div>
 
                 </div>
             </div>
 
+            <!-- Overlay para menú móvil -->
+            <div class="mobile-overlay" [class.active]="isMobileMenuOpen" (click)="closeMobileMenu()"></div>
 
             <div class="buttons">
 
@@ -78,10 +120,10 @@
                 <a *ngIf="!isLoggedIn" routerLink="/login" class="button button-login"><i class='bx  bx-user'></i> Iniciar sesion</a>
                 <a *ngIf="!isLoggedIn" routerLink="/registro" class="button button-signup">Registrarme</a>
 
-                <!-- ✔ Mostrar cuando esté logueado -->
+                <!-- ✔ Mostrar cuando esté logueado (solo en desktop) -->
                 <button
                     id="sidebarToggle"
-                    class="toggle-btn"
+                    class="toggle-btn desktop-profile-btn"
                     (click)="toggleSidebar()"
                     *ngIf="isLoggedIn"
                     title="Cuenta"
