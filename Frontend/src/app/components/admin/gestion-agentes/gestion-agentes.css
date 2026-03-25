@@ -602,7 +602,7 @@ table td {
 /* ===== ANCHOS ESPECÍFICOS PARA 6 COLUMNAS ===== */
 .tabla-tareas th:nth-child(1),
 .tabla-tareas td:nth-child(1) {
-  width: 130px;
+  width: 110px;
   text-align: center;
 }
 
@@ -623,7 +623,7 @@ table td {
 /* Descripción */
 .tabla-tareas th:nth-child(4),
 .tabla-tareas td:nth-child(4) {
-  width: 120px;
+  width: 135px;
    text-align: center;
 }
 

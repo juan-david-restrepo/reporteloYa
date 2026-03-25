@@ -124,11 +124,9 @@
             <td data-label="Prioridad">
               <span class="prioridad" [ngClass]="tarea.prioridad.toLowerCase()">{{ tarea.prioridad }}</span>
             </td>
-            <td data-label="Acción" *ngIf="hayTareasPendientes(tareas)">
-              <button *ngIf="tarea.estado === 'PENDIENTE' || tarea.estado === 'RECHAZADO'" class="btn-eliminar" (click)="abrirModalEliminar(tarea)">
-                Eliminar
-              </button>
-              <span *ngIf="tarea.estado !== 'PENDIENTE' && tarea.estado !== 'RECHAZADO' && tarea.estado !== 'FINALIZADO'" class="badge-aceptado">Aceptado</span>
+            <td data-label="Acción">
+              <button *ngIf="tarea.estado === 'PENDIENTE' || tarea.estado === 'RECHAZADO'" class="btn-eliminar" (click)="abrirModalEliminar(tarea)">Eliminar</button>
+              <span *ngIf="tarea.estado === 'EN PROCESO' || tarea.estado === 'FINALIZADO'" class="badge-aceptado">Aceptado</span>
             </td>
           </tr>
         </tbody>

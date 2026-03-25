@@ -363,6 +363,6 @@ export class GestionAgentes implements OnInit, OnDestroy {
   }
 
   hayTareasPendientes(tareas: any[]): boolean {
-    return tareas.some(t => t.estado === 'PENDIENTE' || t.estado === 'RECHAZADO');
+    return tareas.some(t => t.estado !== 'FINALIZADO');
   }
 }
