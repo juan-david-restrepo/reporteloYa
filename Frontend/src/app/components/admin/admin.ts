@@ -29,6 +29,9 @@ interface ReporteAdmin {
   fechaAceptado?: string;
   fechaFinalizado?: string;
   fechaRechazado?: string;
+  acompanado?: boolean;
+  placaCompanero?: string;
+  nombreCompanero?: string;
 }
 
 @Component({
@@ -231,6 +234,21 @@ export class Admin implements OnInit, AfterViewInit, OnDestroy {
       nombreAgente = data.agente.nombreCompleto || data.agente.nombre || '';
       placaAgente = data.agente.placa || '';
     }
+    if (!placaAgente && data.placaAgente) {
+      placaAgente = data.placaAgente;
+    }
+    if (!nombreAgente && data.nombreAgente) {
+      nombreAgente = data.nombreAgente;
+    }
+
+    let placaCompanero = '';
+    let nombreCompanero = '';
+    if (data.agenteCompanero) {
+      placaCompanero = data.agenteCompanero.placa || '';
+      nombreCompanero = data.agenteCompanero.nombreCompleto || data.agenteCompanero.nombre || '';
+    } else if (data.placaCompanero) {
+      placaCompanero = data.placaCompanero;
+    }
 
     return {
       id: data.id || 0,
@@ -254,7 +272,10 @@ export class Admin implements OnInit, AfterViewInit, OnDestroy {
       urlFoto: urlFoto,
       fechaAceptado: data.fechaAceptado,
       fechaFinalizado: data.fechaFinalizado,
-      fechaRechazado: data.fechaRechazado
+      fechaRechazado: data.fechaRechazado,
+      acompanado: data.acompanado ?? false,
+      placaCompanero: placaCompanero,
+      nombreCompanero: nombreCompanero
     };
   }
 

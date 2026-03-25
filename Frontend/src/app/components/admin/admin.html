@@ -96,6 +96,7 @@
               <th>Fecha</th>
               <th>Tipo</th>
               <th>Agente</th>
+              <th>Acompañamiento</th>
               <th>Estado</th>
             </tr>
           </thead>
@@ -104,7 +105,17 @@
               <td data-label="#"><strong>{{ inf.id }}</strong></td>
               <td data-label="Fecha">{{ inf.fecha }}</td>
               <td data-label="Tipo">{{ getNombreTipo(inf.tipo) }}</td>
-              <td data-label="Agente">{{ inf.agente }}</td>
+              <td data-label="Agente">
+                <span class="placa-agente">{{ inf.placaAgente || inf.agente }}</span>
+              </td>
+              <td data-label="Acompañamiento">
+                <span *ngIf="inf.acompanado" class="badge-acompanado">
+                  {{ inf.placaCompanero || inf.nombreCompanero || 'Sin placa' }}
+                </span>
+                <span *ngIf="!inf.acompanado" class="badge-solo">
+                  Va solo
+                </span>
+              </td>
               <td data-label="Estado">
                 <span class="status" [ngClass]="getClaseEstado(inf.estado)">{{ inf.estado }}</span>
               </td>
@@ -170,8 +181,16 @@
                 <span>{{ inf.ubicacion || 'No especificada' }}</span>
               </div>
               <div class="detalle-fila">
+                <i class="fas fa-car"></i>
+                <span>Agente: {{ inf.placaAgente || inf.agente || 'Sin asignar' }}</span>
+              </div>
+              <div class="fila-acompanamiento" *ngIf="inf.acompanado">
+                <i class="fas fa-user-friends"></i>
+                <span class="texto-acompanado">Acompañado por: </span><span class="badge-acompanado">{{ inf.placaCompanero || inf.nombreCompanero || 'Sin placa' }}</span>
+              </div>
+              <div class="fila-acompanamiento" *ngIf="!inf.acompanado">
                 <i class="fas fa-user"></i>
-                <span>Agente: {{ inf.agente || 'Sin asignar' }}</span>
+                <span class="badge-solo">Sin acompañante</span>
               </div>
               <div class="detalle-fila">
                 <i class="fas fa-align-left"></i>
@@ -198,7 +217,11 @@
             <p>{{ getNombreTipo(infraccionSeleccionada.tipo) }}</p>
           </div>
           <div class="detalle-item"><label>Agente</label>
-            <p>{{ infraccionSeleccionada.agente }}</p>
+            <p>{{ infraccionSeleccionada.placaAgente || infraccionSeleccionada.agente || 'Sin asignar' }}</p>
+          </div>
+          <div class="detalle-item"><label>Acompañamiento</label>
+            <p *ngIf="infraccionSeleccionada.acompanado" class="badge-acompanado">{{ infraccionSeleccionada.placaCompanero || infraccionSeleccionada.nombreCompanero || 'Sin placa' }}</p>
+            <p *ngIf="!infraccionSeleccionada.acompanado" class="badge-solo">Va solo</p>
           </div>
           <div class="detalle-item"><label>Estado</label>
             <p><span class="status-badge" [ngClass]="getClaseEstado(infraccionSeleccionada.estado)">{{
