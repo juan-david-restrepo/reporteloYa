@@ -30,6 +30,8 @@ import { SobreNosotros } from './components/sobre-nosotros/sobre-nosotros';
 import { ServiciosFooter } from './components/servicios-footer/servicios-footer';
 import { PreguntasFrecuentes } from './components/preguntas-frecuentes/preguntas-frecuentes';
 import { MisReportes } from './components/mis-reportes/mis-reportes';
+import { ReportesPublicos } from './reportes-publicos/reportes-publicos';
+
 
 
 export const routes: Routes = [
@@ -64,4 +66,5 @@ export const routes: Routes = [
   { path: 'servicios-footer', component: ServiciosFooter },
   { path: 'preguntas-frecuentes', component: PreguntasFrecuentes },
     { path: 'mis-reportes', component: MisReportes, canActivate: [authGuard] },
+  {path: 'reportes-publicos', component: ReportesPublicos}
 ];

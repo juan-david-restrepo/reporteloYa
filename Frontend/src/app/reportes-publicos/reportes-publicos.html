@@ -1,0 +1,23 @@
+<div class="public-container">
+  
+  <div class="public-header">
+    <h1>Reportes de Infracciones en Tiempo Real</h1>
+    <p>Mapa público de incidentes vial</p>
+  </div>
+
+  <div class="legend-card">
+    <h3>Tipos de Infracciones</h3>
+    <div class="legend-items">
+      <div class="legend-item" *ngFor="let item of tiposConteo">
+        <span class="legend-color" [style.background-color]="item.color"></span>
+        <span class="legend-label">{{ item.tipo }}</span>
+        <span class="legend-count">{{ item.cantidad }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="map-card">
+    <div id="map"></div>
+  </div>
+
+</div>

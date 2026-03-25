@@ -30,6 +30,8 @@ import com.reporteloya.backend.dto.AdminDashboardDTO;
 
 
 
+
+
 import java.time.LocalDateTime;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -784,7 +786,7 @@ public class ReporteService {
         int enProceso = reporteRepository.countByEstado("EN_PROCESO");
         int finalizados = reporteRepository.countByEstado("FINALIZADO");
         int rechazados = reporteRepository.countByEstado("RECHAZADO");
-        int reportesHoy = reporteRepository.countByCreatedAtBetween(inicioDia, finDia);
+        int reportesHoy = reporteRepository.countReportesCreadosEntre(inicioDia, finDia);
 
         List<EstadisticaGraficaDTO.StatItem> statsSemana = obtenerStatsGlobales("SEMANA", 
             new String[]{"Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom"});
