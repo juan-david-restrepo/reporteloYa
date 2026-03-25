@@ -12,7 +12,7 @@
       <h1 class="titulo">Gestión de Agentes de Tránsito</h1>
       <label>Buscar agente por número de placa</label>
       <div class="busqueda">
-        <input type="text" placeholder="Ej: AT-123" [(ngModel)]="placaBuscada" />
+        <input type="text" placeholder="Ej: AT-123" [(ngModel)]="placaBuscada" (keyup.enter)="buscarAgente()" />
         <button (click)="buscarAgente()">Buscar</button>
       </div>
       <p class="error" *ngIf="error">{{ error }}</p>
@@ -204,13 +204,49 @@
         <h3 class="subtitulo-seccion" *ngIf="filtroSeleccionado === 'TODOS'">
           Reportes Realizados
         </h3>
-        <table class="tabla-reportes" *ngIf="reportes.length > 0">
+        <div class="reportes-container" *ngIf="reportes.length > 0">
+          <div class="reporte-card" *ngFor="let reporte of reportes">
+            <div class="reporte-header-card">
+              <span class="reporte-fecha"><i class="fas fa-calendar"></i> {{ reporte.fechaIncidente }}</span>
+              <span class="reporte-hora"><i class="fas fa-clock"></i> {{ reporte.horaIncidente }}</span>
+            </div>
+            <div class="reporte-body-card">
+              <div class="reporte-item">
+                <span class="reporte-label">Ubicación</span>
+                <span class="reporte-value">{{ reporte.direccion }}</span>
+              </div>
+              <div class="reporte-item">
+                <span class="reporte-label">Incidente</span>
+                <span class="reporte-value reporte-tipo">{{ reporte.tipoInfraccion }}</span>
+              </div>
+              <div class="reporte-item">
+                <span class="reporte-label">Acompañamiento</span>
+                <span class="reporte-value">
+                  <span *ngIf="reporte.acompanado" class="badge-acompanado">{{ reporte.placaCompanero }}</span>
+                  <span *ngIf="!reporte.acompanado" class="badge-solo">Solo</span>
+                </span>
+              </div>
+              <div class="reporte-item" *ngIf="reporte.descripcion">
+                <span class="reporte-label">Descripción</span>
+                <span class="reporte-value" *ngIf="reporte.descripcion.length < 30">{{ reporte.descripcion }}</span>
+                <button *ngIf="reporte.descripcion.length >= 30" class="ver-mas-btn" (click)="abrirModalDescripcion(reporte.descripcion, 'Descripción del Reporte')">Ver más</button>
+              </div>
+              <div class="reporte-item" *ngIf="reporte.resumenOperativo">
+                <span class="reporte-label">Resumen</span>
+                <span class="reporte-value" *ngIf="reporte.resumenOperativo.length < 30">{{ reporte.resumenOperativo }}</span>
+                <button *ngIf="reporte.resumenOperativo.length >= 30" class="ver-mas-btn" (click)="abrirModalDescripcion(reporte.resumenOperativo, 'Resumen Operativo')">Ver más</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <table class="tabla-reportes-desktop" *ngIf="reportes.length > 0">
           <thead>
             <tr>
               <th>Fecha</th>
               <th>Hora</th>
               <th>Ubicación</th>
               <th>Incidente</th>
+              <th>Acompañamiento</th>
               <th>Descripción</th>
               <th>Resumen</th>
             </tr>
@@ -221,6 +257,10 @@
               <td data-label="Hora">{{ reporte.horaIncidente }}</td>
               <td data-label="Ubicación">{{ reporte.direccion }}</td>
               <td data-label="Incidente">{{ reporte.tipoInfraccion }}</td>
+              <td data-label="Acompañamiento">
+                <span *ngIf="reporte.acompanado" class="badge-acompanado">{{ reporte.placaCompanero }}</span>
+                <span *ngIf="!reporte.acompanado" class="badge-solo">Solo</span>
+              </td>
               <td data-label="Descripción">
                 <span *ngIf="!reporte.descripcion || reporte.descripcion.length === 0">-</span>
                 <span *ngIf="reporte.descripcion && reporte.descripcion.length < 20">{{ reporte.descripcion }}</span>

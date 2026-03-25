@@ -298,11 +298,7 @@ export class GestionAgentes implements OnInit, OnDestroy {
 
     this.reportesService.obtenerReportesPorAgente(this.agente.placa).subscribe({
       next: (data) => {
-        console.log('📊 Reportes recibidos (raw):', JSON.stringify(data, null, 2));
         this.reportes = data;
-        if (this.reportes.length > 0) {
-          console.log('📊 Primer reporte:', JSON.stringify(this.reportes[0], null, 2));
-        }
         this.cargandoReportes = false;
       },
       error: () => {
