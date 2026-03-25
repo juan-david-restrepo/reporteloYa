@@ -394,20 +394,25 @@ export class Admin implements OnInit, AfterViewInit, OnDestroy {
     const datosFiltrados = this.infracciones.filter(inf => {
       if (!inf.fecha) return false;
       
-      const fechaInf = new Date(inf.fecha);
+      let fechaInf = new Date(inf.fecha);
       if (isNaN(fechaInf.getTime())) return false;
       
+      fechaInf = new Date(fechaInf.getTime() + fechaInf.getTimezoneOffset() * 60000);
+      
       let cumpleTiempo = true;
+      const ahoraLocal = new Date(ahora.getTime() + ahora.getTimezoneOffset() * 60000);
       if (this.filtroTiempoGrafico === 'hoy') {
-        cumpleTiempo = fechaInf.toDateString() === ahora.toDateString();
+        const hoyStr = ahoraLocal.toISOString().split('T')[0];
+        const fechaInfStr = fechaInf.toISOString().split('T')[0];
+        cumpleTiempo = hoyStr === fechaInfStr;
       } else if (this.filtroTiempoGrafico === 'semana') {
-        const haceUnaSemana = new Date();
-        haceUnaSemana.setDate(ahora.getDate() - 7);
+        const haceUnaSemana = new Date(ahoraLocal);
+        haceUnaSemana.setDate(ahoraLocal.getDate() - 7);
         cumpleTiempo = fechaInf >= haceUnaSemana;
       } else if (this.filtroTiempoGrafico === 'mes') {
-        cumpleTiempo = fechaInf.getMonth() === ahora.getMonth() && fechaInf.getFullYear() === ahora.getFullYear();
+        cumpleTiempo = fechaInf.getMonth() === ahoraLocal.getMonth() && fechaInf.getFullYear() === ahoraLocal.getFullYear();
       } else if (this.filtroTiempoGrafico === 'anio') {
-        cumpleTiempo = fechaInf.getFullYear() === ahora.getFullYear();
+        cumpleTiempo = fechaInf.getFullYear() === ahoraLocal.getFullYear();
       }
 
       const cumpleTipo = this.filtroTipoGrafico === 'todos' || this.getNombreTipo(inf.tipo) === this.filtroTipoGrafico;
