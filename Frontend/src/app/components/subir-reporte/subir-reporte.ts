@@ -359,7 +359,33 @@ export class SubirReporteComponent implements OnInit, OnDestroy {
         `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`,
       );
       const data = await res.json();
-      this.direccion = data.display_name || 'Dirección no encontrada';
+      
+      const address = data.address;
+      let direccionCorta = '';
+      
+      if (address) {
+        const partes: string[] = [];
+        
+        if (address.road || address.street || address.footway || address.path || address.pedestrian) {
+          let calle = address.road || address.street || address.footway || address.path || address.pedestrian || '';
+          if (address.house_number) {
+            calle += ' #' + address.house_number;
+          }
+          partes.push(calle);
+        }
+        
+        if (address.neighbourhood || address.suburb || address.quarter || address.hamlet || address.residential || address.village || address.city_district) {
+          partes.push(address.neighbourhood || address.suburb || address.quarter || address.hamlet || address.residential || address.village || address.city_district);
+        }
+        
+        if (address.city || address.municipality || address.town || address.village) {
+          partes.push(address.city || address.municipality || address.town || address.village);
+        }
+        
+        direccionCorta = partes.filter(p => p && p.trim() !== '').join(' - ');
+      }
+      
+      this.direccion = direccionCorta || data.display_name?.split(',').slice(0, 2).join(' - ') || 'Dirección no encontrada';
     } catch (error) {
       this.direccion = 'No se pudo obtener la dirección';
     }

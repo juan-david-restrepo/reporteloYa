@@ -1,10 +1,11 @@
-import { Component, AfterViewInit, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, AfterViewInit, OnInit, OnDestroy, OnChanges, ChangeDetectorRef, SimpleChanges } from '@angular/core';
 import Chart from 'chart.js/auto';
 import { SidebarAdmin } from './sidebar-admin/sidebar-admin';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { InfraccionService, AdminDashboard } from '../../service/infraccion.service';
+import { WebsocketService } from '../../service/websocket.service';
 
 interface ReporteAdmin {
   id: number;
@@ -41,7 +42,7 @@ interface ReporteAdmin {
   styleUrls: ['./admin.css'],
   imports: [SidebarAdmin, RouterModule, CommonModule, FormsModule]
 })
-export class Admin implements OnInit, AfterViewInit, OnDestroy {
+export class Admin implements OnInit, AfterViewInit, OnDestroy, OnChanges {
 
   menuAbierto = false;
   modalAbierto = false;
@@ -69,6 +70,7 @@ export class Admin implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(
     private infraccionService: InfraccionService,
+    private websocketService: WebsocketService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -86,6 +88,19 @@ export class Admin implements OnInit, AfterViewInit, OnDestroy {
     console.log('=== Admin ngOnInit ===');
     this.loadSettings();
     this.cargarInfracciones();
+    
+    this.websocketService.connect('admin');
+    this.websocketService.reportes$.subscribe((reporte: any) => {
+      console.log('Nuevo reporte recibido via WebSocket:', reporte);
+      this.cargarInfracciones();
+      this.cdr.detectChanges();
+    });
+    
+    setTimeout(() => {
+      if (this.infracciones.length > 0) {
+        this.inicializarGrafico();
+      }
+    }, 800);
   }
 
   refreshData(): void {
@@ -94,15 +109,59 @@ export class Admin implements OnInit, AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     console.log('=== Admin ngAfterViewInit ===');
+    this.cdr.detectChanges();
+    
+    const initChart = () => {
+      const canvas = document.getElementById('barChart') as HTMLCanvasElement;
+      if (canvas) {
+        if (!this.chartBarras) {
+          this.inicializarGrafico();
+        } else {
+          this.chartBarras.resize();
+          this.actualizarGraficoBarras();
+        }
+      }
+    };
+    
+    setTimeout(initChart, 300);
+    setTimeout(initChart, 600);
+    setTimeout(initChart, 1000);
+    
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && this.chartBarras) {
+        setTimeout(() => {
+          this.chartBarras?.resize();
+          this.actualizarGraficoBarras();
+        }, 200);
+      }
+    });
+  }
+
+  ngOnChanges(): void {
     setTimeout(() => {
+      if (this.chartBarras) {
+        this.chartBarras.resize();
+        this.actualizarGraficoBarras();
+      } else {
+        this.inicializarGrafico();
+      }
+    }, 100);
+  }
+
+  forceChartUpdate(): void {
+    if (this.chartBarras) {
+      this.chartBarras.resize();
+      this.actualizarGraficoBarras();
+    } else {
       this.inicializarGrafico();
-    }, 500);
+    }
   }
 
   ngOnDestroy(): void {
     if (this.chartBarras) {
       this.chartBarras.destroy();
     }
+    this.websocketService.disconnect();
   }
 
   private cargarInfracciones(): void {
@@ -176,12 +235,14 @@ export class Admin implements OnInit, AfterViewInit, OnDestroy {
   private inicializarGrafico(): void {
     const canvas = document.getElementById('barChart') as HTMLCanvasElement;
     if (!canvas) {
-      console.log('Canvas no encontrado');
+      console.log('Canvas no encontrado, reintentando...');
+      setTimeout(() => this.inicializarGrafico(), 200);
       return;
     }
 
     if (this.chartBarras) {
       this.chartBarras.destroy();
+      this.chartBarras = null;
     }
 
     try {
@@ -394,25 +455,36 @@ export class Admin implements OnInit, AfterViewInit, OnDestroy {
     const datosFiltrados = this.infracciones.filter(inf => {
       if (!inf.fecha) return false;
       
-      let fechaInf = new Date(inf.fecha);
+      let fechaInf: Date;
+      const fechaStr = inf.fecha.toString();
+      
+      if (fechaStr.includes('T')) {
+        fechaInf = new Date(fechaStr);
+      } else {
+        fechaInf = new Date(fechaStr + 'T00:00:00');
+      }
+      
       if (isNaN(fechaInf.getTime())) return false;
       
-      fechaInf = new Date(fechaInf.getTime() + fechaInf.getTimezoneOffset() * 60000);
+      const año = fechaInf.getFullYear();
+      const mes = fechaInf.getMonth();
+      const dia = fechaInf.getDate();
+      
+      const añoActual = ahora.getFullYear();
+      const mesActual = ahora.getMonth();
+      const diaActual = ahora.getDate();
       
       let cumpleTiempo = true;
-      const ahoraLocal = new Date(ahora.getTime() + ahora.getTimezoneOffset() * 60000);
-      if (this.filtroTiempoGrafico === 'hoy') {
-        const hoyStr = ahoraLocal.toISOString().split('T')[0];
-        const fechaInfStr = fechaInf.toISOString().split('T')[0];
-        cumpleTiempo = hoyStr === fechaInfStr;
+      if (!this.filtroTiempoGrafico || this.filtroTiempoGrafico === 'anio') {
+        cumpleTiempo = año === añoActual;
+      } else if (this.filtroTiempoGrafico === 'hoy') {
+        cumpleTiempo = año === añoActual && mes === mesActual && dia === diaActual;
       } else if (this.filtroTiempoGrafico === 'semana') {
-        const haceUnaSemana = new Date(ahoraLocal);
-        haceUnaSemana.setDate(ahoraLocal.getDate() - 7);
-        cumpleTiempo = fechaInf >= haceUnaSemana;
+        const haceUnaSemana = new Date(añoActual, mesActual, diaActual - 7);
+        const fechaComparable = new Date(año, mes, dia);
+        cumpleTiempo = fechaComparable >= haceUnaSemana;
       } else if (this.filtroTiempoGrafico === 'mes') {
-        cumpleTiempo = fechaInf.getMonth() === ahoraLocal.getMonth() && fechaInf.getFullYear() === ahoraLocal.getFullYear();
-      } else if (this.filtroTiempoGrafico === 'anio') {
-        cumpleTiempo = fechaInf.getFullYear() === ahoraLocal.getFullYear();
+        cumpleTiempo = mes === mesActual && año === añoActual;
       }
 
       const cumpleTipo = this.filtroTipoGrafico === 'todos' || this.getNombreTipo(inf.tipo) === this.filtroTipoGrafico;
@@ -464,6 +536,15 @@ export class Admin implements OnInit, AfterViewInit, OnDestroy {
     this.tituloModal = 'Análisis de Reportes';
     this.modalAbierto = true;
     document.body.classList.add('modal-open');
+    
+    setTimeout(() => {
+      if (!this.chartBarras) {
+        this.inicializarGrafico();
+      } else {
+        this.actualizarGraficoBarras();
+        this.chartBarras.resize();
+      }
+    }, 100);
   }
 
   abrirDetalleInfraccion(infraccion: ReporteAdmin): void {

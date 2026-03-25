@@ -496,6 +496,7 @@ app-sidebar-admin {
   padding: 24px;
   max-height: 60vh;
   overflow-y: auto;
+  overflow-x: hidden;
   background: #ffffff;
   -webkit-overflow-scrolling: touch;
 }
@@ -592,6 +593,9 @@ app-sidebar-admin {
   padding: 16px;
   margin-bottom: 12px;
   transition: all 0.2s ease;
+  overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .modal-container.modal-pro .reporte-card:hover {
@@ -620,15 +624,19 @@ app-sidebar-admin {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  overflow: hidden;
+  width: 100%;
 }
 
 .modal-container.modal-pro .detalle-fila {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 10px;
   font-size: 13px;
   color: #475569;
   line-height: 1.4;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .modal-container.modal-pro .detalle-fila i {
@@ -1656,6 +1664,13 @@ app-sidebar-admin {
   }
   .modal-container.modal-pro .detalle-fila {
     font-size: 12px;
+    flex-wrap: wrap;
+    word-break: break-word;
+  }
+  
+  .modal-container.modal-pro .detalle-fila span {
+    max-width: 100%;
+    word-break: break-word;
   }
 
   /* Detalle Infraccion - Mobile */
