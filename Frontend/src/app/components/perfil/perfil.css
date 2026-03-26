@@ -650,6 +650,20 @@
         font-size: 12px;
     }
 
+    .edit-toggle .switch {
+        width: 36px;
+        height: 20px;
+    }
+
+    .edit-toggle .switch::before {
+        width: 16px;
+        height: 16px;
+    }
+
+    .edit-toggle .switch.active::before {
+        transform: translateX(16px);
+    }
+
     .perfil-content {
         padding: 30px 25px;
     }
@@ -788,21 +802,62 @@
     }
 
     .stats-card {
-        flex-direction: column;
-        gap: 15px;
-        padding: 12px;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding: 12px 8px;
+        justify-content: center;
+        align-items: center;
     }
 
     .stat-item {
         flex-direction: row;
         justify-content: center;
-        gap: 10px;
+        gap: 6px;
+        flex: 1 1 40%;
+        min-width: 100px;
+    }
+
+    .stat-item i {
+        font-size: 14px;
+    }
+
+    .stat-item span {
+        font-size: 11px;
+    }
+
+    .stat-item strong {
+        font-size: 15px;
+    }
+
+    .user-email {
+        font-size: 10px;
+    }
+
+    .stats-card {
+        padding: 10px;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: center;
+    }
+
+    .stat-item {
+        flex: 1 1 45%;
+        gap: 4px;
+        min-width: 80px;
+    }
+
+    .stat-item strong {
+        font-size: 16px;
+    }
+
+    .stat-item span {
+        font-size: 11px;
     }
 
     .edit-toggle {
-        top: 8px;
-        right: 8px;
-        gap: 8px;
+        padding: 4px 8px;
     }
 
     .edit-toggle .switch {
@@ -817,139 +872,6 @@
 
     .edit-toggle .switch.active::before {
         transform: translateX(14px);
-    }
-
-    .edit-toggle .label-text {
-        font-size: 11px;
-    }
-
-    .perfil-content {
-        padding: 25px 15px;
-    }
-
-    .content-header h2 {
-        font-size: 1.2rem;
-    }
-
-    .content-header h2 i {
-        margin-right: 8px;
-    }
-
-    .input-group input {
-        padding: 8px 8px 8px 30px;
-        font-size: 12px;
-    }
-
-    .input-group i {
-        left: 8px;
-        font-size: 11px;
-    }
-
-    .btn-save, .btn-reset {
-        padding: 12px 16px;
-        font-size: 13px;
-    }
-
-    .btn-save i, .btn-reset i {
-        margin-right: 6px;
-    }
-
-    .actividades-header h2 {
-        font-size: 1rem;
-    }
-
-    .actividades-header h2 i {
-        margin-right: 6px;
-    }
-
-    .actividad-card {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .actividad-icono {
-        width: 32px;
-        height: 32px;
-    }
-
-    .actividad-descripcion {
-        font-size: 0.8rem;
-    }
-
-    .actividad-meta {
-        font-size: 0.7rem;
-    }
-
-    .actividad-modulo {
-        font-size: 0.7rem;
-        padding: 2px 8px;
-    }
-
-    .actividades-vacias {
-        padding: 30px 15px;
-    }
-
-    .actividades-vacias i {
-        font-size: 2rem;
-    }
-
-    .actividades-vacias p {
-        font-size: 0.85rem;
-    }
-}
-
-/* Mobile Small */
-@media (max-width: 360px) {
-    .perfil-wrapper {
-        padding: 70px 10px;
-    }
-
-    .perfil-card {
-        border-radius: 12px;
-    }
-
-    .perfil-sidebar {
-        padding: 15px 12px;
-    }
-
-    .avatar-wrapper {
-        width: 60px;
-        height: 60px;
-    }
-
-    .avatar-edit {
-        width: 24px;
-        height: 24px;
-        bottom: 0;
-        right: 0;
-    }
-
-    .avatar-edit i {
-        font-size: 9px;
-    }
-
-    .avatar-section h3 {
-        font-size: 0.9rem;
-    }
-
-    .user-email {
-        font-size: 10px;
-    }
-
-    .stats-card {
-        padding: 10px;
-    }
-
-    .stat-item strong {
-        font-size: 16px;
-    }
-
-    .stat-item span {
-        font-size: 11px;
-    }
-
-    .edit-toggle {
-        padding: 4px 8px;
     }
 
     .edit-toggle .label-text {
@@ -1065,6 +987,28 @@
 
     .avatar-edit i {
         font-size: 8px;
+    }
+
+    .edit-toggle {
+        padding: 3px 6px;
+    }
+
+    .edit-toggle .switch {
+        width: 28px;
+        height: 16px;
+    }
+
+    .edit-toggle .switch::before {
+        width: 12px;
+        height: 12px;
+    }
+
+    .edit-toggle .switch.active::before {
+        transform: translateX(12px);
+    }
+
+    .edit-toggle .label-text {
+        font-size: 9px;
     }
 
     .avatar-section h3 {

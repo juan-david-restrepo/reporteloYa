@@ -107,6 +107,12 @@ hr {
 
 /* Responsive */
 @media (max-width: 768px) {
+
+  .perfil-card{
+    margin-top: 10px;
+  }
+
+
   .social-col {
     text-align: left;
   }
