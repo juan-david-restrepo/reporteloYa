@@ -1039,6 +1039,10 @@
   .interfaz {
     height: 60vh;
   }
+
+  .slide{
+    margin-top: 75px;
+  }
   
   .text-box {
     font-size: 22px;
@@ -1083,6 +1087,7 @@
   .container p {
     font-size: 1rem;
     bottom: 15px;
+    margin-top: 30px;
   }
   
   .modules {
@@ -1140,6 +1145,7 @@
     flex-direction: column;
     gap: 40px;
     padding: 40px 15px;
+    align-items: center;
   }
   
   .pyp-left {
@@ -1291,6 +1297,7 @@
   
   .container p {
     font-size: 0.9rem;
+    margin-top: 30px;
   }
   
   .module {
