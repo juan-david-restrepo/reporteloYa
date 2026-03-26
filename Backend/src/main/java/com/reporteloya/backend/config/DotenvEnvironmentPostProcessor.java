@@ -6,19 +6,21 @@ import org.springframework.boot.env.EnvironmentPostProcessor;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
 public class DotenvEnvironmentPostProcessor implements EnvironmentPostProcessor {
 
-    private static final String DOTENV_PATH = "C:/Users/Aprendiz/Desktop/ReporteloYa/reporteloYa/Backend";
-
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
         try {
+            Path projectRoot = Paths.get("").toAbsolutePath();
+            System.out.println("[DOTENV] Buscando .env en: " + projectRoot.toString());
+            
             Dotenv dotenv = Dotenv.configure()
-                    .ignoreIfMissing()
-                    .directory(DOTENV_PATH)
+                    .directory(projectRoot.toString())
                     .load();
 
             Map<String, Object> properties = new HashMap<>();
@@ -28,7 +30,7 @@ public class DotenvEnvironmentPostProcessor implements EnvironmentPostProcessor 
                 String value = entry.getValue();
                 properties.put(key, value);
                 System.setProperty(key, value);
-                System.out.println("[DOTENV] Cargada variable: " + key);
+                System.out.println("[DOTENV] Cargada variable: " + key + "=" + value);
             });
 
             environment.getPropertySources()
@@ -36,7 +38,8 @@ public class DotenvEnvironmentPostProcessor implements EnvironmentPostProcessor 
 
             System.out.println("[DOTENV] Variables de entorno cargadas correctamente desde .env");
         } catch (Exception e) {
-            System.out.println("[DOTENV] No se pudo cargar .env: " + e.getMessage());
+            System.err.println("[DOTENV] Error al cargar .env: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }

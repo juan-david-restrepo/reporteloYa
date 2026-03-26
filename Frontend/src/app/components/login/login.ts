@@ -102,7 +102,10 @@ export class Login {
         Swal.fire({
           icon: 'success',
           title: 'Correo enviado',
-          html: `<p>Hemos enviado un nuevo correo de verificación a <strong>${email}</strong>.</p>`,
+          html: `<p>Hemos enviado un nuevo correo de verificación a <strong>${email}</strong>.</p><p>Por favor, revisa tu bandeja de entrada y sigue las instrucciones.</p>`,
+          showConfirmButton: true,
+          confirmButtonText: 'Entendido',
+          confirmButtonColor: '#2563eb'
         });
       },
       error: () => {

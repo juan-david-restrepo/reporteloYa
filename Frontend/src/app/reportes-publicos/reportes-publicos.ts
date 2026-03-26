@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import * as L from 'leaflet';
 import { ReportesService } from '../service/reportes.service';
 import { WebsocketService } from '../service/websocket';
+import { Nav } from '../shared/nav/nav';
 
 
 interface Reporte {
@@ -22,7 +23,7 @@ interface Reporte {
   standalone: true,
   templateUrl: './reportes-publicos.html',
   styleUrl: './reportes-publicos.css',
-  imports: [CommonModule],
+  imports: [CommonModule, Nav],
 })
 export class ReportesPublicos implements AfterViewInit, OnInit, OnDestroy {
   private map!: L.Map;
@@ -35,7 +36,7 @@ export class ReportesPublicos implements AfterViewInit, OnInit, OnDestroy {
   tiposConteo: { tipo: string; cantidad: number; color: string }[] = [];
 
   private coloresPorTipo: { [key: string]: string } = {
-    'ESTACIONAMIENTO_INCORRECTO': '#e74c3c',
+    'ACCIDENTE': '#e74c3c',
     'ESTACIONAMIENTO': '#e74c3c',
     'SEMAFORO': '#f39c12',
     'PEATON': '#9b59b6',
@@ -142,7 +143,7 @@ export class ReportesPublicos implements AfterViewInit, OnInit, OnDestroy {
   private normalizarTipo(tipo: string): string {
     if (!tipo) return 'OTROS';
     const upper = tipo.toUpperCase();
-    if (upper.includes('ESTACIONAMIENT')) return 'ESTACIONAMIENTO_INCORRECTO';
+    if (upper.includes('ACCIDENT')) return 'ACCIDENTE';
     if (upper.includes('SEMAFOR')) return 'SEMAFORO';
     if (upper.includes('PEATON')) return 'PEATON';
     if (upper.includes('VELOCIDAD')) return 'EXCESO_VELOCIDAD';
@@ -151,7 +152,7 @@ export class ReportesPublicos implements AfterViewInit, OnInit, OnDestroy {
 
   private formatTipo(tipo: string): string {
     switch (tipo) {
-      case 'ESTACIONAMIENTO_INCORRECTO': return 'Estacionamiento Incorrecto';
+      case 'ACCIDENTE': return 'Accidente';
       case 'SEMAFORO': return 'Semáforo';
       case 'PEATON': return 'Peatón';
       case 'EXCESO_VELOCIDAD': return 'Exceso de Velocidad';

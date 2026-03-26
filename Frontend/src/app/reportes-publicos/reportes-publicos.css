@@ -7,6 +7,7 @@
 .public-header {
   text-align: center;
   margin-bottom: 20px;
+  margin-top: 100px;
 }
 
 .public-header h1 {
@@ -26,7 +27,7 @@
   border-radius: 12px;
   padding: 16px 20px;
   margin-bottom: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09);
 }
 
 .legend-card h3 {

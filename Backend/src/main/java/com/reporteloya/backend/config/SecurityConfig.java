@@ -45,7 +45,7 @@ public class SecurityConfig {
                                 // =========================
                                 .authorizeHttpRequests(auth -> auth
 
-                                                .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
+                                                .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/resend-verification", "/api/auth/verify-email").permitAll()
                                                 .requestMatchers("/api/password/**").permitAll()
                                                 
                                                 // Reportes - solo crear requiere autenticación

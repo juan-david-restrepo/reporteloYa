@@ -5,6 +5,8 @@ import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.MapPropertySource;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,9 +15,9 @@ public class DotenvInitializer implements ApplicationContextInitializer<Configur
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
         try {
+            Path projectRoot = Paths.get("").toAbsolutePath();
             Dotenv dotenv = Dotenv.configure()
-                    .ignoreIfMissing()
-                    .directory("C:/Users/Aprendiz/Desktop/ReporteloYa/reporteloYa/Backend")
+                    .directory(projectRoot.toString())
                     .load();
 
             Map<String, Object> properties = new HashMap<>();
@@ -25,7 +27,6 @@ public class DotenvInitializer implements ApplicationContextInitializer<Configur
                 String value = entry.getValue();
                 properties.put(key, value);
                 System.setProperty(key, value);
-                System.out.println("[DOTENV] Cargada variable: " + key);
             });
 
             applicationContext.getEnvironment()
@@ -34,7 +35,7 @@ public class DotenvInitializer implements ApplicationContextInitializer<Configur
 
             System.out.println("[DOTENV] Variables de entorno cargadas correctamente desde .env");
         } catch (Exception e) {
-            System.out.println("[DOTENV] No se pudo cargar .env: " + e.getMessage());
+            System.err.println("[DOTENV] Error al cargar .env: " + e.getMessage());
         }
     }
 }

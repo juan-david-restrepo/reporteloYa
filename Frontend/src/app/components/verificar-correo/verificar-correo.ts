@@ -56,32 +56,15 @@ export class VerificarCorreo implements OnInit {
         
         if (this.verificado) {
           localStorage.removeItem('pendingEmail');
-          localStorage.setItem('userId', body.userId);
-          localStorage.setItem('email', body.email);
-          localStorage.setItem('role', body.role);
-          
-          const user: AuthUser = {
-            userId: String(body.userId),
-            email: body.email,
-            role: body.role
-          };
-          this.authService.setCurrentUser(user);
-          this.authService.setAuthenticated(true);
           
           Swal.fire({
             icon: 'success',
             title: '¡Verificación exitosa!',
-            text: 'Redirigiendo al home...',
+            text: 'Ahora puedes iniciar sesión.',
             timer: 2000,
             showConfirmButton: false,
           }).then(() => {
-            if (body.role === 'ADMIN') {
-              this.router.navigate(['/admin']);
-            } else if (body.role === 'AGENTE') {
-              this.router.navigate(['/agente']);
-            } else {
-              this.router.navigate(['/home']);
-            }
+            this.router.navigate(['/login']);
           });
         }
       },
@@ -112,8 +95,11 @@ export class VerificarCorreo implements OnInit {
         this.reenviando = false;
         Swal.fire({
           icon: 'success',
-          title: 'Correo reenviado',
-          html: `<p>Hemos enviado un nuevo correo de verificación a <strong>${this.email}</strong>.</p>`,
+          title: 'Correo enviado',
+          html: `<p>Hemos enviado un nuevo correo de verificación a <strong>${this.email}</strong>.</p><p>Por favor, revisa tu bandeja de entrada y sigue las instrucciones.</p>`,
+          showConfirmButton: true,
+          confirmButtonText: 'Entendido',
+          confirmButtonColor: '#2563eb'
         });
       },
       error: (err) => {
