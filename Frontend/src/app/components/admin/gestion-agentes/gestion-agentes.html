@@ -1,24 +1,56 @@
+<!--========================================================
+  PLANTILLA HTML: GESTIÓN DE AGENTES
+  Muestra la interfaz para buscar agentes, asignar tareas
+  y visualizar historial de reportes y tareas.
+=========================================================-->
+
+<!-- CONTENEDOR PRINCIPAL -->
+<!-- [class.modal-abierto] añade clase CSS cuando hay un modal activo (evita scroll) -->
 <div class="admin-container" [class.modal-abierto]="mostrarModal || modalDescripcion">
+  
+  <!-- BOTÓN MENÚ MÓVIL -->
+  <!-- Alterna menuAbierto para mostrar/ocultar sidebar en dispositivos móviles -->
   <button class="mobile-menu-btn" (click)="menuAbierto = !menuAbierto">
     ☰
   </button>
 
+  <!-- OVERLAY SEMITRANSAPARENTE (Solo móviles) -->
+  <!-- Aparece cuando el menú está abierto, al hacer click lo cierra -->
   <div class="sidebar-overlay" *ngIf="menuAbierto" (click)="menuAbierto = false"></div>
 
+  <!-- SIDEBAR DEL ADMINISTRADOR -->
+  <!-- [class.active] aplica estilos cuando está abierto en móvil -->
   <app-sidebar-admin [class.active]="menuAbierto"></app-sidebar-admin>
 
+  <!-- ÁREA DE CONTENIDO PRINCIPAL -->
   <div class="admin-content">
+
+    <!-- ==================== 1. BUSCADOR DE AGENTES ==================== -->
     <div class="card buscador">
       <h1 class="titulo">Gestión de Agentes de Tránsito</h1>
+      
+      <!-- Label descriptivo -->
       <label>Buscar agente por número de placa</label>
+      
+      <!-- Grupo de búsqueda: input + botón -->
       <div class="busqueda">
+        <!-- Input vinculado a placaBuscada (two-way binding) -->
+        <!-- (keyup.enter) permite buscar al presionar Enter -->
         <input type="text" placeholder="Ej: AT-123" [(ngModel)]="placaBuscada" (keyup.enter)="buscarAgente()" />
+        <!-- Botón que ejecuta la búsqueda -->
         <button (click)="buscarAgente()">Buscar</button>
       </div>
+      
+      <!-- Mensaje de error (solo visible si existe error) -->
       <p class="error" *ngIf="error">{{ error }}</p>
+      
+      <!-- Mensaje de carga (solo visible mientras busca) -->
       <p class="cargando" *ngIf="cargando">Buscando agente...</p>
     </div>
 
+    <!-- ==================== 2. MENSAJE INICIAL ==================== -->
+    <!-- Se muestra cuando NO hay agente cargado Y NO está cargando -->
+    <!-- Guía al usuario sobre qué hacer -->
     <div class="card estado-inicial" *ngIf="!agente && !cargando">
       <h2>Gestión de Agentes</h2>
       <p>
@@ -27,17 +59,22 @@
       </p>
     </div>
 
+    <!-- ==================== 3. INFORMACIÓN DEL AGENTE ==================== -->
+    <!-- Solo visible cuando se encontró un agente (agente != null) -->
     <div class="card agente-info" *ngIf="agente">
       <h2>Información del Agente</h2>
       <div class="info-grid">
-
+        <!-- Muestra los datos del agente desde el objeto 'agente' -->
         <p><strong>Nombre:</strong> {{ agente.nombre }}</p>
         <p><strong>Placa:</strong> {{ agente.placa }}</p>
         <p><strong>Documento:</strong> {{ agente.documento }}</p>
         <p><strong>Teléfono:</strong> {{ agente.telefono }}</p>
+        
+        <!-- Estado con estilo dinámico -->
         <p class="estado-container">
-
           <strong>Estado actual:</strong>
+          <!-- [ngClass] aplica clase CSS basada en el estado -->
+          <!-- getClaseEstado() convierte el estado a nombre de clase válido -->
           <span class="estado" [ngClass]="getClaseEstado(agente.estado)">
             {{ agente.estado }}
           </span>
@@ -45,30 +82,43 @@
       </div>
     </div>
 
+    <!-- ==================== 4. FORMULARIO PARA ASIGNAR TAREA ==================== -->
+    <!-- Solo visible cuando hay un agente cargado -->
     <div class="card" *ngIf="agente">
       <h2>Asignar tarea al agente</h2>
       <div class="info-grid">
+        <!-- Campo: Título -->
         <div>
           <label>Título</label>
+          <!-- [(ngModel)] vincula el input con la variable titulo -->
+          <!-- maxlength limita a 20 caracteres -->
           <input type="text" [(ngModel)]="titulo" placeholder="Ej: Control de tráfico" maxlength="20" />
+          <!-- Contador de caracteres -->
           <small *ngIf="titulo.length > 0" [style.color]="titulo.length === 20 ? 'red' : 'gray'">
             {{ titulo.length }}/20
           </small>
         </div>
 
+        <!-- Campo: Descripción -->
         <div>
           <label>Descripción</label>
           <input type="text" [(ngModel)]="descripcionTarea" />
         </div>
 
+        <!-- Campo: Fecha -->
         <div>
           <label>Fecha</label>
+          <!-- [min] limita la fecha mínima a hoy (fechaMinima) -->
           <input type="date" [(ngModel)]="fechaTarea" [min]="fechaMinima" />
         </div>
+        
+        <!-- Campo: Hora -->
         <div>
           <label>Hora</label>
           <input type="time" [(ngModel)]="horaTarea" />
         </div>
+        
+        <!-- Campo: Prioridad (Select/Dropdown) -->
         <div>
           <label>Prioridad</label>
           <select [(ngModel)]="prioridadTarea">
@@ -78,14 +128,22 @@
           </select>
         </div>
       </div>
+      
+      <!-- Botón para enviar el formulario -->
       <button class="btn-asignar" (click)="asignarTarea()">
         Asignar tarea
       </button>
+      
+      <!-- Mensaje de éxito/error tras crear tarea -->
       <p class="mensaje-ok" *ngIf="mensajeTarea">{{ mensajeTarea }}</p>
     </div>
 
+    <!-- ==================== 5. TABLA DE TAREAS ACTIVAS ==================== -->
+    <!-- Lista de tareas pendientes/en proceso del agente -->
     <div class="card" *ngIf="agente">
       <h2>Tareas asignadas</h2>
+      
+      <!-- Tabla solo visible si hay tareas -->
       <table class="tabla-tareas" *ngIf="tareas.length > 0">
         <thead>
           <tr>
@@ -95,24 +153,31 @@
             <th>Descripción</th>
             <th>Estado</th>
             <th>Prioridad</th>
-            <th *ngIf="hayTareasPendientes(tareas)">Acción</th>
+            <!-- Columna Acción siempre visible -->
+            <th>Acción</th>
           </tr>
         </thead>
+        
         <tbody>
+          <!-- *ngFor crea una fila por cada tarea en el array -->
           <tr class="Info-tarea" *ngFor="let tarea of tareas">
             <td data-label="Título">{{ tarea.titulo }}</td>
             <td data-label="Fecha">{{ tarea.fecha }}</td>
-
             <td data-label="Hora">{{ tarea.hora }}</td>
+            
+            <!-- Descripción con botón "Ver más" si es larga -->
             <td data-label="Descripción" class="td-descripcion">
               <div class="descripcion-contenido">
                 <span class="descripcion-texto">{{ tarea.descripcion || '-' }}</span>
+                <!-- Button "Ver más" aparece si descripción >= 10 caracteres -->
                 <button *ngIf="tarea.descripcion && tarea.descripcion.length >= 10" class="ver-mas"
                   (click)="abrirModalDescripcion(tarea.descripcion, 'Descripción de Tarea')">
                   Ver más
                 </button>
               </div>
             </td>
+            
+            <!-- Estado con estilo de color según valor -->
             <td data-label="Estado">
               <span class="badge-estado" [ngClass]="{
                   'bg-rechazado': tarea.estado === 'RECHAZADO',
@@ -121,22 +186,33 @@
                   'bg-pendiente': !tarea.estado || tarea.estado === 'PENDIENTE',
                 }">{{ tarea.estado || "PENDIENTE" }}</span>
             </td>
+            
+            <!-- Prioridad con clase CSS según nivel -->
             <td data-label="Prioridad">
               <span class="prioridad" [ngClass]="tarea.prioridad.toLowerCase()">{{ tarea.prioridad }}</span>
             </td>
+            
+            <!-- Botón eliminar o indicador de aceptado -->
             <td data-label="Acción">
+              <!-- Eliminar solo si está PENDIENTE o RECHAZADO -->
               <button *ngIf="tarea.estado === 'PENDIENTE' || tarea.estado === 'RECHAZADO'" class="btn-eliminar" (click)="abrirModalEliminar(tarea)">Eliminar</button>
+              <!-- Mostrar "Aceptado" si está EN PROCESO o FINALIZADO -->
               <span *ngIf="tarea.estado === 'EN PROCESO' || tarea.estado === 'FINALIZADO'" class="badge-aceptado">Aceptado</span>
             </td>
           </tr>
         </tbody>
       </table>
+      
+      <!-- Mensaje si no hay tareas -->
       <p class="mensaje-vacio" *ngIf="tareas.length === 0">No hay tareas asignadas.</p>
     </div>
 
+    <!-- ==================== 6. HISTORIAL DE TAREAS Y REPORTES ==================== -->
     <div class="card" *ngIf="agente">
       <div class="header-historial">
         <h2>Historial de Reportes y Tareas</h2>
+        
+        <!-- Botones de filtro -->
         <div class="filtros-container">
           <button [class.activo]="filtroSeleccionado === 'TODOS'" (click)="filtroSeleccionado = 'TODOS'">
             Todos
@@ -150,10 +226,15 @@
         </div>
       </div>
 
+      <!-- ==================== 6A. TABLA DE TAREAS FINALIZADAS ==================== -->
+      <!-- Se muestra si el filtro NO es "REPORTES" -->
       <ng-container *ngIf="filtroSeleccionado !== 'REPORTES'">
+        <!-- Subtítulo solo visible en filtro "TODOS" -->
         <h3 class="subtitulo-seccion" *ngIf="filtroSeleccionado === 'TODOS'">
           Tareas Terminadas
         </h3>
+        
+        <!-- Tabla de tareas finalizadas (usa getter tareasFinalizadas) -->
         <table class="tabla-tareas" *ngIf="tareasFinalizadas.length > 0">
           <thead>
             <tr>
@@ -168,54 +249,76 @@
             <tr *ngFor="let tarea of tareasFinalizadas">
               <td data-label="Fecha">{{ tarea.fecha }}</td>
               <td data-label="Hora">{{ tarea.hora }}</td>
+              
+              <!-- Descripción con "Ver más" si es larga -->
               <td data-label="Descripción">
                 <span *ngIf="!tarea.descripcion || tarea.descripcion.length < 20">{{ tarea.descripcion || '-' }}</span>
                 <button *ngIf="tarea.descripcion && tarea.descripcion.length >= 20" class="ver-mas" (click)="abrirModalDescripcion(tarea.descripcion, 'Descripción de Tarea')">
                   Ver más
                 </button>
               </td>
+              
+              <!-- Resumen operativo con "Ver más" -->
               <td data-label="Resumen">
                 <span *ngIf="!tarea.resumenOperativo || tarea.resumenOperativo.length <= 20">{{ tarea.resumenOperativo || '-' }}</span>
                 <button *ngIf="tarea.resumenOperativo && tarea.resumenOperativo.length >= 20" class="ver-mas" (click)="abrirModalDescripcion(tarea.resumenOperativo, 'Resumen Operativo')">
                   Ver más
                 </button>
               </td>
+              
+              <!-- Estado siempre "FINALIZADO" en esta tabla -->
               <td data-label="Estado">
                 <span class="badge-estado bg-finalizado">FINALIZADO</span>
               </td>
             </tr>
           </tbody>
         </table>
+        
+        <!-- Mensaje si no hay tareas finalizadas -->
         <p class="mensaje-vacio" *ngIf="tareasFinalizadas.length === 0">
           No hay tareas finalizadas para mostrar.
         </p>
       </ng-container>
 
+      <!-- LÍNEA DIVISORIA (solo si hay ambos: tareas y reportes) -->
       <hr class="divisor" *ngIf="
           filtroSeleccionado === 'TODOS' &&
           tareasFinalizadas.length > 0 &&
           reportes.length > 0
         " />
 
+      <!-- ==================== 6B. LISTA DE REPORTES ==================== -->
+      <!-- Se muestra si el filtro NO es "TAREAS" -->
       <ng-container *ngIf="filtroSeleccionado !== 'TAREAS'">
+        <!-- Subtítulo solo visible en filtro "TODOS" -->
         <h3 class="subtitulo-seccion" *ngIf="filtroSeleccionado === 'TODOS'">
           Reportes Realizados
         </h3>
+        
+        <!-- Vista de REPORTES en formato TARJETAS (móvil) -->
         <div class="reportes-container" *ngIf="reportes.length > 0">
           <div class="reporte-card" *ngFor="let reporte of reportes">
+            <!-- Encabezado de tarjeta: fecha y hora -->
             <div class="reporte-header-card">
               <span class="reporte-fecha"><i class="fas fa-calendar"></i> {{ reporte.fechaIncidente }}</span>
               <span class="reporte-hora"><i class="fas fa-clock"></i> {{ reporte.horaIncidente }}</span>
             </div>
+            
+            <!-- Cuerpo de tarjeta: datos del reporte -->
             <div class="reporte-body-card">
+              <!-- Ubicación -->
               <div class="reporte-item">
                 <span class="reporte-label">Ubicación</span>
                 <span class="reporte-value">{{ reporte.direccion }}</span>
               </div>
+              
+              <!-- Tipo de incidente -->
               <div class="reporte-item">
                 <span class="reporte-label">Incidente</span>
                 <span class="reporte-value reporte-tipo">{{ reporte.tipoInfraccion }}</span>
               </div>
+              
+              <!-- Acompañamiento (si iba con otro agente) -->
               <div class="reporte-item">
                 <span class="reporte-label">Acompañamiento</span>
                 <span class="reporte-value">
@@ -223,11 +326,15 @@
                   <span *ngIf="!reporte.acompanado" class="badge-solo">Solo</span>
                 </span>
               </div>
+              
+              <!-- Descripción (si existe) -->
               <div class="reporte-item" *ngIf="reporte.descripcion">
                 <span class="reporte-label">Descripción</span>
                 <span class="reporte-value" *ngIf="reporte.descripcion.length < 30">{{ reporte.descripcion }}</span>
                 <button *ngIf="reporte.descripcion.length >= 30" class="ver-mas-btn" (click)="abrirModalDescripcion(reporte.descripcion, 'Descripción del Reporte')">Ver más</button>
               </div>
+              
+              <!-- Resumen operativo (si existe) -->
               <div class="reporte-item" *ngIf="reporte.resumenOperativo">
                 <span class="reporte-label">Resumen</span>
                 <span class="reporte-value" *ngIf="reporte.resumenOperativo.length < 30">{{ reporte.resumenOperativo }}</span>
@@ -236,6 +343,8 @@
             </div>
           </div>
         </div>
+        
+        <!-- Vista de REPORTES en formato TABLA (escritorio) -->
         <table class="tabla-reportes-desktop" *ngIf="reportes.length > 0">
           <thead>
             <tr>
@@ -274,20 +383,28 @@
             </tr>
           </tbody>
         </table>
+        
+        <!-- Mensaje si no hay reportes -->
         <p class="mensaje-vacio" *ngIf="reportes.length === 0">No hay reportes registrados.</p>
       </ng-container>
     </div>
   </div>
 </div>
 
+<!-- ==================== 7. MODAL DE CONFIRMACIÓN DE ELIMINAR ==================== -->
+<!-- Ventana emergente que aparece cuando mostrarModal = true -->
 <div class="modal-backdrop" *ngIf="mostrarModal">
   <div class="modal-box">
     <h3>Eliminar tarea</h3>
     <p>¿Estás seguro de que deseas eliminar esta tarea?</p>
+    
+    <!-- Botones de acción -->
     <div class="modal-actions">
+      <!-- Cancela y cierra el modal -->
       <button class="btn-cancelar" (click)="cancelarEliminacion()">
         Cancelar
       </button>
+      <!-- Confirma y ejecuta la eliminación -->
       <button class="btn-confirmar" (click)="confirmarEliminacion()">
         Eliminar
       </button>
@@ -295,9 +412,17 @@
   </div>
 </div>
 
+<!-- ==================== 8. MODAL DE VER DESCRIPCIÓN ==================== -->
+<!-- Ventana emergente para ver textos largos completos -->
+<!-- Se cierra al hacer click en el overlay (fuera del modal) -->
 <div class="modal-overlay-detalle" *ngIf="modalDescripcion" (click)="cerrarModalDescripcion()">
+  
+  <!-- Contenido del modal (click en $event.stopPropagation evita cerrar al hacer click aquí) -->
   <div class="modal-vista" (click)="$event.stopPropagation()">
+    
+    <!-- Encabezado del modal -->
     <div class="modal-header-detalle">
+      <!-- Icono de documento -->
       <div class="modal-icono">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -306,7 +431,11 @@
           <line x1="16" y1="17" x2="8" y2="17"></line>
         </svg>
       </div>
+      
+      <!-- Título dinámico (viene de tituloModal) -->
       <h3>{{ tituloModal }}</h3>
+      
+      <!-- Botón para cerrar -->
       <button class="btn-cerrar-modal" (click)="cerrarModalDescripcion()">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -314,6 +443,8 @@
         </svg>
       </button>
     </div>
+    
+    <!-- Cuerpo del modal con el texto a mostrar -->
     <div class="modal-body-detalle">
       <p>{{ descripcionSeleccionada }}</p>
     </div>

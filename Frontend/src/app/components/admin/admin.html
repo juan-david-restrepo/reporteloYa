@@ -1,10 +1,26 @@
+<!--========================================================
+  PLANTILLA HTML: DASHBOARD ADMINISTRADOR
+  Muestra el panel principal con gráficos, estadísticas
+  y tabla de reportes.
+=========================================================-->
+
+<!-- CONTENEDOR PRINCIPAL -->
 <div class="admin-layout">
+  
+  <!-- BOTÓN MENÚ MÓVIL -->
   <button class="mobile-menu-btn" (click)="menuAbierto = !menuAbierto">☰</button>
+  
+  <!-- OVERLAY SEMITRANSPARENTE -->
   <div class="sidebar-overlay" *ngIf="menuAbierto" (click)="menuAbierto = false"></div>
+  
+  <!-- SIDEBAR -->
   <app-sidebar-admin [class.active]="menuAbierto"></app-sidebar-admin>
 
+
+  <!-- ÁREA DE CONTENIDO PRINCIPAL -->
   <main class="main-content">
 
+    <!-- ==================== 1. ENCABEZADO ==================== -->
     <div class="page-header">
       <div class="header-content">
         <div class="header-title-group">
@@ -14,13 +30,19 @@
       </div>
     </div>
 
+
+    <!-- ==================== 2. TARJETA DEL GRÁFICO ==================== -->
     <div class="card-dashboard">
       <div class="card-header-pro">
+        
+        <!-- Título y descripción del gráfico -->
         <div class="header-main">
           <div class="chart-icon">
+            <!-- Icono de gráfico (Font Awesome) -->
             <i class="fas fa-chart-bar"></i>
           </div>
           <div class="header-text">
+            <!-- Clickable: abre el modal de análisis -->
             <h3 class="chart-title" (click)="abrirModalBarras()">
               Distribución de Reportes
               <i class="fas fa-external-link-alt"></i>
@@ -29,12 +51,16 @@
           </div>
         </div>
 
+        <!-- Controles de filtro para el gráfico -->
         <div class="controls-wrapper">
+          
+          <!-- Filtro por período de tiempo -->
           <div class="filter-group">
             <label>
               <i class="fas fa-calendar-alt"></i>
               PERIODO
             </label>
+            <!-- Al cambiar, ejecuta filtrarPorTiempo() -->
             <select class="custom-select-pro" (change)="filtrarPorTiempo($event)">
               <option value="hoy">Hoy</option>
               <option value="semana">Semana</option>
@@ -43,33 +69,43 @@
             </select>
           </div>
 
+          <!-- Filtro por tipo de infracción -->
           <div class="filter-group">
             <label>
               <i class="fas fa-exclamation-circle"></i>
               TIPO
             </label>
+            <!-- Al cambiar, ejecuta filtrarPorTipo() -->
             <select class="custom-select-pro" (change)="filtrarPorTipo($event)">
               <option value="todos">Todos</option>
               <option value="Accidente de tránsito">Accidente de tránsito</option>
               <option value="Vehículo mal estacionado">Vehículo mal estacionado</option>
               <option value="Semáforo dañado">Semáforo dañado</option>
               <option value="Conducción peligrosa">Conducción peligrosa</option>
-              <option value="Otros">Otros</option>
+              <option value="otros">Otros</option>
             </select>
           </div>
         </div>
       </div>
 
+      <!-- Cuerpo del gráfico -->
       <div class="chart-body">
         <div class="canvas-container">
+          <!-- Canvas donde Chart.js renderiza el gráfico -->
           <canvas id="barChart"></canvas>
         </div>
       </div>
     </div>
+
+
+    <!-- ==================== 3. TABLA DE REPORTES ==================== -->
     <div class="table-section">
       <div class="table-header">
         <h3>Reportes</h3>
+        
+        <!-- Filtros de la tabla -->
         <div class="table-filters">
+          <!-- Filtro por tipo -->
           <select (change)="filtrarTablaPorTipo($event)">
             <option value="">Todos los tipos</option>
             <option value="Accidente de tránsito">Accidente</option>
@@ -78,6 +114,8 @@
             <option value="Conducción peligrosa">Conducción Peligrosa</option>
             <option value="Otros">Otros</option>
           </select>
+          
+          <!-- Filtro por estado -->
           <select (change)="aplicarFiltro($event)">
             <option value="">Todos los estados</option>
             <option value="PENDIENTE">PENDIENTE</option>
@@ -88,6 +126,7 @@
         </div>
       </div>
 
+      <!-- Tabla de datos -->
       <div class="table-responsive">
         <table class="data-table">
           <thead>
@@ -101,6 +140,7 @@
             </tr>
           </thead>
           <tbody>
+            <!-- Itera sobre los reportes filtrados -->
             <tr *ngFor="let inf of infraccionesAMostrar" (click)="abrirDetalleInfraccion(inf)" class="clickable-row">
               <td data-label="#"><strong>{{ inf.id }}</strong></td>
               <td data-label="Fecha">{{ inf.fecha }}</td>
@@ -109,6 +149,7 @@
                 <span class="placa-agente">{{ inf.placaAgente || inf.agente }}</span>
               </td>
               <td data-label="Acompañamiento">
+                <!-- Muestra acompañante o "Sin acompañante" -->
                 <span *ngIf="inf.acompanado" class="badge-acompanado">
                   {{ inf.placaCompanero || inf.nombreCompanero || 'Sin placa' }}
                 </span>
@@ -117,6 +158,7 @@
                 </span>
               </td>
               <td data-label="Estado">
+                <!-- Clase CSS según el estado (getClaseEstado) -->
                 <span class="status" [ngClass]="getClaseEstado(inf.estado)">{{ inf.estado }}</span>
               </td>
             </tr>
@@ -127,102 +169,141 @@
   </main>
 </div>
 
+
+<!-- ==================== 4. MODAL ==================== -->
+<!-- Se muestra cuando modalAbierto = true -->
 <div class="modal-overlay" *ngIf="modalAbierto" (click)="cerrarModal()">
+  
+  <!-- Contenedor del modal -->
   <div class="modal-container modal-pro" (click)="$event.stopPropagation()">
+    
+    <!-- Encabezado del modal -->
     <div class="modal-header">
       <div class="modal-title-group">
         <div class="modal-icon">
           <i class="fas fa-chart-bar"></i>
         </div>
         <div class="modal-title-text">
+          <!-- Título dinámico -->
           <h5>{{ tituloModal }}</h5>
           <p>Vista detallada de reportes</p>
         </div>
       </div>
+      <!-- Botón cerrar -->
       <button class="btn-cerrar-modal" (click)="cerrarModal()">
         <i class="fas fa-times"></i>
       </button>
     </div>
+    
+    <!-- Cuerpo del modal -->
     <div class="modal-body">
+      
+      <!-- ==================== 4A. MODAL DE GRÁFICO ==================== -->
       <div *ngIf="tipoModalActivo === 'barras'">
+        
+        <!-- Estadísticas resumidas (clicables para filtrar) -->
         <div class="stats-resumen">
+          <!-- Total -->
           <div class="stat-item" [class.active]="filtroEstadoModal === ''" (click)="filtrarPorEstadoModal('')">
             <span class="stat-numero">{{ infraccionesAMostrar.length }}</span>
             <span class="stat-label">Total</span>
           </div>
+          <!-- Pendientes -->
           <div class="stat-item stat-pendiente" [class.active]="isEstadoActivo('PENDIENTE')" (click)="filtrarPorEstadoModal('PENDIENTE')">
             <span class="stat-numero">{{ getCountByEstado('PENDIENTE') }}</span>
             <span class="stat-label">Pendientes</span>
           </div>
+          <!-- En Proceso -->
           <div class="stat-item stat-proceso" [class.active]="isEstadoActivo('EN PROCESO')" (click)="filtrarPorEstadoModal('EN PROCESO')">
             <span class="stat-numero">{{ getCountByEstado('EN PROCESO') }}</span>
             <span class="stat-label">En Proceso</span>
           </div>
+          <!-- Finalizados -->
           <div class="stat-item stat-finalizado" [class.active]="isEstadoActivo('FINALIZADO')" (click)="filtrarPorEstadoModal('FINALIZADO')">
             <span class="stat-numero">{{ getCountByEstado('FINALIZADO') }}</span>
             <span class="stat-label">Finalizados</span>
           </div>
         </div>
 
+        <!-- Lista de reportes filtrados -->
         <div class="reportes-lista">
           <h4 class="section-title">
             <i class="fas fa-list"></i>
             Detalle de Reportes
+            <!-- Contador si hay filtro activo -->
             <span class="contador-filtro" *ngIf="filtroEstadoModal">{{ reportesFiltrados.length }} de {{ infraccionesAMostrar.length }}</span>
           </h4>
+          
+          <!-- Tarjetas de reportes -->
           <div class="reporte-card" *ngFor="let inf of reportesFiltrados">
             <div class="reporte-header">
               <span class="reporte-tipo">{{ getNombreTipo(inf.tipo) }}</span>
               <span class="status-badge" [ngClass]="getClaseEstado(inf.estado)">{{ inf.estado }}</span>
             </div>
             <div class="reporte-detalles">
+              <!-- Ubicación -->
               <div class="detalle-fila">
                 <i class="fas fa-map-marker-alt"></i>
                 <span>{{ inf.ubicacion || 'No especificada' }}</span>
               </div>
+              <!-- Agente -->
               <div class="detalle-fila">
                 <i class="fas fa-car"></i>
                 <span>Agente: {{ inf.placaAgente || inf.agente || 'Sin asignar' }}</span>
               </div>
+              <!-- Acompañamiento (si está acompañado) -->
               <div class="fila-acompanamiento" *ngIf="inf.acompanado">
                 <i class="fas fa-user-friends"></i>
                 <span class="texto-acompanado">Acompañado por: </span><span class="badge-acompanado">{{ inf.placaCompanero || inf.nombreCompanero || 'Sin placa' }}</span>
               </div>
+              <!-- Acompañamiento (si está solo) -->
               <div class="fila-acompanamiento" *ngIf="!inf.acompanado">
                 <i class="fas fa-user"></i>
                 <span class="badge-solo">Sin acompañante</span>
               </div>
+              <!-- Descripción -->
               <div class="detalle-fila">
                 <i class="fas fa-align-left"></i>
                 <span>{{ inf.descripcion || 'Sin descripción' }}</span>
               </div>
+              <!-- Resumen operativo (si existe) -->
               <div class="detalle-fila" *ngIf="inf.resumen">
                 <i class="fas fa-file-alt"></i>
                 <span>{{ inf.resumen }}</span>
               </div>
             </div>
           </div>
+          
+          <!-- Mensaje si no hay resultados -->
           <div class="sin-resultados" *ngIf="reportesFiltrados.length === 0">
             <i class="fas fa-inbox"></i>
             <p>No hay reportes con este filtro</p>
           </div>
         </div>
       </div>
+
+
+      <!-- ==================== 4B. MODAL DE DETALLE DE INFRACCIÓN ==================== -->
       <div *ngIf="tipoModalActivo === 'infraccion' && infraccionSeleccionada" class="detalle-infraccion-container">
         <div class="detalle-grid">
+          <!-- Referencia -->
           <div class="detalle-item"><label>Referencia</label>
             <p>{{ infraccionSeleccionada.ref }}</p>
           </div>
+          <!-- Tipo -->
           <div class="detalle-item"><label>Tipo</label>
             <p>{{ getNombreTipo(infraccionSeleccionada.tipo) }}</p>
           </div>
+          <!-- Agente -->
           <div class="detalle-item"><label>Agente</label>
             <p>{{ infraccionSeleccionada.placaAgente || infraccionSeleccionada.agente || 'Sin asignar' }}</p>
           </div>
+          <!-- Acompañamiento -->
           <div class="detalle-item"><label>Acompañamiento</label>
             <p *ngIf="infraccionSeleccionada.acompanado" class="badge-acompanado">{{ infraccionSeleccionada.placaCompanero || infraccionSeleccionada.nombreCompanero || 'Sin placa' }}</p>
             <p *ngIf="!infraccionSeleccionada.acompanado" class="badge-solo">Sin acompañante</p>
           </div>
+          <!-- Estado -->
           <div class="detalle-item"><label>Estado</label>
             <p><span class="status-badge" [ngClass]="getClaseEstado(infraccionSeleccionada.estado)">{{
                 infraccionSeleccionada.estado }}</span></p>

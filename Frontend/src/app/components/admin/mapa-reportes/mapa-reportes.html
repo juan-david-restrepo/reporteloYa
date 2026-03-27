@@ -1,13 +1,28 @@
+<!--========================================================
+  PLANTILLA HTML: MAPA DE REPORTES
+  Muestra un mapa interactivo con marcadores de reportes
+  y un panel lateral con los detalles del reporte seleccionado.
+=========================================================-->
+
+<!-- CONTENEDOR PRINCIPAL -->
 <div class="admin-container">
 
+  <!-- BOTÓN MENÚ MÓVIL -->
+  <!-- Alterna menuAbierto para mostrar/ocultar sidebar en móviles -->
   <button class="mobile-menu-btn" (click)="menuAbierto = !menuAbierto">☰</button>
 
+  <!-- OVERLAY SEMITRANSPARENTE (Solo móviles) -->
+  <!-- Aparece cuando el menú está abierto, al hacer click lo cierra -->
   <div class="sidebar-overlay" *ngIf="menuAbierto" (click)="menuAbierto = false"></div>
 
+  <!-- SIDEBAR DEL ADMINISTRADOR -->
+  <!-- [class.active] aplica estilos cuando está abierto en móvil -->
   <app-sidebar-admin [class.active]="menuAbierto"></app-sidebar-admin>
 
+  <!-- ÁREA DE CONTENIDO PRINCIPAL -->
   <div class="admin-content">
 
+    <!-- ==================== 1. ENCABEZADO ==================== -->
     <div class="admin-header">
       <div>
         <h1>Centro de Control Vial</h1>
@@ -15,78 +30,115 @@
       </div>
     </div>
 
+    <!-- ==================== 2. TARJETAS DE ESTADÍSTICAS ==================== -->
+    <!-- Muestra el conteo de reportes por estado -->
     <div class="stats-grid">
 
+      <!-- Reportes pendientes (naranja) -->
       <div class="stat-card pendiente">
         <h3>Pendientes</h3>
+        <!-- Muestra el valor de la variable pendientes -->
         <span>{{ pendientes }}</span>
       </div>
 
+      <!-- Reportes en proceso (azul) -->
       <div class="stat-card proceso">
         <h3>En Proceso</h3>
         <span>{{ enProceso }}</span>
       </div>
 
+      <!-- Reportes finalizados (verde) -->
       <div class="stat-card finalizados">
         <h3>Finalizados</h3>
         <span>{{ finalizados }}</span>
       </div>
 
+      <!-- Total de reportes del día -->
       <div class="stat-card total">
         <h3>Total Hoy</h3>
+        <!-- Suma los tres contadores -->
         <span>{{ pendientes + enProceso + finalizados }}</span>
       </div>
 
     </div>
 
+    <!-- ==================== 3. MAPA INTERACTIVO ==================== -->
     <div class="map-card">
+      <!-- Encabezado del mapa -->
       <div class="map-header">
         <h2>Mapa de Reportes</h2>
         <span>Vista Satelital Activa</span>
       </div>
 
+      <!-- Contenedor del mapa Leaflet -->
+      <!-- El ID "map" es usado por Leaflet para inicializar el mapa -->
       <div id="map"></div>
     </div>
 
   </div>
 
+  <!-- ==================== 4. PANEL LATERAL DE DETALLES ==================== -->
+  <!-- Se muestra cuando el usuario hace click en un marcador -->
+  <!-- *ngIf="mostrarDetalle" oculta/mostrar según la variable -->
   <div class="detalle-overlay" *ngIf="mostrarDetalle">
 
+    <!-- Panel con los detalles del reporte -->
     <div class="detalle-panel">
 
+      <!-- Encabezado del panel -->
       <div class="detalle-header">
         <h2>Detalle del Reporte</h2>
+        <!-- Botón para cerrar el panel -->
         <button class="cerrar-btn" (click)="cerrarDetalle()">✕</button>
       </div>
 
+      <!-- Cuerpo del panel (solo visible si hay reporte seleccionado) -->
       <div class="detalle-body" *ngIf="reporteSeleccionado">
 
+        <!-- ==================== 4A. TIPO Y DESCRIPCIÓN ==================== -->
         <div class="detalle-seccion">
+          <!-- Tipo de incidente -->
           <div class="detalle-tipo">{{ reporteSeleccionado.tipo }}</div>
+          <!-- Descripción del reporte -->
           <div class="detalle-descripcion">{{ reporteSeleccionado.descripcion || 'Sin descripción' }}</div>
         </div>
 
+        <!-- ==================== 4B. INFORMACIÓN GENERAL ==================== -->
         <div class="detalle-seccion">
           <div class="detalle-seccion-title">Información</div>
+          
           <div class="detalle-grid">
+            <!-- Estado del reporte -->
             <div class="detalle-item">
               <span class="detalle-item-label">Estado</span>
+              <!-- [ngClass] aplica clase CSS según el estado -->
               <span class="detalle-badge" [ngClass]="getClaseEstado(reporteSeleccionado.estado)">
+                <!-- Muestra "EN PROCESO" en lugar de "EN_PROCESO" -->
                 {{ reporteSeleccionado.estado === 'EN_PROCESO' ? 'EN PROCESO' : reporteSeleccionado.estado }}
               </span>
             </div>
+            
+            <!-- Fecha del incidente -->
             <div class="detalle-item">
               <span class="detalle-item-label">Fecha</span>
+              <!-- | date:'dd/MM/yyyy' formatea la fecha -->
               <span class="detalle-item-value">{{ reporteSeleccionado.fechaIncidente | date:'dd/MM/yyyy' }}</span>
             </div>
+            
+            <!-- Hora del incidente -->
             <div class="detalle-item">
               <span class="detalle-item-label">Hora</span>
+              <!-- getHoraFormateada() formatea la hora -->
               <span class="detalle-item-value">{{ getHoraFormateada(reporteSeleccionado) }}</span>
             </div>
+            
+            <!-- Agente que atiende (solo visible si existe) -->
             <div class="detalle-item" *ngIf="reporteSeleccionado.agente">
               <span class="detalle-item-label">Agente</span>
               <span class="detalle-item-value">{{ reporteSeleccionado.agente }}</span>
             </div>
+            
+            <!-- Acompañante (solo visible si existe) -->
             <div class="detalle-item" *ngIf="reporteSeleccionado.placaAcompanante">
               <span class="detalle-item-label">Acompañante</span>
               <span class="detalle-item-value">{{ reporteSeleccionado.placaAcompanante }}</span>
@@ -94,9 +146,13 @@
           </div>
         </div>
 
+        <!-- ==================== 4C. UBICACIÓN ==================== -->
+        <!-- Solo visible si existe dirección -->
         <div class="detalle-seccion" *ngIf="reporteSeleccionado.direccion">
           <div class="detalle-seccion-title">Ubicación</div>
+          <!-- Dirección con icono -->
           <div class="detalle-ubicacion">
+            <!-- Icono de ubicación (SVG) -->
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
               <circle cx="12" cy="10" r="3"></circle>
