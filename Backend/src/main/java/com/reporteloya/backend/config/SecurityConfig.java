@@ -47,12 +47,18 @@ public class SecurityConfig {
 
                                                 .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
                                                 .requestMatchers("/api/password/**").permitAll()
-                                                .requestMatchers("/api/reportes/**").permitAll()
+                                                
+                                                // Reportes - solo crear requiere autenticación
+                                                .requestMatchers("/api/reportes/crear").authenticated()
+                                                .requestMatchers("/api/reportes/mapa").permitAll()
+                                                .requestMatchers("/api/reportes/pendientes").permitAll()
+                                                .requestMatchers("/api/reportes/todos").permitAll()
+                                                .requestMatchers("/api/reportes/estadisticas-admin").permitAll()
+                                                .requestMatchers("/api/reportes").permitAll()
 
                                                 .requestMatchers("/api/auth/me").authenticated()
 
                                                 .requestMatchers("/admin/**").hasAnyRole("ADMIN", "AGENTE")
-                                                .requestMatchers("/api/reportes/mapa").permitAll()
                                                 .requestMatchers("/agente/**").hasAnyRole("AGENTE", "ADMIN")
 
                                                 .requestMatchers("/api/ciudadano/**").hasRole("CIUDADANO")

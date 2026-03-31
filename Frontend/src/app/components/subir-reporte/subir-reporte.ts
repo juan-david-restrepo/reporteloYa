@@ -10,6 +10,7 @@ interface Incidente {
   nombre: string;
   prioridad: 'BAJA' | 'MEDIA' | 'ALTA';
   requierePlaca: boolean;
+  icono: string;
 }
 
 @Component({
@@ -51,6 +52,15 @@ export class SubirReporteComponent implements OnInit, OnDestroy {
   placaOpcional = false;
   isSubmitting = false;
 
+  fechaInvalida = false;
+  fechaErrorMsg = '';
+  fechaMaxima = '';
+  fechaMinima = '';
+  evidenciaRequerida = false;
+  isDragOver = false;
+  mostrarModalLegal = false;
+  ubicacionManual = '';
+
   // =============================
   // ESTADO DEL MODAL
   // =============================
@@ -61,24 +71,38 @@ export class SubirReporteComponent implements OnInit, OnDestroy {
   // DATOS DE REFERENCIA
   // =============================
   incidentes: Incidente[] = [
-    { nombre: 'Accidente de tránsito', prioridad: 'ALTA', requierePlaca: true },
-    {
-      nombre: 'Vehículo mal estacionado',
-      prioridad: 'MEDIA',
-      requierePlaca: true,
-    },
-    { nombre: 'Semáforo dañado', prioridad: 'ALTA', requierePlaca: false },
-    { nombre: 'Conducción peligrosa', prioridad: 'ALTA', requierePlaca: true },
-    { nombre: 'Otros', prioridad: 'BAJA', requierePlaca: false },
+    { nombre: 'Accidente de tránsito', prioridad: 'ALTA', requierePlaca: true, icono: 'fas fa-car-crash' },
+    { nombre: 'Vehículo mal estacionado', prioridad: 'MEDIA', requierePlaca: true, icono: 'fas fa-car' },
+    { nombre: 'Semáforo dañado', prioridad: 'ALTA', requierePlaca: false, icono: 'fas fa-traffic-light' },
+    { nombre: 'Conducción peligrosa', prioridad: 'ALTA', requierePlaca: true, icono: 'fas fa-road' },
+    { nombre: 'Otros', prioridad: 'BAJA', requierePlaca: false, icono: 'fas fa-ellipsis-h' },
   ];
 
   private map: any;
   private marker: any;
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.configurarFechas();
+  }
 
   ngOnDestroy(): void {
     this.limpiarPreviewUrls();
+  }
+
+  private configurarFechas() {
+    const hoy = new Date();
+    const ayer = new Date(hoy);
+    ayer.setDate(ayer.getDate() - 1);
+
+    this.fechaMaxima = this.formatearFecha(hoy);
+    this.fechaMinima = this.formatearFecha(ayer);
+  }
+
+  private formatearFecha(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   // =============================
@@ -110,8 +134,33 @@ export class SubirReporteComponent implements OnInit, OnDestroy {
     const input = event.target as HTMLInputElement;
     if (!input.files?.length) return;
 
-    const nuevos = Array.from(input.files);
+    this.procesarArchivos(Array.from(input.files));
+  }
 
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragOver = true;
+  }
+
+  onDragLeave(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragOver = false;
+  }
+
+  onDrop(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragOver = false;
+
+    const files = event.dataTransfer?.files;
+    if (files?.length) {
+      this.procesarArchivos(Array.from(files));
+    }
+  }
+
+  private procesarArchivos(nuevos: File[]) {
     for (const file of nuevos) {
       if (!this.ALLOWED_TYPES.includes(file.type)) {
         Swal.fire('Archivo no permitido', 'Solo JPG, PNG o MP4.', 'error');
@@ -130,7 +179,6 @@ export class SubirReporteComponent implements OnInit, OnDestroy {
 
       this.fileList.push(file);
 
-      // 🔥 GENERAR PREVIEW UNA SOLA VEZ
       const url = URL.createObjectURL(file);
       this.previewUrls.push(url);
     }
@@ -167,6 +215,14 @@ export class SubirReporteComponent implements OnInit, OnDestroy {
     this.urlImagenModal = null;
   }
 
+  mostrarConfirmacion() {
+    this.mostrarModalLegal = true;
+  }
+
+  cerrarModalLegal() {
+    this.mostrarModalLegal = false;
+  }
+
   // =============================
   // OCR Y UBICACIÓN
   // =============================
@@ -188,9 +244,18 @@ export class SubirReporteComponent implements OnInit, OnDestroy {
 
   obtenerUbicacion() {
     if (!navigator.geolocation) {
-      Swal.fire('Error', 'Geolocalización no disponible.', 'error');
+      Swal.fire('Error', 'Geolocalización no disponible en tu navegador.', 'error');
       return;
     }
+
+    Swal.fire({
+      title: 'Obteniendo ubicación...',
+      text: 'Por favor espera',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
 
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
@@ -198,24 +263,120 @@ export class SubirReporteComponent implements OnInit, OnDestroy {
         const lng = pos.coords.longitude;
         this.coordenadas = `${lat}, ${lng}`;
 
-        if (!this.map) {
-          this.map = L.map('map').setView([lat, lng], 16);
-          L.tileLayer(
-            'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-          ).addTo(this.map);
-        }
+        Swal.close();
 
-        if (this.marker) this.marker.setLatLng([lat, lng]);
-        else this.marker = L.marker([lat, lng]).addTo(this.map);
-
-        const res = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`,
-        );
-        const data = await res.json();
-        this.direccion = data.display_name || '';
+        await this.marcarUbicacionEnMapa(lat, lng);
       },
-      () => Swal.fire('Error', 'No se pudo obtener la ubicación.', 'error'),
+      (error) => {
+        Swal.close();
+        let mensaje = 'No se pudo obtener la ubicación.';
+        if (error.code === error.PERMISSION_DENIED) {
+          mensaje = 'Permiso de ubicación denegado. Por favor habilítalo en tu navegador.';
+        }
+        Swal.fire('Error', mensaje, 'error');
+      }
     );
+  }
+
+  inicializarMapa() {
+    if (this.map) return;
+
+    this.map = L.map('map', {
+      center: [4.5339, -75.6811],
+      zoom: 14,
+      zoomControl: true,
+      attributionControl: false
+    });
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19
+    }).addTo(this.map);
+
+    const defaultIcon = L.icon({
+      iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+      iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+      shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41]
+    });
+    
+    L.Marker.prototype.options.icon = defaultIcon;
+
+    this.map.on('click', (e: any) => {
+      this.marcarUbicacionEnMapa(e.latlng.lat, e.latlng.lng);
+    });
+
+    this.map.invalidateSize();
+  }
+
+  async marcarUbicacionEnMapa(lat: number, lng: number) {
+    this.ubicacionManual = '';
+    this.coordenadas = `${lat}, ${lng}`;
+
+    if (!this.map) {
+      this.map = L.map('map', {
+        center: [4.5339, -75.6811],
+        zoom: 16,
+        zoomControl: true,
+        attributionControl: false
+      });
+      
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19
+      }).addTo(this.map);
+
+      const defaultIcon = L.icon({
+        iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+        iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+      });
+      
+      L.Marker.prototype.options.icon = defaultIcon;
+
+      this.map.on('click', (e: any) => {
+        this.marcarUbicacionEnMapa(e.latlng.lat, e.latlng.lng);
+      });
+    }
+
+    this.map.setView([lat, lng], 16);
+
+    if (this.marker) {
+      this.map.removeLayer(this.marker);
+    }
+
+    this.marker = L.marker([lat, lng]).addTo(this.map);
+
+    this.map.invalidateSize();
+
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`,
+      );
+      const data = await res.json();
+      this.direccion = data.display_name || 'Dirección no encontrada';
+    } catch (error) {
+      this.direccion = 'No se pudo obtener la dirección';
+    }
+  }
+
+  onUbicacionManualChange() {
+    if (this.ubicacionManual.trim()) {
+      this.direccion = '';
+      this.coordenadas = '';
+      if (this.map) {
+        this.map.remove();
+        this.map = null;
+      }
+      if (this.marker) {
+        this.marker = null;
+      }
+    }
   }
 
   // =============================
@@ -228,11 +389,13 @@ export class SubirReporteComponent implements OnInit, OnDestroy {
   }
 
   validarFecha(): boolean {
+
     return !!this.fecha;
   }
 
   validarHora(): boolean {
     return !!this.hora;
+
   }
 
   formularioValido(): boolean {
@@ -241,12 +404,20 @@ export class SubirReporteComponent implements OnInit, OnDestroy {
         ? this.detalleOtroIncidente?.trim()
         : this.tipoSeleccionado;
     
+
+    this.evidenciaRequerida = this.fileList.length === 0;
+    
+    const ubicacionValida = this.direccion || (this.ubicacionManual && this.ubicacionManual.trim().length > 0);
+    
+
     return !!(
       tipoFinal &&
       this.descripcion?.trim().length >= 10 &&
       this.validarFecha() &&
+
       this.validarHora() &&
       this.validarPlaca()
+
     );
   }
 
@@ -270,35 +441,37 @@ export class SubirReporteComponent implements OnInit, OnDestroy {
   }
 
   async enviarReporte() {
-    if (!this.formularioValido()) {
-      await Swal.fire(
-        'Formulario incompleto',
-        'Revisa los campos obligatorios.',
-        'warning',
-      );
+    this.mostrarModalLegal = false;
+    this.isSubmitting = true;
+
+    const direccionFinal = this.direccion || this.ubicacionManual;
+
+    if (!direccionFinal.trim()) {
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Ubicación requerida',
+        text: 'Por favor ingresa o selecciona una ubicación para el reporte.'
+      });
+      this.isSubmitting = false;
       return;
     }
-
-    this.isSubmitting = true;
 
     try {
       const formData = new FormData();
 
       formData.append('descripcion', this.descripcion);
-      formData.append('direccion', this.direccion);
-      formData.append('latitud', this.coordenadas.split(',')[0]);
-      formData.append('longitud', this.coordenadas.split(',')[1]);
-      formData.append('placa', this.placa);
-       formData.append(
-         'tipoInfraccion',
-         this.tipoSeleccionado === 'Otros'
-           ? this.detalleOtroIncidente
-           : this.tipoSeleccionado,
-       );
+      formData.append('direccion', direccionFinal);
+      formData.append('latitud', this.coordenadas.split(',')[0] || '0');
+      formData.append('longitud', this.coordenadas.split(',')[1] || '0');
+      formData.append('placa', this.placa || '');
+      formData.append(
+        'tipoInfraccion',
+        this.tipoSeleccionado === 'Otros'
+          ? this.detalleOtroIncidente
+          : this.tipoSeleccionado,
+      );
       formData.append('fechaIncidente', this.fecha);
       formData.append('horaIncidente', this.hora);
-
-     
 
       for (let file of this.fileList) {
         formData.append('archivos', file);
@@ -310,15 +483,28 @@ export class SubirReporteComponent implements OnInit, OnDestroy {
         credentials: 'include',
       });
 
-      if (!response.ok) throw new Error('Error en servidor');
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        const errorMsg = data.error || 'Error al enviar el reporte';
+        throw new Error(errorMsg);
+      }
 
       await Swal.fire({
         icon: 'success',
-        title: 'Reporte enviado correctamente',
+        title: '¡Reporte enviado!',
+        text: 'Tu reporte ha sido recibido y está pendiente de atención.',
+        confirmButtonColor: '#1e40af'
       });
       this.resetFormulario();
-    } catch (error) {
-      await Swal.fire({ icon: 'error', title: 'Error al enviar reporte' });
+    } catch (error: any) {
+      console.error('Error al enviar reporte:', error);
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.message || 'No se pudo enviar el reporte. Intenta nuevamente.',
+        confirmButtonColor: '#ef4444'
+      });
     } finally {
       this.isSubmitting = false;
     }
@@ -333,6 +519,7 @@ export class SubirReporteComponent implements OnInit, OnDestroy {
     this.hora = '';
     this.direccion = '';
     this.coordenadas = '';
+    this.ubicacionManual = '';
     this.tipoSeleccionado = '';
     this.prioridadInterna = '';
     this.mostrarCampoOtros = false;

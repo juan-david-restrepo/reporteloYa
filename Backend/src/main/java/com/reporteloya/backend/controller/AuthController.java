@@ -4,8 +4,10 @@ import com.reporteloya.backend.dto.AuthResponse;
 import com.reporteloya.backend.dto.LoginRequest;
 import com.reporteloya.backend.dto.RegisterRequest;
 import com.reporteloya.backend.entity.Usuario;
+import com.reporteloya.backend.entity.Role;
 import com.reporteloya.backend.service.AuthResult;
 import com.reporteloya.backend.service.AuthService;
+import com.reporteloya.backend.service.JwtService;
 import jakarta.servlet.http.Cookie;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,9 +26,10 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+    private final JwtService jwtService;
 
     // =========================
-    // REGISTER
+    // REGISTER (Ciudadano - 5 horas)
     // =========================
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request,
@@ -35,8 +38,8 @@ public class AuthController {
             AuthResult result = authService.register(request);
             Usuario usuario = result.usuario();
 
-            // Solo cookie, sin header
-            setJwtCookie(response, result.token());
+            long maxAgeSeconds = jwtService.getExpirationSecondsByRole(Role.CIUDADANO);
+            setJwtCookie(response, result.token(), maxAgeSeconds);
 
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(
@@ -56,7 +59,7 @@ public class AuthController {
     }
 
     // =========================
-    // LOGIN
+    // LOGIN (Tiempo según rol)
     // =========================
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request,
@@ -65,14 +68,15 @@ public class AuthController {
             AuthResult result = authService.login(request);
             Usuario usuario = result.usuario();
 
-            // Solo cookie HttpOnly
-            setJwtCookie(response, result.token());
+            Role role = usuario.getRole();
+            long maxAgeSeconds = jwtService.getExpirationSecondsByRole(role);
+            setJwtCookie(response, result.token(), maxAgeSeconds);
 
             return ResponseEntity.ok(
                     AuthResponse.builder()
                             .userId(usuario.getId())
                             .email(usuario.getEmail())
-                            .role(usuario.getRole())
+                            .role(role)
                             .build()
             );
 
@@ -94,7 +98,7 @@ public class AuthController {
 
         ResponseCookie cookie = ResponseCookie.from("jwt", "")
                 .httpOnly(true)
-                .secure(true) // true en producción
+                .secure(true)
                 .path("/")
                 .maxAge(0)
                 .sameSite("Lax")
@@ -129,14 +133,14 @@ public class AuthController {
         }
 
     // =========================
-    // COOKIE HELPER
+    // COOKIE HELPER (Sincronizado con tiempo del token)
     // =========================
-    private void setJwtCookie(HttpServletResponse response, String token) {
+    private void setJwtCookie(HttpServletResponse response, String token, long maxAgeSeconds) {
         ResponseCookie cookie = ResponseCookie.from("jwt", token)
                 .httpOnly(true)
-                .secure(true) // true en producción con HTTPS
+                .secure(true)
                 .path("/")
-                .maxAge(20 * 60) // 20 minutos
+                .maxAge(maxAgeSeconds)
                 .sameSite("Lax")
                 .build();
 

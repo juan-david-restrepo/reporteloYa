@@ -1,27 +1,34 @@
-import { Component, AfterViewInit, OnInit, OnDestroy } from '@angular/core';
+import { Component, AfterViewInit, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import Chart from 'chart.js/auto';
 import { SidebarAdmin } from './sidebar-admin/sidebar-admin';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { InfraccionService } from '../../service/infraccion.service';
+import { InfraccionService, AdminDashboard } from '../../service/infraccion.service';
 
-type EstadoInfraccion = 'PENDIENTE' | 'RECHAZADO' | 'EN_PROCESO' | 'FINALIZADO';
-
-interface Infraccion {
+interface ReporteAdmin {
   id: number;
+  ref: string;
   fecha: string;
   tipo: string;
+  tipoInfraccion?: string;
   agente: string;
-  placa: string;
-  estado: EstadoInfraccion;
-  ref: string;
-}
-
-interface ItemFiltrado {
-  ref: string;
-  descripcion: string;
-  cantidad: number;
+  nombreAgente?: string;
+  placaAgente?: string;
+  placa?: string;
+  estado: string;
+  descripcion?: string;
+  resumen?: string;
+  resumenOperativo?: string;
+  ubicacion?: string;
+  direccion?: string;
+  prioridad?: string;
+  fechaIncidente?: string;
+  horaIncidente?: string;
+  urlFoto?: string;
+  fechaAceptado?: string;
+  fechaFinalizado?: string;
+  fechaRechazado?: string;
 }
 
 @Component({
@@ -38,43 +45,55 @@ export class Admin implements OnInit, AfterViewInit, OnDestroy {
   tituloModal = '';
   tipoModalActivo: 'barras' | 'infraccion' = 'barras';
 
-  infracciones: Infraccion[] = []; 
-  infraccionesAMostrar: Infraccion[] = []; 
-  itemsFiltrados: ItemFiltrado[] = [];
-  infraccionSeleccionada: Infraccion | null = null;
+  infracciones: ReporteAdmin[] = [];
+  infraccionesAMostrar: ReporteAdmin[] = [];
+  infraccionSeleccionada: ReporteAdmin | null = null;
 
-  filtroTipoGrafico: string = 'todos';
-  filtroTiempoGrafico: string = 'mes';
+  filtroTipoGrafico = 'todos';
+  filtroTiempoGrafico = 'mes';
 
-  tiposInfracciones: string[] = [];
+  filtroTablaTipo = '';
+  filtroTablaEstado = '';
 
-  cargando: boolean = true;
-  errorCarga: string = '';
+  filtroEstadoModal = '';
 
-  private chartBarras?: Chart;
+  dashboard: AdminDashboard | null = null;
 
-  constructor(private infraccionService: InfraccionService) {}
+  chartBarras: any;
+  cargando = true;
+  errorCarga = '';
+  debugInfo = '';
 
-  private loadSettings() {
+  constructor(
+    private infraccionService: InfraccionService,
+    private cdr: ChangeDetectorRef
+  ) {}
+
+  private loadSettings(): void {
     const isDark = localStorage.getItem('darkMode') === 'true';
     if (isDark) document.body.classList.add('dark-mode');
 
-    const isColorBlind = localStorage.getItem('colorBlind') === 'true';
-    if (isColorBlind) document.body.classList.add('color-blind');
-
-    const savedSize = localStorage.getItem('fontSize') || 'normal';
-    document.body.classList.add(`font-${savedSize}`);
+    const savedSize = localStorage.getItem('fontSize');
+    if (savedSize) {
+      document.body.style.setProperty('--admin-font-size', savedSize + 'px');
+    }
   }
 
   ngOnInit(): void {
+    console.log('=== Admin ngOnInit ===');
     this.loadSettings();
     this.cargarInfracciones();
   }
 
+  refreshData(): void {
+    this.cargarInfracciones();
+  }
+
   ngAfterViewInit(): void {
+    console.log('=== Admin ngAfterViewInit ===');
     setTimeout(() => {
-      this.crearGraficoBarras();
-    }, 300);
+      this.inicializarGrafico();
+    }, 500);
   }
 
   ngOnDestroy(): void {
@@ -86,112 +105,251 @@ export class Admin implements OnInit, AfterViewInit, OnDestroy {
   private cargarInfracciones(): void {
     this.cargando = true;
     this.errorCarga = '';
-    
-    this.infraccionService.getAllReportes().subscribe({
-      next: (data) => {
-        console.log('Datos recibidos del backend:', data);
-        
-        if (!data || data.length === 0) {
-          console.warn('No hay reportes en la respuesta');
-          this.infracciones = [];
-          this.infraccionesAMostrar = [];
-          this.cargando = false;
-          return;
-        }
+    this.debugInfo = 'Cargando...';
 
-        this.infracciones = this.mapearDatosInfraccion(data);
+    console.log('=== Llamando API ===');
+
+    this.infraccionService.getInfraccionesSimple().subscribe({
+      next: (response: any) => {
+        console.log('=== API Response ===', response);
+        
+        let items: any[] = [];
+        
+        if (!response) {
+          this.debugInfo = 'Response vacío';
+          items = [];
+        } else if (Array.isArray(response)) {
+          this.debugInfo = 'Response es array';
+          items = response;
+        } else if (response.content && Array.isArray(response.content)) {
+          this.debugInfo = 'Response tiene content';
+          items = response.content;
+        } else {
+          this.debugInfo = 'Response es objeto: ' + JSON.stringify(response).substring(0, 100);
+        }
+        
+        console.log('Items length:', items.length);
+        
+        this.infracciones = items.map((item: any) => this.transformarReporte(item));
         this.infraccionesAMostrar = [...this.infracciones];
-        
-        console.log('Infracciones mapeadas:', this.infracciones);
-        
-        this.extraerTiposInfracciones();
         this.cargando = false;
         
+        this.debugInfo = `Cargados: ${this.infracciones.length}`;
+        console.log('=== Final ===', this.infracciones);
+        
+        this.cdr.detectChanges();
+        
         setTimeout(() => {
-          this.actualizarGraficoBarras();
-        }, 100);
+          if (!this.chartBarras) {
+            this.inicializarGrafico();
+          } else {
+            this.actualizarGraficoBarras();
+          }
+        }, 300);
       },
       error: (err) => {
-        console.error('Error al cargar reportes:', err);
-        this.errorCarga = 'Error al conectar con el servidor';
+        console.error('=== Error API ===', err);
+        this.errorCarga = 'Error: ' + (err.message || err.statusText || 'Error desconocido');
         this.cargando = false;
         this.infracciones = [];
         this.infraccionesAMostrar = [];
+        this.debugInfo = 'Error: ' + this.errorCarga;
+        this.cdr.detectChanges();
+      }
+    });
+
+    this.infraccionService.getEstadisticasAdmin().subscribe({
+      next: (data) => {
+        console.log('=== Dashboard ===', data);
+        this.dashboard = data;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error estadísticas:', err);
       }
     });
   }
 
-  private mapearDatosInfraccion(data: any[]): Infraccion[] {
-    return data.map((item: any) => {
-      console.log('Mapeando item:', item);
-      
-      const agenteNombre = item.agente?.nombreCompleto || item.agente?.nombre || item.agente || 'Sin asignar';
-      
-      return {
-        id: item.id || item.id_reporte,
-        fecha: this.formatearFecha(item.createdAt || item.fechaIncidente || item.fecha),
-        tipo: item.tipoInfraccion || item.tipo || 'Sin tipo',
-        agente: agenteNombre,
-        placa: item.placa || '',
-        estado: this.mapearEstado(item.estado),
-        ref: `INF-${item.id || item.id_reporte}`
-      };
-    });
-  }
+  private inicializarGrafico(): void {
+    const canvas = document.getElementById('barChart') as HTMLCanvasElement;
+    if (!canvas) {
+      console.log('Canvas no encontrado');
+      return;
+    }
 
-  private formatearFecha(fecha: string | undefined): string {
-    if (!fecha) return new Date().toLocaleDateString('es-CO');
+    if (this.chartBarras) {
+      this.chartBarras.destroy();
+    }
+
     try {
-      const date = new Date(fecha);
-      return date.toLocaleDateString('es-CO', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
+      this.chartBarras = new Chart(canvas, {
+        type: 'bar',
+        data: {
+          labels: ['Sin datos'],
+          datasets: [{
+            label: 'Cantidad',
+            data: [0],
+            backgroundColor: ['rgba(200, 200, 200, 0.5)'],
+            borderColor: ['rgba(150, 150, 150, 1)'],
+            borderWidth: 2,
+            borderRadius: 5,
+            barThickness: 40,
+            maxBarThickness: 50
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false } },
+            y: {
+              beginAtZero: true,
+              ticks: { stepSize: 1, precision: 0 }
+            }
+          }
+        }
       });
-    } catch {
-      return String(fecha);
+      console.log('Gráfico inicializado');
+    } catch (error) {
+      console.error('Error al crear gráfico:', error);
     }
   }
 
-  private mapearEstado(estado: string | undefined): EstadoInfraccion {
-    if (!estado) return 'PENDIENTE';
+  private transformarReporte(data: any): ReporteAdmin {
+    console.log('Transformando:', data);
     
-    const mapeo: Record<string, EstadoInfraccion> = {
-      'PENDIENTE': 'PENDIENTE',
-      'EN_PROCESO': 'EN_PROCESO',
-      'EN PROCESO': 'EN_PROCESO',
-      'FINALIZADO': 'FINALIZADO',
-      'RECHAZADO': 'RECHAZADO'
+    let urlFoto = '';
+    if (data.evidencias && data.evidencias.length > 0) {
+      urlFoto = data.evidencias[0].archivo || '';
+    }
+
+    let nombreAgente = '';
+    let placaAgente = '';
+    if (data.agente) {
+      nombreAgente = data.agente.nombreCompleto || data.agente.nombre || '';
+      placaAgente = data.agente.placa || '';
+    }
+
+    return {
+      id: data.id || 0,
+      ref: `INF-${String(data.id || 0).padStart(3, '0')}`,
+      fecha: this.extraerFecha(data),
+      tipo: data.tipoInfraccion || data.tipo || 'Otros',
+      tipoInfraccion: data.tipoInfraccion,
+      agente: nombreAgente || placaAgente || 'Sin asignar',
+      nombreAgente: nombreAgente,
+      placaAgente: placaAgente,
+      placa: data.placa || '',
+      estado: this.normalizarEstado(data.estado),
+      descripcion: data.descripcion,
+      resumen: data.resumenOperativo,
+      resumenOperativo: data.resumenOperativo,
+      ubicacion: data.direccion,
+      direccion: data.direccion,
+      prioridad: data.prioridad,
+      fechaIncidente: data.fechaIncidente,
+      horaIncidente: data.horaIncidente ? data.horaIncidente.substring(0, 5) : '',
+      urlFoto: urlFoto,
+      fechaAceptado: data.fechaAceptado,
+      fechaFinalizado: data.fechaFinalizado,
+      fechaRechazado: data.fechaRechazado
     };
-    return mapeo[estado] || 'PENDIENTE';
   }
 
-  private extraerTiposInfracciones(): void {
-    const tiposSet = new Set<string>();
-    this.infracciones.forEach(inf => {
-      if (inf.tipo) {
-        tiposSet.add(inf.tipo);
+  private extraerFecha(data: any): string {
+    if (data.fechaIncidente) return data.fechaIncidente;
+    if (data.fecha) return data.fecha;
+    if (data.createdAt) {
+      if (typeof data.createdAt === 'string') {
+        return data.createdAt.split('T')[0];
       }
-    });
-    this.tiposInfracciones = Array.from(tiposSet);
-    console.log('Tipos de infracciones:', this.tiposInfracciones);
+      if (data.createdAt.date) {
+        return data.createdAt.date;
+      }
+    }
+    return new Date().toISOString().split('T')[0];
+  }
+
+  private normalizarEstado(estado: any): string {
+    if (!estado) return 'PENDIENTE';
+    const estadoStr = String(estado).toUpperCase();
+    if (estadoStr === 'PENDIENTE') return 'PENDIENTE';
+    if (estadoStr === 'EN_PROCESO' || estadoStr === 'EN PROCESO') return 'EN PROCESO';
+    if (estadoStr === 'FINALIZADO') return 'FINALIZADO';
+    if (estadoStr === 'RECHAZADO') return 'RECHAZADO';
+    return 'PENDIENTE';
+  }
+
+  filtrarTablaPorTipo(event: Event): void {
+    this.filtroTablaTipo = (event.target as HTMLSelectElement).value;
+    this.aplicarFiltrosTabla();
   }
 
   aplicarFiltro(event: Event): void {
-    const estado = (event.target as HTMLSelectElement).value;
-    this.infraccionesAMostrar = !estado 
-      ? [...this.infracciones] 
-      : this.infracciones.filter(inf => inf.estado === estado);
+    this.filtroTablaEstado = (event.target as HTMLSelectElement).value;
+    this.aplicarFiltrosTabla();
   }
 
-  getClaseEstado(estado: EstadoInfraccion): string {
-    const clases: Record<EstadoInfraccion, string> = {
+  private aplicarFiltrosTabla(): void {
+    let filtradas = [...this.infracciones];
+
+    if (this.filtroTablaTipo) {
+      filtradas = filtradas.filter(inf => this.getNombreTipo(inf.tipo) === this.filtroTablaTipo);
+    }
+
+    if (this.filtroTablaEstado) {
+      filtradas = filtradas.filter(inf => inf.estado === this.filtroTablaEstado);
+    }
+
+    this.infraccionesAMostrar = filtradas;
+  }
+
+  getClaseEstado(estado: string): string {
+    const clases: Record<string, string> = {
       'PENDIENTE': 'estado-pendiente',
       'FINALIZADO': 'estado-finalizado',
       'RECHAZADO': 'estado-rechazado',
+      'EN PROCESO': 'estado-proceso',
       'EN_PROCESO': 'estado-proceso'
     };
     return clases[estado] || '';
+  }
+
+  getNombreTipo(tipo: any): string {
+    if (!tipo) return 'Otros';
+    const nombres: Record<string, string> = {
+      'Accidente de tránsito': 'Accidente de tránsito',
+      'Vehículo mal estacionado': 'Vehículo mal estacionado',
+      'Semáforo dañado': 'Semáforo dañado',
+      'Conducción peligrosa': 'Conducción peligrosa',
+      'Otros': 'Otros',
+      'Exceso de velocidad': 'Accidente de tránsito',
+      'Semáforo en Rojo': 'Semáforo dañado',
+      'Accidente': 'Accidente de tránsito',
+      'Manejo errático': 'Conducción peligrosa',
+      'Invasión de carril': 'Conducción peligrosa'
+    };
+    return nombres[tipo] || tipo;
+  }
+
+  getCountByEstado(estado: string): number {
+    return this.infraccionesAMostrar.filter(inf => inf.estado === estado).length;
+  }
+
+  filtrarPorEstadoModal(estado: string): void {
+    this.filtroEstadoModal = this.filtroEstadoModal === estado ? '' : estado;
+  }
+
+  get reportesFiltrados(): ReporteAdmin[] {
+    if (!this.filtroEstadoModal) {
+      return this.infraccionesAMostrar;
+    }
+    return this.infraccionesAMostrar.filter(inf => inf.estado === this.filtroEstadoModal);
+  }
+
+  isEstadoActivo(estado: string): boolean {
+    return this.filtroEstadoModal === estado;
   }
 
   filtrarPorTiempo(event: Event): void {
@@ -204,59 +362,18 @@ export class Admin implements OnInit, AfterViewInit, OnDestroy {
     this.actualizarGraficoBarras();
   }
 
-  private crearGraficoBarras(): void {
-    const canvas = document.getElementById('barChart') as HTMLCanvasElement;
-    if (!canvas) {
-      console.warn('Canvas no encontrado');
+  private actualizarGraficoBarras(): void {
+    if (!this.chartBarras) {
+      this.inicializarGrafico();
       return;
     }
 
-    this.chartBarras = new Chart(canvas, {
-      type: 'bar',
-      data: {
-        labels: [],
-        datasets: [{
-          label: 'Cantidad',
-          data: [],
-          backgroundColor: [],
-          borderColor: [],
-          borderWidth: 2,
-          borderRadius: 5,
-          barThickness: 40,
-          maxBarThickness: 50
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { 
-          legend: { display: false },
-          title: {
-            display: true,
-            text: 'Distribución de Reportes por Tipo'
-          }
-        },
-        scales: {
-          x: { grid: { display: false } },
-          y: {
-            beginAtZero: true,
-            ticks: { stepSize: 1, precision: 0 }
-          }
-        }
-      }
-    });
-
-    this.actualizarGraficoBarras();
-  }
-
-  private actualizarGraficoBarras(): void {
-    if (!this.chartBarras) return;
-
-    console.log('Actualizando gráfico con:', this.infracciones);
-
     const ahora = new Date();
     const datosFiltrados = this.infracciones.filter(inf => {
+      if (!inf.fecha) return false;
+      
       const fechaInf = new Date(inf.fecha);
+      if (isNaN(fechaInf.getTime())) return false;
       
       let cumpleTiempo = true;
       if (this.filtroTiempoGrafico === 'hoy') {
@@ -271,64 +388,58 @@ export class Admin implements OnInit, AfterViewInit, OnDestroy {
         cumpleTiempo = fechaInf.getFullYear() === ahora.getFullYear();
       }
 
-      const cumpleTipo = this.filtroTipoGrafico === 'todos' || inf.tipo === this.filtroTipoGrafico;
+      const cumpleTipo = this.filtroTipoGrafico === 'todos' || this.getNombreTipo(inf.tipo) === this.filtroTipoGrafico;
 
       return cumpleTiempo && cumpleTipo;
     });
 
     const conteo: Record<string, number> = {};
     datosFiltrados.forEach(inf => {
-      conteo[inf.tipo] = (conteo[inf.tipo] || 0) + 1;
+      const tipoNormalizado = this.getNombreTipo(inf.tipo);
+      conteo[tipoNormalizado] = (conteo[tipoNormalizado] || 0) + 1;
     });
 
-    const labels = Object.keys(conteo);
+    const labelsMap: Record<string, string> = {
+      'Accidente de tránsito': 'Accidente',
+      'Vehículo mal estacionado': 'Mal Estacionado',
+      'Semáforo dañado': 'Semáforo Dañado',
+      'Conducción peligrosa': 'Conducción Peligrosa',
+      'Otros': 'Otros'
+    };
+
+    const labels = Object.keys(conteo).map(tipo => labelsMap[tipo] || tipo);
     const data = Object.values(conteo);
 
-    console.log('Datos para gráfico - Labels:', labels, 'Data:', data);
-
     if (labels.length === 0) {
-      this.chartBarras.data.labels = ['Sin datos'];
-      this.chartBarras.data.datasets[0].data = [0];
-      this.chartBarras.data.datasets[0].backgroundColor = ['rgba(200, 200, 200, 0.5)'];
-    } else {
-      this.chartBarras.data.labels = labels;
-      this.chartBarras.data.datasets[0].data = data;
-      
-      const colores = [
-        'rgba(13, 110, 253, 0.75)', 
-        'rgba(255, 193, 7, 0.75)',  
-        'rgba(220, 53, 69, 0.75)',  
-        'rgba(25, 135, 84, 0.75)',  
-        'rgba(111, 66, 193, 0.75)'  
-      ];
-
-      this.chartBarras.data.datasets[0].backgroundColor = labels.map((_, i) => colores[i % colores.length]);
-      this.chartBarras.data.datasets[0].borderColor = labels.map((_, i) => colores[i % colores.length].replace('0.75', '1'));
+      labels.push('Sin datos');
+      data.push(0);
     }
+
+    this.chartBarras.data.labels = labels;
+    this.chartBarras.data.datasets[0].data = data;
+    
+    const colors = [
+      { bg: 'rgba(239, 68, 68, 0.8)', border: 'rgba(239, 68, 68, 1)' },
+      { bg: 'rgba(249, 115, 22, 0.8)', border: 'rgba(249, 115, 22, 1)' },
+      { bg: 'rgba(234, 179, 8, 0.8)', border: 'rgba(234, 179, 8, 1)' },
+      { bg: 'rgba(139, 92, 246, 0.8)', border: 'rgba(139, 92, 246, 1)' },
+      { bg: 'rgba(107, 114, 128, 0.8)', border: 'rgba(107, 114, 128, 1)' }
+    ];
+
+    this.chartBarras.data.datasets[0].backgroundColor = labels.map((_: any, i: number) => colors[i % colors.length].bg);
+    this.chartBarras.data.datasets[0].borderColor = labels.map((_: any, i: number) => colors[i % colors.length].border);
 
     this.chartBarras.update();
   }
 
   abrirModalBarras(): void {
     this.tipoModalActivo = 'barras';
-    this.tituloModal = 'Análisis Estadístico de Infracciones';
-
-    const conteoPorTipo: Record<string, number> = {};
-    this.infracciones.forEach(inf => {
-      conteoPorTipo[inf.tipo] = (conteoPorTipo[inf.tipo] || 0) + 1;
-    });
-
-    this.itemsFiltrados = Object.keys(conteoPorTipo).map(tipo => ({
-      ref: tipo,
-      descripcion: `Reportes registrados en el sistema`,
-      cantidad: conteoPorTipo[tipo]
-    }));
-
+    this.tituloModal = 'Análisis de Reportes';
     this.modalAbierto = true;
     document.body.classList.add('modal-open');
   }
 
-  abrirDetalleInfraccion(infraccion: Infraccion): void {
+  abrirDetalleInfraccion(infraccion: ReporteAdmin): void {
     this.tipoModalActivo = 'infraccion';
     this.tituloModal = `Detalle de Registro: ${infraccion.ref}`;
     this.infraccionSeleccionada = infraccion;

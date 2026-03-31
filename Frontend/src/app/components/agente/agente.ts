@@ -45,6 +45,7 @@ export interface Reporte {
   placaCompanero?: string;
   nombreCompanero?: string;
   placaAgente?: string;
+  nombreAgente?: string;
   esCompanero?: boolean;
 }
 
@@ -59,7 +60,7 @@ export interface Tarea {
   prioridad: 'BAJA' | 'MEDIA' | 'ALTA';
   fechaInicio?: Date;
   fechaFin?: Date;
-  resumen?: string;
+  resumenOperativo?: string;
 }
 
 export interface Notificacion {
@@ -200,11 +201,20 @@ export class Agente implements OnInit, OnDestroy {
   }
 
   finalizarTarea(t: Tarea) {
-    this.agenteService.actualizarEstadoTarea(t.id, 'FINALIZADO').subscribe(() => {
-      t.estado = 'FINALIZADO';
-      t.fechaFin = new Date();
-      this.estadoAgente = 'DISPONIBLE';
-      this.agenteService.actualizarEstado('DISPONIBLE').subscribe();
+    console.log('=== FINALIZAR TAREA ===');
+    console.log('Tarea ID:', t.id);
+    console.log('Resumen operativo:', t.resumenOperativo);
+    console.log('========================');
+    
+    this.agenteService.actualizarEstadoTarea(t.id, 'FINALIZADO', t.resumenOperativo || '').subscribe({
+      next: (res) => {
+        console.log('Respuesta backend:', res);
+        t.estado = 'FINALIZADO';
+        t.fechaFin = new Date();
+        this.estadoAgente = 'DISPONIBLE';
+        this.agenteService.actualizarEstado('DISPONIBLE').subscribe();
+      },
+      error: (err) => console.error('Error:', err)
     });
   }
 
@@ -249,6 +259,8 @@ export class Agente implements OnInit, OnDestroy {
           acompanado:      respuesta.acompanado      ?? r.acompanado,
           placaCompanero:  respuesta.placaCompanero  ?? r.placaCompanero,
           nombreCompanero: respuesta.nombreCompanero ?? r.nombreCompanero,
+          placaAgente:     respuesta.placaAgente     ?? r.placaAgente,
+          nombreAgente:    respuesta.nombreAgente    ?? r.nombreAgente,
         };
         if (idx !== -1) this.reportesEntrantes[idx] = actualizado;
         else            this.reportesEntrantes.push(actualizado);
@@ -436,12 +448,18 @@ export class Agente implements OnInit, OnDestroy {
         break;
 
       case EstadoReporte.EN_PROCESO:
-        console.log('📝 WS: Reporte EN_PROCESO recibido. Placa agente:', nuevo.placaAgente, 'Mi placa:', this.perfilAgente.placa);
+        console.log('📝 WS: Reporte EN_PROCESO recibido');
+        console.log('📝    Placa agente que aceptó:', nuevo.placaAgente);
+        console.log('📝    Mi placa:', this.perfilAgente.placa);
+        console.log('📝    Reporte ID:', nuevo.id);
+        console.log('📝    Está en reportesEntrantes:', idx !== -1);
         
         // Determinar si fue otro agente quien lo aceptó
         const placaAgente = nuevo.placaAgente?.toUpperCase() || '';
         const placaActual = this.perfilAgente.placa?.toUpperCase() || '';
         const fueOtroAgente = placaAgente !== placaActual;
+        
+        console.log('📝    Fue otro agente:', fueOtroAgente);
         
         // Solo procesar si fue otro agente (no el actual)
         if (fueOtroAgente) {
@@ -450,13 +468,14 @@ export class Agente implements OnInit, OnDestroy {
           // 1. Eliminar de reportesEntrantes si estaba ahí
           if (idx !== -1) {
             this.reportesEntrantes.splice(idx, 1);
+            console.log('📝    Eliminado de reportesEntrantes');
           }
           
-          // 2. Eliminar de reportesScroll (el hijo) si estaba solo ahí
+          // 2. SIEMPRE intentar eliminar de reportesScroll (sin importar si estaba en reportesEntrantes)
           // Esto cubre el caso donde el reporte se cargó dinámicamente por scroll
           if (this.reportesComponente?.eliminarReportePorId) {
             const eliminadoDelScroll = this.reportesComponente.eliminarReportePorId(nuevo.id);
-            console.log('📝 WS: Eliminado de reportesScroll:', eliminadoDelScroll);
+            console.log('📝    Eliminado de reportesScroll:', eliminadoDelScroll);
           }
           
           this.cdr.detectChanges();
@@ -478,6 +497,13 @@ export class Agente implements OnInit, OnDestroy {
                 estado: EstadoReporte.EN_PROCESO
               });
             }
+          } else {
+            // El reporte no estaba en reportesEntrantes, agregarlo directamente
+            console.log('📝    Agregando a reportesEntrantes (no estaba)');
+            this.reportesEntrantes.unshift({
+              ...nuevo,
+              estado: EstadoReporte.EN_PROCESO
+            });
           }
         }
         break;
@@ -608,7 +634,7 @@ export class Agente implements OnInit, OnDestroy {
   // ================================
   ngOnInit() {
 
-    // 1. Perfil → WebSocket → Tareas
+    // 1. Perfil → WebSocket → Tareas → Suscripciones WS
     this.agenteService.getPerfil().subscribe({
       next: (data) => {
         this.perfilAgente = {
@@ -624,8 +650,54 @@ export class Agente implements OnInit, OnDestroy {
           resumenProfesional4: data.resumenProfesional4 || ''
         };
         this.estadoAgente = data.estado || 'DISPONIBLE';
-        if (data.placa) this.websocketService.connect(data.placa);
+        
+        console.log('📋 Perfil cargado:', this.perfilAgente.nombre, 'Placa:', this.perfilAgente.placa);
+        
+        // Conectar WebSocket DESPUÉS de cargar el perfil
+        if (data.placa) {
+          this.websocketService.connect(data.placa);
+          
+          // SUSCRIBIRSE a WebSocket DENTRO de la conexión para asegurar que perfilAgente.placa esté configurado
+          this.websocketService.reportes$.subscribe((rb: any) => {
+            console.log('📥 WS: Reporte recibido en agente:', rb.estado, 'PlacaAgente:', rb.placaAgente);
+            this._manejarReporteWebSocket(rb);
+          });
 
+          // WS — asignado como compañero
+          this.websocketService.reporteAsignado$.subscribe((rb: any) => {
+            const r = this._mapearReporte(rb);
+            if (!this.reportesEntrantes.some(x => x.id === r.id)) {
+              r.estado = EstadoReporte.EN_PROCESO;
+              this.reportesEntrantes.unshift(r);
+              this.estadoAgente = 'OCUPADO';
+              this.notificaciones.unshift({
+                tipo:  'REPORTE',
+                texto: `Fuiste asignado como compañero en: ${r.direccion}`,
+                hora:  new Date().toLocaleTimeString(), data: r, leida: false
+              });
+              this._ordenarNotificaciones();
+            }
+          });
+
+          // WS — nuevas tareas
+          this.websocketService.tareas$.subscribe((tb: any) => {
+            const t: Tarea = {
+              id: tb.id, titulo: tb.titulo, descripcion: tb.descripcion,
+              admin: 'Administrador', estado: tb.estado,
+              hora: tb.hora, fecha: tb.fecha, prioridad: tb.prioridad,
+              fechaInicio: tb.fechaInicio ? new Date(tb.fechaInicio) : undefined,
+              fechaFin: tb.fechaFin ? new Date(tb.fechaFin) : undefined
+            };
+            this.tareasAdmin.unshift(t);
+            this.notificaciones.unshift({
+              tipo: 'TAREA', texto: `Nueva tarea: ${t.titulo}`,
+              hora: new Date().toLocaleTimeString(), data: t, leida: false
+            });
+            this._ordenarNotificaciones();
+          });
+        }
+
+        // Cargar tareas
         this.agenteService.getTareasAgente().subscribe({
           next: (tareas: any[]) => {
             this.tareasAdmin = tareas.map(t => ({
@@ -640,54 +712,14 @@ export class Agente implements OnInit, OnDestroy {
         });
       },
       error: (err) => {
-        // Token expirado al recargar → redirigir al login
         if (err.status === 401) this.router.navigate(['/login']);
         console.error('Error cargando perfil', err);
       }
     });
 
-    // 2. Datos iniciales
+    // 2. Datos iniciales (cargar después del perfil)
     this.cargarReportesDesdeBD();
     this.cargarHistorialDesdeBD();
-
-    // 3. WS — cambios de estado de reportes
-    this.websocketService.reportes$.subscribe((rb: any) => {
-      console.log('📥 WS: Reporte recibido en agente:', rb.estado, rb.direccion);
-      this._manejarReporteWebSocket(rb);
-    });
-
-    // 4. WS — asignado como compañero
-    this.websocketService.reporteAsignado$.subscribe((rb: any) => {
-      const r = this._mapearReporte(rb);
-      if (!this.reportesEntrantes.some(x => x.id === r.id)) {
-        r.estado = EstadoReporte.EN_PROCESO;
-        this.reportesEntrantes.unshift(r);
-        this.estadoAgente = 'OCUPADO';
-        this.notificaciones.unshift({
-          tipo:  'REPORTE',
-          texto: `Fuiste asignado como compañero en: ${r.direccion}`,
-          hora:  new Date().toLocaleTimeString(), data: r, leida: false
-        });
-        this._ordenarNotificaciones();
-      }
-    });
-
-    // 5. WS — nuevas tareas
-    this.websocketService.tareas$.subscribe((tb: any) => {
-      const t: Tarea = {
-        id: tb.id, titulo: tb.titulo, descripcion: tb.descripcion,
-        admin: 'Administrador', estado: tb.estado,
-        hora: tb.hora, fecha: tb.fecha, prioridad: tb.prioridad,
-        fechaInicio: tb.fechaInicio ? new Date(tb.fechaInicio) : undefined,
-        fechaFin: tb.fechaFin ? new Date(tb.fechaFin) : undefined
-      };
-      this.tareasAdmin.unshift(t);
-      this.notificaciones.unshift({
-        tipo: 'TAREA', texto: `Nueva tarea: ${t.titulo}`,
-        hora: new Date().toLocaleTimeString(), data: t, leida: false
-      });
-      this._ordenarNotificaciones();
-    });
   }
 
   ngOnDestroy() { this.websocketService.disconnect(); }

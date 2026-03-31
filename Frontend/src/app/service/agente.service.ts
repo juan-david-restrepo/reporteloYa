@@ -154,10 +154,16 @@ export class AgenteServiceTs {
   // =============================
   // ACTUALIZAR ESTADO DE TAREA
   // =============================
-  actualizarEstadoTarea(id: number, estado: string): Observable<any> {
+  actualizarEstadoTarea(id: number, estado: string, resumenOperativo?: string): Observable<any> {
+    console.log('=== ENVIANDO AL BACKEND ===');
+    console.log('ID:', id);
+    console.log('Estado:', estado);
+    console.log('Resumen:', resumenOperativo);
+    console.log('===========================');
+    
     return this.http.post(
       `${this.apiAgente}/tareas/${id}/estado`,
-      { estado },
+      { estado, resumenOperativo },
       { withCredentials: true }
     );
   }

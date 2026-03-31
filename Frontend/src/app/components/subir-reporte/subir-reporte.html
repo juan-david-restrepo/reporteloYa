@@ -1,135 +1,225 @@
 <app-nav></app-nav>
 
-<div class="padre">
-  <div class="contenedor-form">
-    <form (ngSubmit)="enviarReporte()" #reporteForm="ngForm">
-      <h2><i class="fas fa-bullhorn"></i> Reportar Infracción</h2>
+<div class="reporte-page">
+  <div class="reporte-container">
+    <div class="reporte-header">
+      <div class="header-icon">
+        <i class="fas fa-clipboard-check"></i>
+      </div>
+      <div class="header-text">
+        <h1>Reportar Infracción</h1>
+        <p>Completa la información del incidente observed</p>
+      </div>
+    </div>
 
-      <div class="form-grid">
-        <div class="columna-izq">
-          <div class="seccion">
-            <label>Tipo de incidente <span class="requerido">*</span></label>
-            <div class="grid-incidentes">
-              <div *ngFor="let incidente of incidentes" class="card-incidente"
-                [class.selected]="tipoSeleccionado === incidente.nombre" 
-                [class.card-error]="!tipoSeleccionado"
-                (click)="seleccionarIncidente(incidente)">
-                {{ incidente.nombre }}
-              </div>
-            </div>
-            <p class="seleccion-info" *ngIf="tipoSeleccionado">
-              <i class="fas fa-check"></i> Seleccionado: {{ tipoSeleccionado }}
-            </p>
-            <div *ngIf="mostrarCampoOtros" class="campo-otros mt-2">
-              <input type="text" name="detalleOtro" [(ngModel)]="detalleOtroIncidente" placeholder="Especifica el tipo"
-                required
-                [class.input-ok]="detalleOtroIncidente && detalleOtroIncidente.trim().length > 0"
-                [class.input-error]="detalleOtroIncidente && detalleOtroIncidente.trim().length === 0" />
+
+    <form (ngSubmit)="enviarReporte()" #reporteForm="ngForm" class="reporte-form">
+      <div class="form-sections">
+        <div class="form-section">
+          <div class="section-header">
+            <i class="fas fa-exclamation-circle"></i>
+            <h3>Tipo de Incidente</h3>
+            <span class="required-badge">Requerido</span>
+          </div>
+          <div class="incidente-grid">
+            <div *ngFor="let incidente of incidentes" class="incidente-card"
+              [class.selected]="tipoSeleccionado === incidente.nombre" (click)="seleccionarIncidente(incidente)">
+              <i [class]="incidente.icono" class="incidente-icono"></i>
+              <span>{{ incidente.nombre }}</span>
             </div>
           </div>
-
-          <div class="seccion">
-            <label>Descripción * <span class="requerido">*</span></label>
-            <textarea name="descripcion" [(ngModel)]="descripcion" maxlength="300" required
-              placeholder="Describe lo sucedido (mínimo 10 caracteres)..." 
-              class="textarea-compacto"
-              [class.input-ok]="descripcion && descripcion.trim().length >= 10"
-              [class.input-error]="descripcion && descripcion.trim().length < 10"></textarea>
-            <small class="contador-texto" [class.contador-ok]="descripcion && descripcion.trim().length >= 10">
-              {{ descripcion?.length || 0 }}/300 {{ (descripcion && descripcion.trim().length >= 10) ? '✓' : '(mín 10)' }}
-            </small>
+          <div *ngIf="mostrarCampoOtros" class="campo-otros">
+            <input type="text" name="detalleOtro" [(ngModel)]="detalleOtroIncidente" 
+              placeholder="Especifica el tipo de incidente" required class="input-clean" />
           </div>
         </div>
 
-        <div class="columna-der">
-          <div class="seccion fila-doble">
-            <div class="input-group">
-              <label>Fecha * <span class="requerido">*</span></label>
-              <input type="date" name="fecha" [(ngModel)]="fecha" required
-                [class.input-ok]="validarFecha()"
-                [class.input-error]="fecha && !validarFecha()" />
+        <div class="form-row">
+          <div class="form-section half-width">
+            <div class="section-header">
+              <i class="fas fa-align-left"></i>
+              <h3>Descripción</h3>
+              <span class="required-badge">Requerido</span>
             </div>
-            <div class="input-group">
-              <label>Hora * <span class="requerido">*</span></label>
-              <input type="time" name="hora" [(ngModel)]="hora" required
-                [class.input-ok]="validarHora()"
-                [class.input-error]="hora && !validarHora()" />
+            <div class="textarea-wrapper">
+              <textarea name="descripcion" [(ngModel)]="descripcion" maxlength="300" required
+                placeholder="Describe detalladamente lo que observaste..." class="textarea-clean"></textarea>
+              <div class="textarea-footer">
+                <span class="char-count">{{ descripcion?.length || 0 }}/300</span>
+              </div>
             </div>
           </div>
 
-          <div class="seccion" *ngIf="requierePlacaActual || placaOpcional">
-            <label>Placa del vehículo <span *ngIf="requierePlacaActual" class="requerido">*</span></label>
-            <input type="text" name="placa" [(ngModel)]="placa" placeholder="Ej: ABC123" maxlength="6"
-              [class.input-ok]="!requierePlacaActual || placa?.length === 6"
-              [class.input-error]="requierePlacaActual && placa && placa.length < 6" />
-            <small class="placa-hint" *ngIf="requierePlacaActual">Formato: 3 letras + 3 números (ej: ABC123)</small>
+          <div class="form-section half-width">
+            <div class="section-header">
+              <i class="fas fa-calendar-clock"></i>
+              <h3>Fecha y Hora</h3>
+              <span class="required-badge">Requerido</span>
+            </div>
+            <div class="datetime-grid">
+              <div class="input-wrapper">
+                <label>Fecha</label>
+                <input type="date" name="fecha" [(ngModel)]="fecha" required class="input-clean" 
+                  [class.input-error]="fechaInvalida"
+                  [max]="fechaMaxima" [min]="fechaMinima" />
+              </div>
+              <div class="input-wrapper">
+                <label>Hora</label>
+                <input type="time" name="hora" [(ngModel)]="hora" required class="input-clean"
+                  [class.input-error]="fechaInvalida" />
+              </div>
+            </div>
+            <div class="fecha-info">
+              <i class="fas fa-info-circle"></i>
+              <span>Solo se permite reportar incidentes ocurridos hoy o ayer</span>
+            </div>
+            <p class="fecha-error" *ngIf="fechaInvalida && fechaErrorMsg">
+              <i class="fas fa-exclamation-triangle"></i>
+              {{ fechaErrorMsg }}
+            </p>
+
+            <div class="form-section placa-section" *ngIf="requierePlacaActual || placaOpcional">
+              <div class="section-header">
+                <i class="fas fa-car"></i>
+                <h3>Placa del Vehículo</h3>
+                <span class="optional-badge" *ngIf="!requierePlacaActual">Opcional</span>
+                <span class="required-badge" *ngIf="requierePlacaActual">Requerido</span>
+              </div>
+              <input type="text" name="placa" [(ngModel)]="placa" placeholder="Ej: ABC123" maxlength="6" class="input-clean uppercase" />
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="section-header">
+            <i class="fas fa-camera"></i>
+            <h3>Evidencia</h3>
+            <span class="required-badge">Requerido</span>
+          </div>
+          <div class="upload-zone" [class.upload-required]="evidenciaRequerida"
+            (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
+            <input type="file" id="file-upload" multiple (change)="onFileChange($event)" class="input-hidden" />
+            <label for="file-upload" class="upload-area" [class.drag-over]="isDragOver">
+              <div class="upload-content">
+                <div class="upload-icon-wrapper">
+                  <i class="fas fa-cloud-upload-alt"></i>
+                </div>
+                <span class="upload-title">Seleccionar archivos</span>
+                <span class="upload-subtitle">o arrastra y suelta aquí</span>
+              </div>
+            </label>
+
           </div>
 
-          <div class="seccion">
-            <label>Evidencia (Imágenes/Videos)</label>
-            <div class="upload-container">
-              <input type="file" id="file-upload" multiple (change)="onFileChange($event)" class="input-hidden" />
-              <label for="file-upload" class="upload-dropzone">
-                <i class="fas fa-cloud-arrow-up upload-icon"></i>
-                <span class="upload-text">Seleccionar archivos</span>
-                <span class="upload-hint">o arrastrar y soltar aquí</span>
-              </label>
-            </div>
-
-            <div class="preview-container" *ngIf="fileList.length > 0">
-              <div class="preview-item" *ngFor="let file of fileList; let i = index">
-
+          <div class="preview-grid" *ngIf="fileList.length > 0">
+            <div class="preview-card" *ngFor="let file of fileList; let i = index">
+              <div class="preview-wrapper">
                 <button type="button" class="remove-btn" (click)="removeFile(i)">
                   <i class="fas fa-times"></i>
                 </button>
-
-                <!-- IMAGEN -->
-                <img *ngIf="file.type.startsWith('image')" [src]="previewUrls[i]" (click)="abrirModal(file)"
-                  class="img-clickable" />
-
-                <!-- VIDEO -->
-                <video *ngIf="file.type.startsWith('video')" [src]="previewUrls[i]" controls>
-                </video>
-
+                <img *ngIf="file.type.startsWith('image')" [src]="previewUrls[i]" (click)="abrirModal(file)" class="preview-img" />
+                <video *ngIf="file.type.startsWith('video')" [src]="previewUrls[i]" controls class="preview-video"></video>
               </div>
             </div>
           </div>
+        </div>
 
-          <div class="seccion ubicacion-seccion">
-            <div class="ubicacion-header">
-              <button type="button" class="btn-secundario" (click)="obtenerUbicacion()">
-                <i class="fas fa-location-dot"></i> Obtener ubicación
-              </button>
-              <p class="texto-direccion" *ngIf="direccion">{{ direccion }}</p>
-            </div>
-            <div id="map" class="mapa-compacto"></div>
+        <div class="form-section">
+          <div class="section-header">
+            <i class="fas fa-map-marker-alt"></i>
+            <h3>Ubicación</h3>
           </div>
+          <div class="location-options">
+            <div class="location-auto">
+              <button type="button" class="btn-location" (click)="obtenerUbicacion()">
+                <i class="fas fa-location-crosshairs"></i>
+                <span>Obtener ubicación actual</span>
+              </button>
+              <p class="location-address" *ngIf="direccion">
+                <i class="fas fa-location-dot"></i>
+                {{ direccion }}
+              </p>
+            </div>
+            <div class="location-divider">
+              <span>o</span>
+            </div>
+            <div class="location-manual">
+              <input type="text" name="ubicacionManual" [(ngModel)]="ubicacionManual" 
+                (ngModelChange)="onUbicacionManualChange()"
+                placeholder="Escribe la dirección del incidente" class="input-clean" />
+              <p class="location-hint">
+                <i class="fas fa-info-circle"></i>
+                Escribe la dirección donde ocurrió el incidente
+              </p>
+            </div>
+          </div>
+          <p class="map-hint" *ngIf="!ubicacionManual">
+            <i class="fas fa-hand-pointer"></i>
+            Haz clic en el mapa para marcar la ubicación
+          </p>
+          <div id="map" class="map-container" [class.hidden]="ubicacionManual" (click)="inicializarMapa()"></div>
         </div>
       </div>
 
-      <div class="estado-formulario">
-        <p class="campo-faltante" *ngIf="!formularioValido() && obtenerCampoFaltante()">
-          <i class="fas fa-exclamation-circle"></i> {{ obtenerCampoFaltante() }}
-        </p>
-        <p class="campo-ok" *ngIf="formularioValido()">
-          <i class="fas fa-check-circle"></i> Formulario listo para enviar
-        </p>
+      <div class="form-footer">
+        <button type="button" class="btn-submit" [disabled]="!formularioValido() || isSubmitting" (click)="mostrarConfirmacion()">
+          <span class="btn-icon" *ngIf="!isSubmitting">
+            <i class="fas fa-paper-plane"></i>
+          </span>
+          <span class="btn-spinner" *ngIf="isSubmitting">
+            <i class="fas fa-spinner fa-spin"></i>
+          </span>
+          <span>{{ isSubmitting ? 'Enviando reporte...' : 'Enviar Reporte Oficial' }}</span>
+        </button>
       </div>
-
-      <button type="submit" class="btn-enviar" [disabled]="!formularioValido() || isSubmitting">
-        <i class="fas fa-paper-plane"></i>
-        <span> {{ isSubmitting ? 'Enviando...' : 'Enviar Reporte Oficial' }}</span>
-      </button>
     </form>
   </div>
 </div>
 
-<div class="modal-overlay" *ngIf="imagenSeleccionada" (click)="cerrarModal()">
-  <div class="modal-content" (click)="$event.stopPropagation()">
-    <button class="close-modal" (click)="cerrarModal()" title="Cerrar">
+<div class="preview-modal" *ngIf="imagenSeleccionada" (click)="cerrarModal()">
+  <div class="modal-wrapper" (click)="$event.stopPropagation()">
+    <button class="modal-close" (click)="cerrarModal()">
       <i class="fas fa-times"></i>
     </button>
+    <img [src]="urlImagenModal" alt="Evidencia">
+  </div>
+</div>
 
-    <img [src]="urlImagenModal" alt="Evidencia ampliada">
+<div class="legal-modal" *ngIf="mostrarModalLegal" (click)="cerrarModalLegal()">
+  <div class="legal-wrapper" (click)="$event.stopPropagation()">
+    <div class="legal-header">
+      <i class="fas fa-gavel"></i>
+      <h2>Aviso Legal</h2>
+    </div>
+    <div class="legal-content">
+      <h3>Advertencia antes de enviar</h3>
+      <p class="legal-intro">Antes de enviar su reporte, tenga en cuenta que <strong>realizar una denuncia falsa es un delito</strong> en Colombia.</p>
+      
+      <div class="legal-item">
+        <h4><i class="fas fa-balance-scale"></i> Denuncia falsa (Art. 435 C.P.)</h4>
+        <p>Quien simule ante las autoridades la comisión de una conducta punible podrá ser sancionado con prisión de <strong>1 a 4 años</strong>.</p>
+      </div>
+      
+      <div class="legal-item">
+        <h4><i class="fas fa-user-slash"></i> Calumnia (Art. 221 C.P.)</h4>
+        <p>Imputar falsamente a alguien una conducta tipificada como delito acarrea pena de prisión de <strong>1 a 4 años</strong> y multa.</p>
+      </div>
+      
+      <div class="legal-item">
+        <h4><i class="fas fa-shield-alt"></i> Código Nacional de Seguridad y Convivencia Ciudadana (Ley 1801 de 2016)</h4>
+        <p>Los reportes falsos sobre comportamientos que afecten la convivencia pueden dar lugar a <strong>medidas correctivas adicionales</strong>.</p>
+      </div>
+      
+      <p class="legal-declaration">Al enviar este reporte, usted declara que la información suministrada es <strong>veraz, verificable y de buena fe</strong>.</p>
+    </div>
+    <div class="legal-actions">
+      <button type="button" class="btn-cancel" (click)="cerrarModalLegal()">
+        Cancelar
+      </button>
+      <button type="button" class="btn-confirm" (click)="enviarReporte()">
+        <i class="fas fa-check"></i>
+        Entiendo, enviar reporte
+      </button>
+    </div>
   </div>
 </div>
