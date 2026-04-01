@@ -14,6 +14,7 @@
       placeholder="correo@ejemplo.com"
       formControlName="email" required />
   </div>
+  <div class="error-message" *ngIf="getErrorMessage('email')">{{ getErrorMessage('email') }}</div>
 
   <label for="passwordLogin">Contraseña</label>
   <div class="input-group">
@@ -22,6 +23,7 @@
       placeholder="********"
       formControlName="password" required />
   </div>
+  <div class="error-message" *ngIf="getErrorMessage('password')">{{ getErrorMessage('password') }}</div>
 
   <a class="recuperar" routerLink="/recuperar">
     ¿Olvidaste tu Contraseña?

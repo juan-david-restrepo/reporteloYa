@@ -27,6 +27,10 @@ export class WebsocketService {
   private reporteAsignadoSubject = new Subject<any>();
   public reporteAsignado$ = this.reporteAsignadoSubject.asObservable();
 
+  // ✅ NUEVO: Subject para notificaciones del ciudadano
+  private notificacionesCiudadanoSubject = new Subject<any>();
+  public notificacionesCiudadano$ = this.notificacionesCiudadanoSubject.asObservable();
+
   connect(placa: string) {
 
     const socket = new SockJS('http://localhost:8080/ws');
@@ -72,6 +76,39 @@ export class WebsocketService {
         this.reporteAsignadoSubject.next(reporte);
       });
 
+    };
+
+    this.stompClient.activate();
+  }
+
+  connectCiudadano(email: string) {
+    console.log('🔌 WS: Intentando conectar ciudadano con email:', email);
+
+    if (this.stompClient) {
+      this.stompClient.deactivate();
+    }
+
+    const socket = new SockJS('http://localhost:8080/ws');
+
+    this.stompClient = new Client({
+      webSocketFactory: () => socket,
+      reconnectDelay: 5000
+    });
+
+    this.stompClient.onConnect = () => {
+      console.log('✅ WS: WebSocket conectado para ciudadano');
+
+      // Suscripción al topic privado /user/{email}/queue/notifications
+      // Spring Security usará la cookie para autenticar y mapear al usuario
+      this.stompClient.subscribe(`/user/${email}/queue/notifications`, (msg) => {
+        const notificacion = JSON.parse(msg.body);
+        console.log('📨 WS: Notificación recibida del topic privado:', notificacion);
+        this.notificacionesCiudadanoSubject.next(notificacion);
+      });
+    };
+
+    this.stompClient.onStompError = (frame) => {
+      console.error('❌ WS: Error STOMP:', frame);
     };
 
     this.stompClient.activate();

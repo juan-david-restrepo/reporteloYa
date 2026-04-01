@@ -32,6 +32,7 @@ export class Login {
 
   onSubmit(): void {
     if (this.formLogin.invalid) {
+      this.marcarCamposInvalidos();
       Swal.fire({
         icon: 'warning',
         title: 'Formulario incompleto',
@@ -70,30 +71,88 @@ export class Login {
       },
       error: (err) => {
         console.error('Error login:', err);
-        const errorMessage = err.error || 'Credenciales incorrectas';
-        
-        if (errorMessage.includes('verificar') || errorMessage.includes('correo')) {
-          Swal.fire({
-            icon: 'warning',
-            title: 'Correo no verificado',
-            html: `<p>${errorMessage}</p><p>¿Deseas reenviar el correo de verificación?</p>`,
-            showCancelButton: true,
-            confirmButtonText: 'Reenviar correo',
-            cancelButtonText: 'Cancelar',
-          }).then((result) => {
-            if (result.isConfirmed) {
-              this.reenviarVerificacion(email);
-            }
-          });
-        } else {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error al iniciar sesión',
-            text: errorMessage,
-          });
-        }
+        this.manejarErrorLogin(err);
       },
     });
+  }
+
+  private manejarErrorLogin(err: any): void {
+    let errorMessage = 'Credenciales incorrectas';
+    let errorTitle = 'Error al iniciar sesión';
+    let icon: 'error' | 'warning' = 'error';
+
+    if (err.error) {
+      if (typeof err.error === 'string') {
+        errorMessage = err.error;
+      } else if (err.error.message) {
+        errorMessage = err.error.message;
+      }
+    }
+
+    if (errorMessage.includes('verificar') || errorMessage.includes('correo')) {
+      errorTitle = 'Correo no verificado';
+      icon = 'warning';
+      Swal.fire({
+        icon: icon,
+        title: errorTitle,
+        html: `<p>${errorMessage}</p><p>¿Deseas reenviar el correo de verificación?</p>`,
+        showCancelButton: true,
+        confirmButtonText: 'Reenviar correo',
+        cancelButtonText: 'Cancelar',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.reenviarVerificacion(this.formLogin.get('email')?.value);
+        }
+      });
+      return;
+    }
+
+    if (errorMessage.includes('correo') && errorMessage.includes('no existe')) {
+      this.formLogin.get('email')?.setErrors({ notFound: true });
+    }
+
+    if (errorMessage.includes('contraseña') && (errorMessage.includes('incorrecta') || errorMessage.includes('inválida'))) {
+      this.formLogin.get('password')?.setErrors({ incorrect: true });
+    }
+
+    Swal.fire({
+      icon: icon,
+      title: errorTitle,
+      text: errorMessage,
+    });
+  }
+
+  private marcarCamposInvalidos(): void {
+    Object.keys(this.formLogin.controls).forEach(key => {
+      const control = this.formLogin.get(key);
+      if (control?.invalid) {
+        control.markAsTouched();
+      }
+    });
+  }
+
+  getErrorMessage(fieldName: string): string {
+    const control = this.formLogin.get(fieldName);
+    if (!control || !control.errors || !control.touched) return '';
+
+    if (control.errors['required']) {
+      if (fieldName === 'email') return 'El correo electrónico es requerido';
+      if (fieldName === 'password') return 'La contraseña es requerida';
+    }
+
+    if (control.errors['email']) {
+      return 'El formato del correo electrónico no es válido';
+    }
+
+    if (control.errors['notFound']) {
+      return 'No existe una cuenta con este correo';
+    }
+
+    if (control.errors['incorrect']) {
+      return 'La contraseña es incorrecta';
+    }
+
+    return '';
   }
 
   reenviarVerificacion(email: string): void {

@@ -16,4 +16,5 @@ public class NotificacionDTO {
     private Boolean leida;
     private LocalDateTime fechaCreacion;
     private Long idReferencia;
+    private String datosAdicionales;
 }

@@ -72,6 +72,9 @@ public class Usuario implements UserDetails {
 
     @Override
     public boolean isEnabled() {
+        if (role == Role.ADMIN || role == Role.AGENTE) {
+            return true;
+        }
         return emailVerificado;
     }
 

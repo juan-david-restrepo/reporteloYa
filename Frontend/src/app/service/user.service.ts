@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 
 export interface Usuario {
   nombreCompleto: string;
@@ -38,5 +38,14 @@ export class UserService {
     return this.http.put<Usuario>(`${this.apiUrl}/profile`, data, {
       withCredentials: true
     });
+  }
+
+  // ================= GET total notificaciones no leidas =================
+  getNotificacionesNoLeidas(): Observable<number> {
+    return this.http.get<any[]>(`${this.apiUrl}/notificaciones/no-leidas`, {
+      withCredentials: true
+    }).pipe(
+      map(notificaciones => notificaciones.length)
+    );
   }
 }

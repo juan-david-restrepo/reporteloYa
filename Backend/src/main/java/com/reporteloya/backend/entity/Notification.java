@@ -14,8 +14,12 @@ public class Notification {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "agente_id", nullable = false)
+    @JoinColumn(name = "agente_id", nullable = true)
     private Agentes agente;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id", nullable = true)
+    private Usuario usuario;
 
     @Column(nullable = false, length = 20)
     private String tipo;

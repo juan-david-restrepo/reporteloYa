@@ -79,6 +79,58 @@
                 <a *ngIf="!isLoggedIn" routerLink="/registro" class="button button-signup">Registrarme</a>
 
                 <!-- ✔ Mostrar cuando esté logueado -->
+                <div class="notif-wrapper-nav" *ngIf="isLoggedIn">
+                    <div 
+                        class="notif-icon-nav"
+                        (click)="toggleNotificaciones(); $event.stopPropagation()"
+                        [class.ring]="notificacionesNoLeidas > 0"
+                    >
+                        <i class="fa-solid fa-bell"></i>
+                        <span class="notif-badge-nav" *ngIf="notificacionesNoLeidas > 0">
+                            {{ notificacionesNoLeidas }}
+                        </span>
+                    </div>
+                    
+                    <div class="notif-dropdown-nav" *ngIf="mostrarNotifDropdown" (click)="$event.stopPropagation()">
+                        <div class="notif-header-nav">
+                            <span>Notificaciones</span>
+                            <button class="notif-clear-nav" (click)="marcarTodasLeidas(); $event.stopPropagation()">
+                                <i class="fa-solid fa-check-double"></i>
+                            </button>
+                        </div>
+                        <div class="notif-list-nav">
+                            <div 
+                                class="notif-item-nav"
+                                [class.no-leida-nav]="!n.leida"
+                                *ngFor="let n of notificaciones"
+                                (click)="abrirNotificacion(n)"
+                            >
+                                <div class="notif-icon-tipo-nav">
+                                    <i class="fa-solid" 
+                                        [class.fa-check]="n.tipo === 'REPORTE_ACEPTADO'"
+                                        [class.fa-xmark]="n.tipo === 'REPORTE_RECHAZADO'"
+                                        [class.fa-check-double]="n.tipo === 'REPORTE_FINALIZADO'"
+                                        [class.fa-bell]="n.tipo !== 'REPORTE_ACEPTADO' && n.tipo !== 'REPORTE_RECHAZADO' && n.tipo !== 'REPORTE_FINALIZADO'"
+                                        [class.notif-aceptada]="n.tipo === 'REPORTE_ACEPTADO'"
+                                        [class.notif-rechazada]="n.tipo === 'REPORTE_RECHAZADO'"
+                                        [class.notif-finalizada]="n.tipo === 'REPORTE_FINALIZADO'"
+                                    ></i>
+                                </div>
+                                <div class="notif-content-nav">
+                                    <strong>{{ n.titulo }}</strong>
+                                    <p>{{ n.mensaje }}</p>
+                                    <span class="notif-fecha-nav">{{ n.fechaCreacion | date:'short' }}</span>
+                                </div>
+                                <div class="notif-unread-dot-nav" *ngIf="!n.leida"></div>
+                            </div>
+                            <div class="notif-empty-nav" *ngIf="notificaciones.length === 0">
+                                <i class="fa-solid fa-bell-slash"></i>
+                                <p>Sin notificaciones</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <button
                     id="sidebarToggle"
                     class="toggle-btn"
@@ -87,6 +139,7 @@
                     title="Cuenta"
                 >
                     <i><img  [src]="currentAvatar" alt="Avatar 1" class="avatarnav"></i>
+                    <span class="avatar-badge" *ngIf="notificacionesNoLeidas > 0"></span>
                 </button>
 
             </div>

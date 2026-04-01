@@ -1,9 +1,13 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  // Las cookies JWT se envían automáticamente con withCredentials: true
-  // No es necesario leer el token desde localStorage
-  // El backend está configurado para usar cookies HttpOnly
-  
-  return next(req);
+  if (!req.url.includes('http')) {
+    req = req.clone({
+      url: 'http://localhost:8080' + req.url
+    });
+  }
+
+  return next(req.clone({
+    withCredentials: true
+  }));
 };

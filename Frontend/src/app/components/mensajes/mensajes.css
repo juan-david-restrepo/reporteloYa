@@ -1,0 +1,238 @@
+.mensajes-container {
+    min-height: calc(100vh - 140px);
+    padding: 120px 20px 40px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.mensajes-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.mensajes-header h1 {
+    font-size: 28px;
+    color: #333;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.mensajes-header p {
+    color: #666;
+    font-size: 14px;
+    margin: 0;
+}
+
+.mensajes-header .btn-marcar-todas {
+    margin-left: auto;
+    background: #0033A0;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.2s;
+}
+
+.mensajes-header .btn-marcar-todas:hover {
+    background: #002266;
+}
+
+.mensajes-content {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+.mensaje-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 16px 20px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.mensaje-item:hover {
+    background: #f9f9f9;
+}
+
+.mensaje-item.no-leida {
+    background: #f0f7ff;
+}
+
+.mensaje-item.no-leida:hover {
+    background: #e6f0fa;
+}
+
+.mensaje-icono {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.mensaje-icono i {
+    font-size: 20px;
+}
+
+.mensaje-icono.icono-aceptado {
+    background: #d4edda;
+    color: #155724;
+}
+
+.mensaje-icono.icono-rechazado {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.mensaje-icono.icono-finalizado {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.mensaje-icono.icono-default {
+    background: #e2e3e5;
+    color: #383d41;
+}
+
+.mensaje-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.mensaje-info h3 {
+    font-size: 15px;
+    color: #333;
+    margin: 0 0 4px 0;
+    font-weight: 600;
+}
+
+.mensaje-info p {
+    font-size: 14px;
+    color: #666;
+    margin: 0 0 6px 0;
+    line-height: 1.4;
+}
+
+.mensaje-fecha {
+    font-size: 12px;
+    color: #999;
+}
+
+.mensaje-unread {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #CE1126;
+    flex-shrink: 0;
+    margin-top: 6px;
+}
+
+.mensajes-vacio {
+    padding: 60px 20px;
+    text-align: center;
+    color: #666;
+}
+
+.mensajes-vacio i {
+    font-size: 64px;
+    color: #ccc;
+    margin-bottom: 20px;
+    display: block;
+}
+
+.mensajes-vacio h2 {
+    font-size: 20px;
+    color: #333;
+    margin: 0 0 10px 0;
+}
+
+.mensajes-vacio p {
+    font-size: 14px;
+    margin: 0 0 24px 0;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.mensajes-vacio .btn-ver-reportes {
+    display: inline-block;
+    background: #0033A0;
+    color: white;
+    text-decoration: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+.mensajes-vacio .btn-ver-reportes:hover {
+    background: #002266;
+}
+
+.mensajes-loading {
+    padding: 60px 20px;
+    text-align: center;
+    color: #666;
+}
+
+.mensajes-loading i {
+    font-size: 40px;
+    color: #0033A0;
+    margin-bottom: 16px;
+    display: block;
+}
+
+.mensajes-loading p {
+    font-size: 14px;
+    margin: 0;
+}
+
+@media (max-width: 600px) {
+    .mensajes-container {
+        padding: 100px 16px 30px;
+    }
+
+    .mensajes-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .mensajes-header h1 {
+        font-size: 22px;
+    }
+
+    .mensajes-header .btn-marcar-todas {
+        margin-left: 0;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .mensaje-item {
+        padding: 12px 16px;
+    }
+
+    .mensaje-icono {
+        width: 40px;
+        height: 40px;
+    }
+
+    .mensaje-icono i {
+        font-size: 16px;
+    }
+}

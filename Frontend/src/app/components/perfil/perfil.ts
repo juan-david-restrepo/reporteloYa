@@ -20,6 +20,7 @@ import { ActividadRecienteService, ActividadReciente } from '../../service/activ
 })
 export class Perfil implements OnInit {
   totalReportes: number = 0;
+  notificacionesNoLeidas: number = 0;
   avatar = '';
   selectedBackground = '#1e3a8a';
   isEditing = false;
@@ -74,6 +75,11 @@ export class Perfil implements OnInit {
         this.userService.getTotalReportes().subscribe({
           next: (res) => this.totalReportes = res.total_reportes,
           error: (err) => console.error('Error al obtener reportes:', err)
+        });
+
+        this.userService.getNotificacionesNoLeidas().subscribe({
+          next: (count) => this.notificacionesNoLeidas = count,
+          error: (err) => console.error('Error al obtener notificaciones:', err)
         });
 
         if (this.esCiudadano) {

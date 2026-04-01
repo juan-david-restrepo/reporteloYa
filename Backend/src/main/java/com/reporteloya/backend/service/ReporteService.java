@@ -21,6 +21,7 @@ import com.reporteloya.backend.entity.Evidencia;
 import com.reporteloya.backend.entity.Prioridad;
 import com.reporteloya.backend.entity.EstadisticaAgente;
 import com.reporteloya.backend.dto.EstadisticaGraficaDTO;
+import com.reporteloya.backend.dto.ImageValidationResult;
 import com.reporteloya.backend.repository.ReporteRepository;
 import com.reporteloya.backend.repository.AgenteRepository;
 import com.reporteloya.backend.repository.EvidenciaRepository;
@@ -53,6 +54,7 @@ public class ReporteService {
     private final FileStorageService fileStorageService;
     private final SimpMessagingTemplate messagingTemplate;
     private final EstadisticaAgenteRepository estadisticaAgenteRepository;
+    private final NotificationService notificationService;
 
     public ReporteService(
             ReporteRepository reporteRepository,
@@ -61,7 +63,8 @@ public class ReporteService {
             FileStorageService fileStorageService,
             ImageValidationService imageValidationService,
             SimpMessagingTemplate messagingTemplate,
-            EstadisticaAgenteRepository estadisticaAgenteRepository) {
+            EstadisticaAgenteRepository estadisticaAgenteRepository,
+            NotificationService notificationService) {
 
         this.reporteRepository = reporteRepository;
         this.agenteRepository = agenteRepository;
@@ -70,6 +73,7 @@ public class ReporteService {
         this.imageValidationService = imageValidationService;
         this.messagingTemplate = messagingTemplate;
         this.estadisticaAgenteRepository = estadisticaAgenteRepository;
+        this.notificationService = notificationService;
     }
 
     // ================================
@@ -92,6 +96,8 @@ public class ReporteService {
         }
 
         boolean imagenValida = false;
+        String placaDetectadaIA = null;
+        String motivoRechazo = null;
 
         for (MultipartFile archivo : archivos) {
             if (archivo.getContentType() == null ||
@@ -99,9 +105,18 @@ public class ReporteService {
                 continue;
             }
             try {
-                if (imageValidationService.esImagenDeTransito(archivo)) {
+                ImageValidationResult validationResult = imageValidationService.validarImagen(archivo, tipoInfraccion);
+                if (validationResult.isValida()) {
                     imagenValida = true;
+                    if (validationResult.getPlacaDetectada() != null && 
+                        (placa == null || placa.isBlank())) {
+                        placaDetectadaIA = validationResult.getPlacaDetectada();
+                        System.out.println("PLACA DETECTADA POR IA: " + placaDetectadaIA);
+                    }
                     break;
+                } else {
+                    motivoRechazo = validationResult.getMotivoRechazo();
+                    System.out.println("Imagen rechazada: " + motivoRechazo);
                 }
             } catch (Exception e) {
                 throw new RuntimeException("Error validando imagen con IA: " + e.getMessage());
@@ -109,7 +124,7 @@ public class ReporteService {
         }
 
         if (!imagenValida) {
-            throw new RuntimeException("La imagen no parece estar relacionada con tránsito");
+            throw new RuntimeException(motivoRechazo != null ? motivoRechazo : "La imagen no parece estar relacionada con tránsito");
         }
 
         Reporte reporte = new Reporte();
@@ -123,8 +138,11 @@ public class ReporteService {
         reporte.setTipoInfraccion(tipoInfraccion);
         reporte.setPrioridad(obtenerPrioridadPorTipo(tipoInfraccion));
 
+        // Usar placa del formulario, o la detectada por IA
         if (placa != null && !placa.isBlank()) {
             reporte.setPlaca(placa.trim().toUpperCase());
+        } else if (placaDetectadaIA != null) {
+            reporte.setPlaca(placaDetectadaIA);
         }
 
         if (fechaIncidente != null && !fechaIncidente.isBlank()) {
@@ -317,6 +335,13 @@ public class ReporteService {
 
         Reporte actualizado = reporteRepository.save(reporte);
 
+        System.out.println("=== ANTES DE NOTIFICAR ===");
+        System.out.println("Reporte actualizado ID: " + actualizado.getId());
+        System.out.println("Reporte usuario: " + (actualizado.getUsuario() != null ? actualizado.getUsuario().getId() : "NULL"));
+        
+        // Notificar al ciudadano que su reporte fue aceptado
+        notificationService.notifyReporteAceptado(actualizado, agente);
+
         // Notificar a todos por WebSocket
         messagingTemplate.convertAndSend("/topic/reportes", convertirADTO(actualizado));
 
@@ -411,6 +436,9 @@ public class ReporteService {
 
         Reporte actualizado = reporteRepository.save(reporte);
 
+        // Notificar al ciudadano que su reporte fue rechazado
+        notificationService.notifyReporteRechazado(actualizado, agente);
+
         // Guardar estadísticas de rechazo
         guardarEstadisticasReporte(actualizado);
 
@@ -465,6 +493,9 @@ public class ReporteService {
         }
 
         ReporteSocketDTO dto = convertirADTO(finalizado);
+
+        // Notificar al ciudadano que su reporte fue finalizado
+        notificationService.notifyReporteFinalizado(finalizado);
 
         // Notificar a todos
         messagingTemplate.convertAndSend("/topic/reportes", dto);

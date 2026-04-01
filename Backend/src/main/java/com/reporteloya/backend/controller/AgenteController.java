@@ -309,7 +309,8 @@ public class AgenteController {
                         n.getMensaje(),
                         n.getLeida(),
                         n.getFechaCreacion(),
-                        n.getIdReferencia()
+                        n.getIdReferencia(),
+                        n.getDatosAdicionales()
                     ))
                     .toList();
                 return ResponseEntity.ok(dtos);

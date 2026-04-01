@@ -30,6 +30,7 @@ export class Registro {
   };
   contrasenaSegura = false;
   tipoDocumentoSeleccionado = '';
+  terminosAceptados = false;
 
   get placeholderDocumento(): string {
     return this.tipoDocumentoSeleccionado === 'PASAPORTE' 
@@ -68,6 +69,7 @@ export class Registro {
           Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/),
         ],
       ],
+      confirmarContrasena: ['', [Validators.required]],
       tipoDocumento: ['', Validators.required],
       numeroDocumento: [
         '',
@@ -79,7 +81,16 @@ export class Registro {
         ],
       ],
       rol: ['CIUDADANO', Validators.required],
-    });
+    }, { validators: this.passwordMatchValidator });
+  }
+
+  passwordMatchValidator(form: FormGroup) {
+    const contrasena = form.get('contrasena')?.value;
+    const confirmarContrasena = form.get('confirmarContrasena')?.value;
+    if (contrasena && confirmarContrasena && contrasena !== confirmarContrasena) {
+      return { passwordMismatch: true };
+    }
+    return null;
   }
 
   validarContrasena(password: string): void {
@@ -119,6 +130,10 @@ export class Registro {
     numeroDoc?.updateValueAndValidity();
   }
 
+  onCheckboxChange(): void {
+    this.terminosAceptados = !this.terminosAceptados;
+  }
+
   /** Redirección según rol */
   private redirigirSegunRol(rol: string) {
     switch (rol?.toUpperCase()) {
@@ -139,12 +154,22 @@ export class Registro {
   /** Enviar formulario */
   onSubmit(): void {
     if (this.registroForm.invalid) {
-      Swal.fire('Formulario inválido', 'Revisa los campos del formulario.', 'warning');
+      this.marcarCamposInvalidos();
+      if (this.registroForm.errors?.['passwordMismatch']) {
+        Swal.fire('Contraseñas no coinciden', 'Las contraseñas ingresadas son diferentes.', 'warning');
+      } else {
+        Swal.fire('Formulario incompleto', 'Por favor completa todos los campos correctamente.', 'warning');
+      }
       return;
     }
 
     if (!this.contrasenaSegura) {
       Swal.fire('Contraseña insegura', 'La contraseña debe cumplir todos los requisitos de seguridad.', 'warning');
+      return;
+    }
+
+    if (!this.terminosAceptados) {
+      Swal.fire('Términos requeridos', 'Debes aceptar los términos y condiciones para continuar.', 'warning');
       return;
     }
 
@@ -176,13 +201,118 @@ export class Registro {
       },
       error: (err) => {
         console.error('Error en registro:', err);
-        const mensaje = err.error?.message || err.error || 'Hubo un problema durante el registro.';
-        Swal.fire({
-          icon: 'error',
-          title: 'Error al registrar',
-          text: mensaje,
-        });
+        this.manejarErrorRegistro(err);
       },
     });
+  }
+
+  private manejarErrorRegistro(err: any): void {
+    let mensaje = err.error?.message || err.error || 'Hubo un problema durante el registro.';
+    let errorKey: string | null = null;
+    
+    if (mensaje.includes('correo') && mensaje.includes('ya está registrado')) {
+      this.registroForm.get('correo')?.setErrors({ alreadyExists: true });
+      this.registroForm.get('correo')?.markAsTouched();
+      this.marcarCamposInvalidos();
+      return;
+    }
+
+    if (mensaje.includes('contraseña') && mensaje.includes('8 caracteres')) {
+      this.registroForm.get('contrasena')?.setErrors({ weakPassword: true });
+      this.registroForm.get('contrasena')?.markAsTouched();
+      this.marcarCamposInvalidos();
+      return;
+    }
+
+    if (mensaje.includes('nombre') && mensaje.includes('solo puede contener')) {
+      this.registroForm.get('nombre')?.setErrors({ invalidFormat: true });
+      this.registroForm.get('nombre')?.markAsTouched();
+      this.marcarCamposInvalidos();
+      return;
+    }
+
+    if (mensaje.includes('tipo de documento')) {
+      this.registroForm.get('tipoDocumento')?.setErrors({ invalidType: true });
+      this.registroForm.get('tipoDocumento')?.markAsTouched();
+      this.marcarCamposInvalidos();
+      return;
+    }
+
+    if (mensaje.includes('número de documento') || mensaje.includes('cédula') || mensaje.includes('pasaporte')) {
+      this.registroForm.get('numeroDocumento')?.setErrors({ invalidNumber: true });
+      this.registroForm.get('numeroDocumento')?.markAsTouched();
+      this.marcarCamposInvalidos();
+      return;
+    }
+
+    Swal.fire({
+      icon: 'error',
+      title: 'Error al registrar',
+      text: mensaje,
+    });
+  }
+
+  private marcarCamposInvalidos(): void {
+    Object.keys(this.registroForm.controls).forEach(key => {
+      const control = this.registroForm.get(key);
+      if (control?.invalid) {
+        control.markAsTouched();
+      }
+    });
+  }
+
+  getErrorMessage(fieldName: string): string {
+    const control = this.registroForm.get(fieldName);
+    if (!control || !control.errors || !control.touched) return '';
+
+    if (control.errors['required']) {
+      return 'Este campo es requerido';
+    }
+
+    if (control.errors['email']) {
+      return 'El formato del correo electrónico no es válido';
+    }
+
+    if (control.errors['maxlength']) {
+      const max = control.errors['maxlength'].requiredLength;
+      return `Máximo ${max} caracteres`;
+    }
+
+    if (control.errors['minlength']) {
+      const min = control.errors['minlength'].requiredLength;
+      return `Mínimo ${min} caracteres`;
+    }
+
+    if (control.errors['pattern']) {
+      if (fieldName === 'nombre') return 'Solo se permiten letras y espacios';
+      if (fieldName === 'numeroDocumento') return 'Solo se permiten números';
+      if (fieldName === 'contrasena') return 'La contraseña no cumple los requisitos';
+    }
+
+    if (control.errors['alreadyExists']) {
+      return 'Este correo ya está registrado';
+    }
+
+    if (control.errors['passwordMismatch']) {
+      return 'Las contraseñas no coinciden';
+    }
+
+    if (control.errors['weakPassword']) {
+      return 'La contraseña debe cumplir todos los requisitos';
+    }
+
+    if (control.errors['invalidFormat']) {
+      return 'El formato no es válido';
+    }
+
+    if (control.errors['invalidType']) {
+      return 'Tipo de documento inválido';
+    }
+
+    if (control.errors['invalidNumber']) {
+      return 'Número de documento inválido';
+    }
+
+    return '';
   }
 }

@@ -19,21 +19,25 @@
       <option value="PASAPORTE">Pasaporte</option>
     </select>
   </div>
+  <div class="error-message" *ngIf="getErrorMessage('tipoDocumento')">{{ getErrorMessage('tipoDocumento') }}</div>
 
   <div class="input-group">
     <i class="fa-solid fa-hashtag"></i>
     <input type="text" formControlName="numeroDocumento" [placeholder]="placeholderDocumento" required />
   </div>
+  <div class="error-message" *ngIf="getErrorMessage('numeroDocumento')">{{ getErrorMessage('numeroDocumento') }}</div>
 
   <div class="input-group">
     <i class="fa-solid fa-user"></i>
     <input type="text" formControlName="nombre" placeholder="Nombre completo" required />
   </div>
+  <div class="error-message" *ngIf="getErrorMessage('nombre')">{{ getErrorMessage('nombre') }}</div>
 
   <div class="input-group">
     <i class="fa-solid fa-envelope"></i>
     <input type="email" formControlName="correo" placeholder="correo@ejemplo.com" required />
   </div>
+  <div class="error-message" *ngIf="getErrorMessage('correo')">{{ getErrorMessage('correo') }}</div>
 
   <div class="input-group">
     <i class="fa-solid fa-lock"></i>
@@ -46,6 +50,18 @@
       [class.input-segura]="contrasenaSegura"
     />
   </div>
+  <div class="error-message" *ngIf="getErrorMessage('contrasena')">{{ getErrorMessage('contrasena') }}</div>
+
+  <div class="input-group">
+    <i class="fa-solid fa-lock"></i>
+    <input 
+      type="password" 
+      formControlName="confirmarContrasena" 
+      placeholder="Confirmar contraseña" 
+      required 
+    />
+  </div>
+  <div class="error-message" *ngIf="getErrorMessage('confirmarContrasena')">{{ getErrorMessage('confirmarContrasena') }}</div>
 
   <div class="requisitos-contrasena" *ngIf="registroForm.get('contrasena')?.value">
     <p [class.cumple]="requisitosContrasena.longitud">
@@ -68,6 +84,17 @@
       <i [class]="requisitosContrasena.especial ? 'fa-solid fa-check' : 'fa-solid fa-xmark'"></i>
       Un carácter especial (@$!%*?&)
     </p>
+  </div>
+
+  <div class="terminos-container">
+    <label class="terminos-label">
+      <input 
+        type="checkbox" 
+        [checked]="terminosAceptados"
+        (change)="onCheckboxChange()"
+      />
+      <span>Acepto los <a href="#" (click)="$event.preventDefault()">términos y condiciones</a></span>
+    </label>
   </div>
 
   <button type="submit" class="btn-secundary">

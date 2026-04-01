@@ -1,0 +1,48 @@
+<app-nav></app-nav>
+
+<div class="mensajes-container">
+    <div class="mensajes-header">
+        <h1><i class="fa-solid fa-bell"></i> Notificaciones</h1>
+        <p *ngIf="notificacionesNoLeidas > 0">{{ notificacionesNoLeidas }} sin leer</p>
+        <button 
+            *ngIf="notificacionesNoLeidas > 0" 
+            class="btn-marcar-todas"
+            (click)="marcarTodasLeidas()"
+        >
+            <i class="fa-solid fa-check-double"></i> Marcar todas como leídas
+        </button>
+    </div>
+
+    <div class="mensajes-content" *ngIf="!isLoading">
+        <div 
+            class="mensaje-item" 
+            *ngFor="let n of notificaciones"
+            [class.no-leida]="!n.leida"
+            (click)="marcarLeida(n)"
+        >
+            <div class="mensaje-icono" [ngClass]="getClaseIcono(n.tipo)">
+                <i class="fa-solid" [ngClass]="getIcono(n.tipo)"></i>
+            </div>
+            <div class="mensaje-info">
+                <h3>{{ getTitulo(n.tipo) }}</h3>
+                <p>{{ n.mensaje }}</p>
+                <span class="mensaje-fecha">{{ formatearFecha(n.fechaCreacion) }}</span>
+            </div>
+            <div class="mensaje-unread" *ngIf="!n.leida"></div>
+        </div>
+
+        <div class="mensajes-vacio" *ngIf="notificaciones.length === 0">
+            <i class="fa-solid fa-bell-slash"></i>
+            <h2>No tienes notificaciones</h2>
+            <p>Cuando un agente interactúe con tus reportes, verás las actualizaciones aquí.</p>
+            <a routerLink="/mis-reportes" class="btn-ver-reportes">Ver mis reportes</a>
+        </div>
+    </div>
+
+    <div class="mensajes-loading" *ngIf="isLoading">
+        <i class="fa-solid fa-circle-notch fa-spin"></i>
+        <p>Cargando notificaciones...</p>
+    </div>
+</div>
+
+<app-footer></app-footer>

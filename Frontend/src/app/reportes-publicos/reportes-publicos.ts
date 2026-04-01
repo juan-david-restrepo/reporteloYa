@@ -33,16 +33,30 @@ export class ReportesPublicos implements AfterViewInit, OnInit, OnDestroy {
 
   reportes: Reporte[] = [];
 
-  tiposConteo: { tipo: string; cantidad: number; color: string }[] = [];
+  tiposConteo: { tipo: string; cantidad: number; color: string }[] = [
+    { tipo: 'Accidente de Tránsito', cantidad: 0, color: '#e74c3c' },
+    { tipo: 'Vehículo Mal Estacionado', cantidad: 0, color: '#f1c40f' },
+    { tipo: 'Semáforo Dañado', cantidad: 0, color: '#27ae60' },
+    { tipo: 'Conducción Peligrosa', cantidad: 0, color: '#e67e22' },
+    { tipo: 'Otros', cantidad: 0, color: '#95a5a6' },
+  ];
 
   private coloresPorTipo: { [key: string]: string } = {
     'ACCIDENTE': '#e74c3c',
-    'ESTACIONAMIENTO': '#e74c3c',
-    'SEMAFORO': '#f39c12',
-    'PEATON': '#9b59b6',
-    'PEATONES': '#9b59b6',
-    'EXCESO_VELOCIDAD': '#3498db',
-    'EXCESO_DE_VELOCIDAD': '#3498db',
+    'ACCIDENTE_DE_TRÁNSITO': '#e74c3c',
+    'ACCIDENTE_DE_TRANSITO': '#e74c3c',
+    'VEHICULO_MAL_ESTACIONADO': '#f1c40f',
+    'VEHÍCULO_MAL_ESTACIONADO': '#f1c40f',
+    'MAL_ESTACIONAMIENTO': '#f1c40f',
+    'SEMAFORO': '#27ae60',
+    'SEMÁFORO': '#27ae60',
+    'SEMAFORO_DAÑADO': '#27ae60',
+    'CONDUCCION_PELIGROSA': '#e67e22',
+    'CONDUCCIÓN_PELIGROSA': '#e67e22',
+    'EXCESO_VELOCIDAD': '#e67e22',
+    'EXCESO_DE_VELOCIDAD': '#e67e22',
+    'PEATON': '#e67e22',
+    'PEATONES': '#e67e22',
     'OTROS': '#95a5a6',
     'default': '#95a5a6',
   };
@@ -133,29 +147,42 @@ export class ReportesPublicos implements AfterViewInit, OnInit, OnDestroy {
       conteo[tipoNormalizado] = (conteo[tipoNormalizado] || 0) + 1;
     });
 
-    this.tiposConteo = Object.entries(conteo).map(([tipo, cantidad]) => ({
-      tipo: this.formatTipo(tipo),
-      cantidad,
-      color: this.getColorPorTipo(tipo),
-    }));
+    this.tiposConteo.forEach(item => {
+      const tipoKey = this.getTipoKey(item.tipo);
+      item.cantidad = conteo[tipoKey] || 0;
+    });
+  }
+
+  private getTipoKey(nombreTipo: string): string {
+    switch (nombreTipo) {
+      case 'Accidente de Tránsito': return 'ACCIDENTE';
+      case 'Vehículo Mal Estacionado': return 'MAL_ESTACIONAMIENTO';
+      case 'Semáforo Dañado': return 'SEMAFORO_DAÑADO';
+      case 'Conducción Peligrosa': return 'CONDUCCION_PELIGROSA';
+      case 'Otros': return 'OTROS';
+      default: return 'OTROS';
+    }
   }
 
   private normalizarTipo(tipo: string): string {
     if (!tipo) return 'OTROS';
     const upper = tipo.toUpperCase();
     if (upper.includes('ACCIDENT')) return 'ACCIDENTE';
-    if (upper.includes('SEMAFOR')) return 'SEMAFORO';
-    if (upper.includes('PEATON')) return 'PEATON';
-    if (upper.includes('VELOCIDAD')) return 'EXCESO_VELOCIDAD';
+    if (upper.includes('VEHICULO') || upper.includes('ESTACIONADO') || upper.includes('ESTACIONAMIENT')) return 'MAL_ESTACIONAMIENTO';
+    if (upper.includes('SEMAFOR')) return 'SEMAFORO_DAÑADO';
+    if (upper.includes('VELOCIDAD') || upper.includes('CONDUCCION') || upper.includes('PEATON')) return 'CONDUCCION_PELIGROSA';
     return 'OTROS';
   }
 
   private formatTipo(tipo: string): string {
     switch (tipo) {
-      case 'ACCIDENTE': return 'Accidente';
-      case 'SEMAFORO': return 'Semáforo';
-      case 'PEATON': return 'Peatón';
-      case 'EXCESO_VELOCIDAD': return 'Exceso de Velocidad';
+      case 'ACCIDENTE': return 'Accidente de Tránsito';
+      case 'MAL_ESTACIONAMIENTO': return 'Vehículo Mal Estacionado';
+      case 'SEMAFORO_DAÑADO': return 'Semáforo Dañado';
+      case 'CONDUCCION_PELIGROSA': return 'Conducción Peligrosa';
+      case 'SEMAFORO': return 'Semáforo Dañado';
+      case 'PEATON': return 'Conducción Peligrosa';
+      case 'EXCESO_VELOCIDAD': return 'Conducción Peligrosa';
       default: return 'Otros';
     }
   }
