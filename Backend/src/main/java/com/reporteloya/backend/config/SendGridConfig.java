@@ -21,7 +21,7 @@ public class SendGridConfig {
     @Bean
     public String sendgridFromEmail() {
         Dotenv dotenv = Dotenv.configure().load();
-        return dotenv.get("SENDGRID_FROM_EMAIL", "reporteloy@gmail.com");
+        return dotenv.get("SENDGRID_FROM_EMAIL", "reporteloyaa@gmail.com");
     }
 
     @Bean
