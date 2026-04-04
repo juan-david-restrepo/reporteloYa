@@ -24,13 +24,16 @@
   flex-direction: column;
   align-items: center;
   overflow-y: auto;
+  overflow-x: hidden;
   font-family: Arial, Helvetica, sans-serif;
+  box-sizing: border-box;
 }
 
 /* Limita el ancho del contenido sin tocar HTML */
 .admin-content>* {
   width: 100%;
   max-width: 1100px;
+  box-sizing: border-box;
 }
 
 /* Espaciado entre secciones / cards */
@@ -279,7 +282,7 @@ table td {
 
 /* ===============================
    HISTORIAL DE REPORTES
-================================ */
+ ================================ */
 
 .tabla-reportes td:nth-child(1),
 .tabla-reportes td:nth-child(2) {
@@ -288,8 +291,14 @@ table td {
 }
 
 .tabla-reportes td:nth-child(3),
-.tabla-reportes td:nth-child(5) {
+.tabla-reportes td:nth-child(6),
+.tabla-reportes td:nth-child(7) {
   word-wrap: break-word;
+}
+
+.tabla-reportes td:nth-child(5),
+.tabla-reportes td:nth-child(6) {
+  text-align: center;
 }
 
 /* ===============================
@@ -593,7 +602,7 @@ table td {
 /* ===== ANCHOS ESPECÍFICOS PARA 6 COLUMNAS ===== */
 .tabla-tareas th:nth-child(1),
 .tabla-tareas td:nth-child(1) {
-  width: 130px;
+  width: 110px;
   text-align: center;
 }
 
@@ -614,7 +623,7 @@ table td {
 /* Descripción */
 .tabla-tareas th:nth-child(4),
 .tabla-tareas td:nth-child(4) {
-  width: 120px;
+  width: 135px;
    text-align: center;
 }
 
@@ -628,7 +637,7 @@ table td {
 /* Prioridad */
 .tabla-tareas th:nth-child(6),
 .tabla-tareas td:nth-child(6) {
-  width: 95px;
+  width: 120px;
   text-align: center;
 }
 
@@ -885,13 +894,112 @@ table td {
 }
 
 /* Estilo para las tablas dentro del historial (reutilizando tus clases) */
-.tabla-reportes {
+.tabla-reportes,
+.tabla-reportes-desktop {
   margin-top: 10px;
   border: 1px solid #e5e7eb;
+  width: 100%;
+  border-collapse: collapse;
 }
 
-.tabla-reportes tbody{
+.tabla-reportes tbody,
+.tabla-reportes-desktop tbody {
   text-align: center;
+}
+
+/* Diseño responsivo para reportes - VISTA MOBILE/CARDS */
+.reportes-container {
+  display: none;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  padding: 0;
+}
+
+/* Card estilo para reportes en móvil */
+.reporte-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.reporte-header-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.reporte-fecha,
+.reporte-hora {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.reporte-fecha i,
+.reporte-hora i {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.reporte-body-card {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.reporte-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.reporte-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.reporte-value {
+  font-size: 14px;
+  color: #1e293b;
+  font-weight: 500;
+}
+
+.reporte-tipo {
+  font-weight: 700;
+}
+
+.ver-mas-btn {
+  background: none;
+  border: none;
+  color: #3b82f6;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+}
+
+.ver-mas-btn:hover {
+  color: #2563eb;
+  text-decoration: underline;
 }
 
 /* Mensajes cuando no hay datos en el historial */
@@ -956,11 +1064,9 @@ table td {
     display: block;
   }
 
-  /* Escondemos el sidebar lateralmente */
   app-sidebar-admin {
     position: fixed;
     left: -280px;
-    /* Ajusta según el ancho de tu sidebar */
     top: 0;
     height: 100vh;
     z-index: 1000;
@@ -973,32 +1079,149 @@ table td {
 
   .admin-content {
     padding: 60px 15px 20px 15px;
-    /* Espacio para el botón de arriba */
+    overflow-x: hidden;
   }
 }
 
 /* =========================================
-   MEDIA QUERY
+   MEDIA QUERY - MOSTRAR CARDS EN PANTALLAS MENORES A 1355px
+   ========================================= */
+@media (max-width: 1354px) {
+  .reportes-container {
+    display: flex !important;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+    box-sizing: border-box;
+    padding: 0 10px;
+  }
+
+  .tabla-reportes-desktop {
+    display: none !important;
+  }
+
+  .reporte-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .reporte-header-card {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .reporte-body-card {
+    padding: 10px 12px;
+  }
+
+  .reporte-item {
+    width: 100%;
+  }
+
+  .reporte-label,
+  .reporte-value {
+    width: 100%;
+    word-wrap: break-word;
+  }
+}
+
+/* Móviles pequeños */
+@media (max-width: 480px) {
+  .reportes-container {
+    padding: 0 8px;
+    gap: 10px;
+  }
+
+  .reporte-card {
+    padding: 0;
+  }
+
+  .reporte-header-card {
+    padding: 8px 10px;
+  }
+
+  .reporte-fecha,
+  .reporte-hora {
+    font-size: 12px;
+  }
+
+  .reporte-body-card {
+    padding: 8px 10px;
+    gap: 8px;
+  }
+
+  .reporte-label {
+    font-size: 10px;
+  }
+
+  .reporte-value {
+    font-size: 13px;
+  }
+
+  .badge-acompanado,
+  .badge-solo {
+    font-size: 11px !important;
+    padding: 4px 8px !important;
+  }
+}
+
+/* Desktop: mostrar tabla, ocultar cards */
+@media (min-width: 1355px) {
+  .reportes-container {
+    display: none !important;
+  }
+
+  .tabla-reportes-desktop {
+    display: table;
+    width: 100%;
+  }
+}
+
+/* =========================================
+   MEDIA QUERY - Solo para otras tablas, NO para reportes
    ========================================= */
 @media (max-width: 820px) {
 
-  /* Convertir tablas en formato lista/card */
-  table,
-  thead,
-  tbody,
-  th,
-  td,
-  tr {
+  /* Ocultar tabla desktop en resoluciones menores */
+  .tabla-reportes-desktop {
+    display: none !important;
+  }
+
+  /* Asegurar que los cards se muestren correctamente */
+  .reportes-container {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .reporte-card {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  table:not(.tabla-reportes-desktop),
+  table:not(.tabla-reportes-desktop) thead,
+  table:not(.tabla-reportes-desktop) tbody,
+  table:not(.tabla-reportes-desktop) th,
+  table:not(.tabla-reportes-desktop) td,
+  table:not(.tabla-reportes-desktop) tr {
     display: block;
   }
 
-  thead tr {
+  table:not(.tabla-reportes-desktop) thead tr {
     position: absolute;
     top: -9999px;
     left: -9999px;
   }
 
-  tr {
+  table:not(.tabla-reportes-desktop) tr {
     border: 1px solid #e5e7eb;
     margin-bottom: 10px;
     border-radius: 12px;
@@ -1006,7 +1229,7 @@ table td {
     padding: 10px;
   }
 
-  td {
+  table:not(.tabla-reportes-desktop) td {
     border: none;
     position: relative;
     padding-left: 50% !important;
@@ -1016,10 +1239,8 @@ table td {
     text-overflow: clip !important;
   }
 
-  /* Crear etiquetas dinámicas para las tablas */
-  td::before {
+  table:not(.tabla-reportes-desktop) td::before {
     content: attr(data-label);
-    /* Necesitarás agregar data-label en el HTML o usar nth-child */
     position: absolute;
     left: 10px;
     width: 45%;
@@ -1030,7 +1251,6 @@ table td {
     color: #475569;
   }
 
-  /* Ajustes específicos para que no se rompa a 340px */
   .info-grid {
     grid-template-columns: 1fr;
   }
@@ -1048,7 +1268,6 @@ table td {
   .filtros-container {
     width: 100%;
     overflow-x: auto;
-    /* Permite scroll si los botones no caben */
   }
 
   .filtros-container button {
@@ -1056,8 +1275,6 @@ table td {
     padding: 8px 10px;
     font-size: 11px;
   }
-
-
 
 }
 
@@ -1079,6 +1296,46 @@ table td {
 .bg-proceso { background-color: #00B8D4; color: white; }   /* Azul claro sólido */
 .bg-finalizado { background-color: #2E7D32; color: #ffffff; } /* Verde bosque */
 .bg-rechazado { background-color: #C62828; color: #ffffff; }  /* Rojo intenso */
+
+/* Badge aceptado */
+.badge-aceptado {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  background-color: #10b981;
+  color: white;
+}
+
+/* Badges de acompañamiento en tabla de reportes */
+.badge-acompanado {
+  display: inline-block !important;
+  background: linear-gradient(135deg, #fef3c7, #fde68a) !important;
+  color: #b45309 !important;
+  padding: 5px 12px !important;
+  border-radius: 8px !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  border: 2px solid #fcd34d !important;
+  min-width: 70px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.badge-solo {
+  display: inline-block !important;
+  background: linear-gradient(135deg, #e2e8f0, #cbd5e1) !important;
+  color: #475569 !important;
+  padding: 5px 12px !important;
+  border-radius: 8px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  border: 2px solid #cbd5e1 !important;
+  min-width: 50px;
+  text-align: center;
+  vertical-align: middle;
+}
 
 /* ====================================================
    🌙 MODO OSCURO
@@ -1467,6 +1724,56 @@ table td {
   color: #60a5fa !important;
   font-weight: 600 !important;
 }
+
+::ng-deep body.dark-mode .badge-acompanado {
+  background: linear-gradient(135deg, #451a03, #78350f) !important;
+  color: #fef3c7 !important;
+  border-color: #d97706 !important;
+}
+
+::ng-deep body.dark-mode .badge-solo {
+  background: linear-gradient(135deg, #1e293b, #334155) !important;
+  color: #94a3b8 !important;
+  border-color: #475569 !important;
+}
+
+/* Dark mode - Cards de reportes */
+::ng-deep body.dark-mode .reporte-card {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+::ng-deep body.dark-mode .reporte-header-card {
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  border-color: #334155;
+}
+
+::ng-deep body.dark-mode .reporte-fecha,
+::ng-deep body.dark-mode .reporte-hora {
+  color: #94a3b8;
+}
+
+::ng-deep body.dark-mode .reporte-fecha i,
+::ng-deep body.dark-mode .reporte-hora i {
+  color: #64748b;
+}
+
+::ng-deep body.dark-mode .reporte-label {
+  color: #64748b;
+}
+
+::ng-deep body.dark-mode .reporte-value {
+  color: #e2e8f0;
+}
+
+::ng-deep body.dark-mode .ver-mas-btn {
+  color: #60a5fa;
+}
+
+::ng-deep body.dark-mode .ver-mas-btn:hover {
+  color: #93c5fd;
+}
+
 
 /* Tareas finalizadas - fecha y hora en azul */
 ::ng-deep body.dark-mode .tabla-tareas td[data-label="Fecha"],

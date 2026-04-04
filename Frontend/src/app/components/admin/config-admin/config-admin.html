@@ -1,28 +1,63 @@
+<!--========================================================
+  PLANTILLA HTML: CONFIGURACIÓN DEL ADMINISTRADOR
+  Panel de accesibilidad con opciones de modo oscuro
+  y tamaño de fuente.
+=========================================================-->
+
+<!-- CONTENEDOR PRINCIPAL -->
 <div class="admin-layout">
+  
+  <!-- SIDEBAR DEL ADMINISTRADOR -->
   <app-sidebar-admin></app-sidebar-admin>
 
+  <!-- ÁREA DE CONTENIDO PRINCIPAL -->
   <div class="main-content">
+    
+    <!-- CONTENEDOR DE CONFIGURACIÓN -->
     <div class="config-container">
+      
+      <!-- TARJETA DE CONFIGURACIÓN -->
       <div class="config-card">
+        
+        <!-- ==================== 1. TÍTULO ==================== -->
         <h2 class="config-section-title">Configuración de Accesibilidad</h2>
 
+
+        <!-- ==================== 2. OPCIÓN MODO OSCURO ==================== -->
         <div class="config-option">
           <div class="option-info">
+            <!-- Etiqueta de la opción -->
             <label>Modo Oscuro</label>
+            <!-- Descripción breve -->
             <span>Cambia la interfaz a colores oscuros para descansar la vista.</span>
           </div>
+          
+          <!-- Interruptor (switch) para activar/desactivar -->
           <label class="switch">
+            <!-- Checkbox controlado por isDarkActive (getter) -->
+            <!-- Al cambiar, ejecuta toggleDarkMode() -->
             <input type="checkbox" [checked]="isDarkActive" (change)="toggleDarkMode($event)" />
+            <!-- El span crea el estilo visual del switch -->
             <span class="slider"></span>
           </label>
         </div>
 
+
+        <!-- ==================== 3. OPCIÓN TAMAÑO DE FUENTE ==================== -->
         <div class="config-option font-size-option">
           <div class="option-info">
+            <!-- Label vinculado al input por id="fontSize" -->
             <label for="fontSize">Tamaño de Fuente</label>
+            <!-- Muestra el valor actual dinámicamente -->
             <span>Ajusta el tamaño del texto en el panel: {{ fontSizeValue }}px</span>
           </div>
+          
+          <!-- Controles del tamaño de fuente -->
           <div class="font-size-controls">
+            <!-- Slider (range) para seleccionar tamaño -->
+            <!-- min="14" y max="22" limitan el rango -->
+            <!-- [(ngModel)] vincula bidireccionalmente con fontSizeValue -->
+            <!-- (ngModelChange) ejecuta changeFontSize al cambiar -->
             <input 
               type="range" 
               id="fontSize" 
@@ -32,7 +67,10 @@
               [(ngModel)]="fontSizeValue" 
               (ngModelChange)="changeFontSize($event)" 
             />
+            
+            <!-- Botón para restablecer al tamaño default (15px) -->
             <button class="font-reset-btn" (click)="resetFontSize()" title="Restaurar tamaño original">
+              <!-- Icono de reinicio (Font Awesome) -->
               <i class="fa-solid fa-rotate-left"></i>
             </button>
           </div>

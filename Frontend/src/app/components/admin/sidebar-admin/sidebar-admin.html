@@ -1,44 +1,63 @@
+<!--========================================================
+  PLANTILLA HTML: SIDEBAR ADMINISTRADOR
+  Menú lateral de navegación con enlaces a las
+  diferentes secciones del panel de admin.
+=========================================================-->
+
+<!-- CONTENEDOR PRINCIPAL -->
 <div class="admin-layout">
 
-  <!-- Sidebar -->
+  <!-- ==================== 1. SIDEBAR (MENÚ LATERAL) ==================== -->
   <aside class="sidebar">
+    
+    <!-- Logo de la aplicación -->
     <div class="logo-box">
       <img src="assets/images/logoNuevo.png" class="logo-img" />
       <span class="logo-text">ReporteloYa</span>
     </div>
 
+    <!-- Navegación del menú -->
     <nav class="sidebar-nav">
+      
+      <!-- Enlace: Dashboard -->
+      <!-- routerLinkActive="active" marca el enlace como activo cuando coincide la ruta -->
       <a routerLink="/admin" routerLinkActive="active">
         <i class="fas fa-chart-line"></i>
         Dashboard
       </a>
 
+      <!-- Enlace: Gestión de Agentes -->
       <a routerLink="/gestion-agentes" routerLinkActive="active">
         <i class="fas fa-user-shield"></i>
         Gestión de Agentes
       </a>
 
+      <!-- Enlace: Mapa de Reportes -->
       <a routerLink="/mapa-reportes" routerLinkActive="active">
         <i class="fas fa-map-marked-alt"></i>
         Mapa de reportes
       </a>
 
-
+      <!-- Enlace: Configuración -->
       <a routerLink="/config-admin" routerLinkActive="active">
         <i class="fas fa-cog"></i>
         Configuración
       </a>
 
-     <button class="logout-btn" (click)="logout_admin()">
-   <i class="fas fa-sign-out-alt"></i>
-   Salir
- </button> 
+      <!-- Botón: Cerrar Sesión -->
+      <!-- Al hacer click, ejecuta logout_admin() -->
+      <button class="logout-btn" (click)="logout_admin()">
+        <i class="fas fa-sign-out-alt"></i>
+        Salir
+      </button> 
     </nav>
 
   </aside>
 
-  <!-- CONTENIDO -->
+  <!-- ==================== 2. ÁREA DE CONTENIDO ==================== -->
+  <!-- Aquí se renderizan los componentes según la ruta -->
   <main class="admin-content">
+    <!-- router-outlet es donde Angular renderiza los componentes -->
     <router-outlet></router-outlet>
   </main>
 

@@ -159,8 +159,8 @@ export class Home implements OnInit, OnDestroy, AfterViewInit {
       image: 'assets/images/principal.png',
       text: `"La seguridad vial empieza contigo.<br> 
               Reporta, participa, mejora tu ciudad."`,
-      buttonText: 'Ver estadísticas',
-      buttonLink: '/estadisticas',
+      buttonText: 'Ver reportes publicos',
+      buttonLink: '/reportes-publicos',
     },
     {
       image: 'assets/images/secundario.png',
@@ -173,8 +173,8 @@ export class Home implements OnInit, OnDestroy, AfterViewInit {
       image: 'assets/images/Armenia.webp',
       text: `"Mejora tu ciudad.<br>
               Cada reporte cuenta."`,
-      buttonText: 'Ver estadísticas',
-      buttonLink: '/estadisticas',
+      buttonText: 'Ver mis reportes',
+      buttonLink: '/mis-reportes',
     },
   ];
 

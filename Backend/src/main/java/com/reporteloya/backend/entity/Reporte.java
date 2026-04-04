@@ -44,12 +44,12 @@ public class Reporte {
 
     @ManyToOne
     @JoinColumn(name = "id_agente")
-    @JsonBackReference
+    @JsonIgnoreProperties({"reportes", "listaTareas", "password", "email", "rol", "nombreCompleto"})
     private Agentes agente;
 
     @ManyToOne
     @JoinColumn(name = "id_agente_companero")
-    @JsonIgnore
+    @JsonIgnoreProperties({"reportes", "listaTareas", "password", "email", "rol", "nombreCompleto"})
     private Agentes agenteCompanero;
 
     @Enumerated(EnumType.STRING)

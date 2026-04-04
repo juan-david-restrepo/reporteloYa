@@ -170,4 +170,37 @@ h1 {
     padding: 24px;
     margin: 20px;
   }
+
+  .paginacion {
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 0 10px;
+  }
+
+  .paginacion button {
+    padding: 6px 10px;
+    font-size: 0.85rem;
+    min-width: 36px;
+  }
+}
+
+@media (max-width: 480px) {
+  .paginacion button {
+    padding: 5px 8px;
+    font-size: 0.8rem;
+    min-width: 32px;
+  }
+}
+
+@media (max-width: 360px) {
+  .paginacion {
+    gap: 4px;
+  }
+
+  .paginacion button {
+    padding: 4px 6px;
+    font-size: 0.75rem;
+    min-width: 28px;
+    border-radius: 8px;
+  }
 }

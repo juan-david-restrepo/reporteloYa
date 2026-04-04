@@ -1,4 +1,5 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+
+import { Component, OnInit, HostListener, OnDestroy } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ModalComponent } from '../../components/modal/modal.component';
@@ -34,6 +35,8 @@ export class Nav implements OnInit, OnDestroy {
   isModalOpen = false;
   currentAvatar = 'assets/images/images (3).png';
   isLoggedIn = false;
+  isMobileMenuOpen = false;
+  private activeDropdown: HTMLElement | null = null;
 
   private userId: string | null = null;
   private email: string | null = null;
@@ -51,6 +54,13 @@ export class Nav implements OnInit, OnDestroy {
     private http: HttpClient,
     private configCiudadanoService: ConfigCiudadanoService,
   ) {}
+
+  @HostListener('window:resize')
+  onResize() {
+    if (window.innerWidth > 1024 && this.isMobileMenuOpen) {
+      this.closeMobileMenu();
+    }
+  }
 
   ngOnInit() {
     console.log('🔔 Nav ngOnInit - iniciando...');
@@ -159,11 +169,58 @@ export class Nav implements OnInit, OnDestroy {
   }
 
   toggleSidebar(): void {
+    if (this.isMobileMenuOpen) {
+      this.closeMobileMenu();
+    }
     this.isSidebarOpen = !this.isSidebarOpen;
+    if (this.isSidebarOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
   }
 
   closeSidebar(): void {
     this.isSidebarOpen = false;
+    document.body.style.overflow = '';
+  }
+
+  toggleMobileMenu(): void {
+    this.isMobileMenuOpen = !this.isMobileMenuOpen;
+    if (this.isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+  }
+
+  closeMobileMenu(): void {
+    this.isMobileMenuOpen = false;
+    document.body.style.overflow = '';
+  }
+
+  toggleDropdown(event: Event): void {
+    const target = event.currentTarget as HTMLElement;
+    const container = target.parentElement;
+    if (!container) return;
+
+    const dropdown = container.querySelector('.dropdown') as HTMLElement;
+    if (!dropdown) return;
+
+    if (window.innerWidth <= 1024) {
+      event.preventDefault();
+      if (this.activeDropdown && this.activeDropdown !== dropdown) {
+        this.activeDropdown.classList.remove('mobile-open');
+      }
+      
+      if (dropdown.classList.contains('mobile-open')) {
+        dropdown.classList.remove('mobile-open');
+        this.activeDropdown = null;
+      } else {
+        dropdown.classList.add('mobile-open');
+        this.activeDropdown = dropdown;
+      }
+    }
   }
 
   openModal() {

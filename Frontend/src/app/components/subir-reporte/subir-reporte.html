@@ -1,40 +1,66 @@
+<!--========================================================
+  PLANTILLA HTML: SUBIR REPORTE
+  Formulario para reportar infracciones de tránsito.
+  Incluye: tipo de incidente, descripción, fecha/hora,
+  evidencia (fotos/videos), ubicación y aviso legal.
+=========================================================-->
+
+<!-- NAVEGACIÓN (Header) -->
 <app-nav></app-nav>
 
+
+<!-- CONTENEDOR PRINCIPAL -->
 <div class="reporte-page">
   <div class="reporte-container">
+    
+    <!-- ==================== 1. ENCABEZADO ==================== -->
     <div class="reporte-header">
       <div class="header-icon">
         <i class="fas fa-clipboard-check"></i>
       </div>
       <div class="header-text">
         <h1>Reportar Infracción</h1>
-        <p>Completa la información del incidente observed</p>
+        <p>Completa la información del incidente observado</p>
       </div>
     </div>
 
 
+    <!-- ==================== 2. FORMULARIO ==================== -->
+    <!-- (ngSubmit) ejecuta enviarReporte() al enviar -->
     <form (ngSubmit)="enviarReporte()" #reporteForm="ngForm" class="reporte-form">
       <div class="form-sections">
+        
+        <!-- ==================== 2A. TIPO DE INCIDENTE ==================== -->
         <div class="form-section">
           <div class="section-header">
             <i class="fas fa-exclamation-circle"></i>
             <h3>Tipo de Incidente</h3>
             <span class="required-badge">Requerido</span>
           </div>
+          
+          <!-- Grilla de selección de incidentes -->
           <div class="incidente-grid">
+            <!-- *ngFor itera sobre la lista de incidentes -->
             <div *ngFor="let incidente of incidentes" class="incidente-card"
               [class.selected]="tipoSeleccionado === incidente.nombre" (click)="seleccionarIncidente(incidente)">
+              <!-- Icono dinámico basado en el tipo -->
               <i [class]="incidente.icono" class="incidente-icono"></i>
               <span>{{ incidente.nombre }}</span>
             </div>
           </div>
+          
+          <!-- Campo adicional para "Otros" (solovisible si selecciona "Otros") -->
           <div *ngIf="mostrarCampoOtros" class="campo-otros">
             <input type="text" name="detalleOtro" [(ngModel)]="detalleOtroIncidente" 
               placeholder="Especifica el tipo de incidente" required class="input-clean" />
           </div>
         </div>
 
+
+        <!-- ==================== 2B. DESCRIPCIÓN Y FECHA/HORA ==================== -->
         <div class="form-row">
+          
+          <!-- Descripción del incidente -->
           <div class="form-section half-width">
             <div class="section-header">
               <i class="fas fa-align-left"></i>
@@ -42,14 +68,17 @@
               <span class="required-badge">Requerido</span>
             </div>
             <div class="textarea-wrapper">
+              <!-- Textarea con límite de 300 caracteres -->
               <textarea name="descripcion" [(ngModel)]="descripcion" maxlength="300" required
                 placeholder="Describe detalladamente lo que observaste..." class="textarea-clean"></textarea>
               <div class="textarea-footer">
+                <!-- Contador de caracteres -->
                 <span class="char-count">{{ descripcion?.length || 0 }}/300</span>
               </div>
             </div>
           </div>
 
+          <!-- Fecha y Hora del incidente -->
           <div class="form-section half-width">
             <div class="section-header">
               <i class="fas fa-calendar-clock"></i>
@@ -59,6 +88,7 @@
             <div class="datetime-grid">
               <div class="input-wrapper">
                 <label>Fecha</label>
+                <!-- [max] y [min] limitan a hoy o ayer -->
                 <input type="date" name="fecha" [(ngModel)]="fecha" required class="input-clean" 
                   [class.input-error]="fechaInvalida"
                   [max]="fechaMaxima" [min]="fechaMinima" />
@@ -69,36 +99,48 @@
                   [class.input-error]="fechaInvalida" />
               </div>
             </div>
+            <!-- Información sobre el rango de fechas permitido -->
             <div class="fecha-info">
               <i class="fas fa-info-circle"></i>
               <span>Solo se permite reportar incidentes ocurridos hoy o ayer</span>
             </div>
+            <!-- Mensaje de error de fecha -->
             <p class="fecha-error" *ngIf="fechaInvalida && fechaErrorMsg">
               <i class="fas fa-exclamation-triangle"></i>
               {{ fechaErrorMsg }}
             </p>
 
+            <!-- Campo de Placa (solo si el incidente lo requiere) -->
             <div class="form-section placa-section" *ngIf="requierePlacaActual || placaOpcional">
               <div class="section-header">
                 <i class="fas fa-car"></i>
                 <h3>Placa del Vehículo</h3>
+                <!-- Badge cambia según si es requerido u opcional -->
                 <span class="optional-badge" *ngIf="!requierePlacaActual">Opcional</span>
                 <span class="required-badge" *ngIf="requierePlacaActual">Requerido</span>
               </div>
+              <!-- Input de placa con validación de formato -->
               <input type="text" name="placa" [(ngModel)]="placa" placeholder="Ej: ABC123" maxlength="6" class="input-clean uppercase" />
             </div>
           </div>
         </div>
 
+
+        <!-- ==================== 2C. EVIDENCIA (FOTOS/VIDEOS) ==================== -->
         <div class="form-section">
           <div class="section-header">
             <i class="fas fa-camera"></i>
             <h3>Evidencia</h3>
             <span class="required-badge">Requerido</span>
           </div>
+          
+          <!-- Zona de arrastrar y soltar archivos -->
+          <!-- (dragover), (dragleave), (drop) manejan eventos de drag & drop -->
           <div class="upload-zone" [class.upload-required]="evidenciaRequerida"
             (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
+            <!-- Input file oculto -->
             <input type="file" id="file-upload" multiple (change)="onFileChange($event)" class="input-hidden" />
+            <!-- Label que actúa como botón -->
             <label for="file-upload" class="upload-area" [class.drag-over]="isDragOver">
               <div class="upload-content">
                 <div class="upload-icon-wrapper">
@@ -108,15 +150,17 @@
                 <span class="upload-subtitle">o arrastra y suelta aquí</span>
               </div>
             </label>
-
           </div>
 
+          <!-- Previsualización de archivos subidos -->
           <div class="preview-grid" *ngIf="fileList.length > 0">
             <div class="preview-card" *ngFor="let file of fileList; let i = index">
               <div class="preview-wrapper">
+                <!-- Botón para eliminar archivo -->
                 <button type="button" class="remove-btn" (click)="removeFile(i)">
                   <i class="fas fa-times"></i>
                 </button>
+                <!-- Muestra imagen o video según el tipo de archivo -->
                 <img *ngIf="file.type.startsWith('image')" [src]="previewUrls[i]" (click)="abrirModal(file)" class="preview-img" />
                 <video *ngIf="file.type.startsWith('video')" [src]="previewUrls[i]" controls class="preview-video"></video>
               </div>
@@ -124,25 +168,34 @@
           </div>
         </div>
 
+
+        <!-- ==================== 2D. UBICACIÓN ==================== -->
         <div class="form-section">
           <div class="section-header">
             <i class="fas fa-map-marker-alt"></i>
             <h3>Ubicación</h3>
           </div>
+          
           <div class="location-options">
+            <!-- Botón para obtener ubicación actual (GPS) -->
             <div class="location-auto">
               <button type="button" class="btn-location" (click)="obtenerUbicacion()">
                 <i class="fas fa-location-crosshairs"></i>
                 <span>Obtener ubicación actual</span>
               </button>
+              <!-- Muestra la dirección obtenida del GPS -->
               <p class="location-address" *ngIf="direccion">
                 <i class="fas fa-location-dot"></i>
                 {{ direccion }}
               </p>
             </div>
+            
+            <!-- Divisor "o" entre opciones -->
             <div class="location-divider">
               <span>o</span>
             </div>
+            
+            <!-- Input para dirección manual -->
             <div class="location-manual">
               <input type="text" name="ubicacionManual" [(ngModel)]="ubicacionManual" 
                 (ngModelChange)="onUbicacionManualChange()"
@@ -153,22 +206,32 @@
               </p>
             </div>
           </div>
+          
+          <!-- Hint instructivo para el mapa -->
           <p class="map-hint" *ngIf="!ubicacionManual">
             <i class="fas fa-hand-pointer"></i>
             Haz clic en el mapa para marcar la ubicación
           </p>
+          
+          <!-- Contenedor del mapa Leaflet -->
+          <!-- Se oculta si hay ubicación manual -->
           <div id="map" class="map-container" [class.hidden]="ubicacionManual" (click)="inicializarMapa()"></div>
         </div>
       </div>
 
+
+      <!-- ==================== 3. BOTÓN DE ENVÍO ==================== -->
       <div class="form-footer">
+        <!-- [disabled] desactiva el botón si el formulario no es válido o está enviando -->
         <button type="button" class="btn-submit" [disabled]="!formularioValido() || isSubmitting" (click)="mostrarConfirmacion()">
+          <!-- Icono de enviar (cambia a spinner mientras carga) -->
           <span class="btn-icon" *ngIf="!isSubmitting">
             <i class="fas fa-paper-plane"></i>
           </span>
           <span class="btn-spinner" *ngIf="isSubmitting">
             <i class="fas fa-spinner fa-spin"></i>
           </span>
+          <!-- Texto del botón cambia según el estado -->
           <span>{{ isSubmitting ? 'Enviando reporte...' : 'Enviar Reporte Oficial' }}</span>
         </button>
       </div>
@@ -176,7 +239,12 @@
   </div>
 </div>
 
+
+<!-- ==================== 4. MODAL DE PREVIEW (VER IMAGEN) ==================== -->
+<!-- Se muestra cuando hay una imagen seleccionada para ver en tamaño completo -->
+<!-- (click) en el overlay cierra el modal -->
 <div class="preview-modal" *ngIf="imagenSeleccionada" (click)="cerrarModal()">
+  <!-- $event.stopPropagation() evita que el click cierre el modal al hacer click en la imagen -->
   <div class="modal-wrapper" (click)="$event.stopPropagation()">
     <button class="modal-close" (click)="cerrarModal()">
       <i class="fas fa-times"></i>
@@ -185,37 +253,52 @@
   </div>
 </div>
 
+
+<!-- ==================== 5. MODAL LEGAL (AVISO LEGAL) ==================== -->
+<!-- Se muestra antes de enviar el reporte para informar sobre las consecuencias de denuncias falsas -->
+<!-- Advierte sobre artículos del Código Penal colombiano -->
 <div class="legal-modal" *ngIf="mostrarModalLegal" (click)="cerrarModalLegal()">
   <div class="legal-wrapper" (click)="$event.stopPropagation()">
+    <!-- Encabezado del modal legal -->
     <div class="legal-header">
       <i class="fas fa-gavel"></i>
       <h2>Aviso Legal</h2>
     </div>
+    
+    <!-- Contenido con las advertencias legales -->
     <div class="legal-content">
       <h3>Advertencia antes de enviar</h3>
       <p class="legal-intro">Antes de enviar su reporte, tenga en cuenta que <strong>realizar una denuncia falsa es un delito</strong> en Colombia.</p>
       
+      <!-- Artículo 435: Denuncia falsa -->
       <div class="legal-item">
         <h4><i class="fas fa-balance-scale"></i> Denuncia falsa (Art. 435 C.P.)</h4>
         <p>Quien simule ante las autoridades la comisión de una conducta punible podrá ser sancionado con prisión de <strong>1 a 4 años</strong>.</p>
       </div>
       
+      <!-- Artículo 221: Calumnia -->
       <div class="legal-item">
         <h4><i class="fas fa-user-slash"></i> Calumnia (Art. 221 C.P.)</h4>
         <p>Imputar falsamente a alguien una conducta tipificada como delito acarrea pena de prisión de <strong>1 a 4 años</strong> y multa.</p>
       </div>
       
+      <!-- Ley 1801: Código de Convivencia Ciudadana -->
       <div class="legal-item">
-        <h4><i class="fas fa-shield-alt"></i> Código Nacional de Seguridad y Convivencia Ciudadana (Ley 1801 de 2016)</h4>
+        <h4><i class="fas fa-shield-alt"></i> Código Nacional de Seguridad y Convivencia Ciudadana (ley 1801 de 2016)</h4>
         <p>Los reportes falsos sobre comportamientos que afecten la convivencia pueden dar lugar a <strong>medidas correctivas adicionales</strong>.</p>
       </div>
       
-      <p class="legal-declaration">Al enviar este reporte, usted declara que la información suministrada es <strong>veraz, verificable y de buena fe</strong>.</p>
+      <!-- Declaración del usuario -->
+      <p class="legal-declaration">Al enviar este reporte, usted declara que la información suministra es <strong>veraz, verificable y de buena fe</strong>.</p>
     </div>
+    
+    <!-- Botones de acción del modal legal -->
     <div class="legal-actions">
+      <!-- Cancelar: cierra el modal sin enviar -->
       <button type="button" class="btn-cancel" (click)="cerrarModalLegal()">
         Cancelar
       </button>
+      <!-- Confirmar: envía el reporte -->
       <button type="button" class="btn-confirm" (click)="enviarReporte()">
         <i class="fas fa-check"></i>
         Entiendo, enviar reporte
