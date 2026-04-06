@@ -64,17 +64,12 @@ export class Nav implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    console.log('🔔 Nav ngOnInit - iniciando...');
-    
     this.authService.currentUser$.subscribe((user: AuthUser | null) => {
-      console.log('🔔 Nav: cambio en currentUser$', user);
-      
       if (user?.userId) {
         this.userId = user.userId;
         this.email = user.email;
         this.isLoggedIn = true;
         this.avatarService.loadAvatarForUser(this.userId);
-        console.log('🔔 Nav: Usuario logueado, email:', this.email);
         this.cargarNotificaciones();
         this.conectarWebSocket();
         
@@ -87,7 +82,6 @@ export class Nav implements OnInit, OnDestroy {
         this.isLoggedIn = false;
         this.currentAvatar = 'assets/images/images (3).png';
         this.notificaciones = [];
-        console.log('🔔 Nav: Usuario NO logueado');
       }
     });
 
@@ -113,11 +107,8 @@ export class Nav implements OnInit, OnDestroy {
   private conectarWebSocket() {
     if (!this.email) return;
     
-    console.log('🔔 Nav: Conectando WebSocket para ciudadano email:', this.email);
-    
     this.wsSubscription?.unsubscribe();
     this.wsSubscription = this.websocketService.notificacionesCiudadano$.subscribe((notif: NotificacionCiudadano) => {
-      console.log('📥 Notificación WebSocket recibida en Nav:', notif);
       this.notificaciones.unshift(notif);
     });
 
@@ -127,12 +118,9 @@ export class Nav implements OnInit, OnDestroy {
   private cargarNotificaciones() {
     if (!this.userId) return;
 
-    console.log('🔔 Nav: Cargando notificaciones desde API para userId:', this.userId);
-    
     this.httpSubscription?.unsubscribe();
     this.http.get<NotificacionCiudadano[]>('http://localhost:8080/api/ciudadano/notificaciones').subscribe({
       next: (notifs) => {
-        console.log('🔔 Nav: Notificaciones cargadas:', notifs.length, notifs);
         this.notificaciones = notifs;
       },
       error: (err) => console.error('Error cargando notificaciones:', err)

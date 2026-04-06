@@ -25,19 +25,14 @@ export class ConfigCiudadanoService {
 
   private cargarDesdeStorage() {
     const stored = localStorage.getItem(STORAGE_KEY);
-    console.log('🔧 ConfigCiudadanoService: localStorage key:', STORAGE_KEY);
-    console.log('🔧 ConfigCiudadanoService: valor en storage:', stored);
     if (stored) {
       try {
         const config = JSON.parse(stored) as ConfigCiudadano;
         this.configSubject.next(config);
-        console.log('🔧 ConfigCiudadanoService: config cargada:', config);
         this.aplicarEstilos(config);
       } catch {
         console.error('🔧 ConfigCiudadanoService: Error al parsear config');
       }
-    } else {
-      console.log('🔧 ConfigCiudadanoService: No hay config guardada, usando defaults');
     }
   }
 

@@ -277,7 +277,6 @@ async nuevoChat() {
 
       const res = await fetch(`${this.MESSAGES_URL}/${id}/messages`);
       const data = await res.json();
-      console.log("MENSAJES BACKEND:", data);
 
       this.mensajes = data.map((msg: any) => ({
         tipo: msg.emisor === "ia" ? "bot" : "user",
@@ -489,8 +488,6 @@ onTouchEnd() {
       );
 
       const data = await res.json();
-
-      console.log(data.message);
 
       await this.cargarConversaciones();
 

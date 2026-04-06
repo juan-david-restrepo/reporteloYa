@@ -137,8 +137,6 @@ export class MapaReportesComponent implements AfterViewInit, OnInit, OnDestroy {
     this.websocketService.reportes$.subscribe((reporte) => {
       if (!reporte) return;
 
-      console.log('Reporte en tiempo real:', reporte);
-
       // Busca si el reporte ya existe en la lista
       const existe = this.reportes.find((r) => r.id === reporte.id);
 
@@ -184,11 +182,6 @@ export class MapaReportesComponent implements AfterViewInit, OnInit, OnDestroy {
   // Carga los reportes iniciales al abrir el componente
   private cargarReportesIniciales(): void {
     this.reportesService.obtenerReportes().then((data: any) => {
-      if (data.content && data.content.length > 0) {
-        console.log('Primer reporte (debug):', JSON.stringify(data.content[0], null, 2));
-      }
-      console.log('Reportes recibidos:', JSON.stringify(data.content, null, 2));
-
       // Transforma los datos del servidor al formato de la interfaz Reporte
       this.reportes = data.content.map((r: any) => {
         const estado = r.estado.toUpperCase();

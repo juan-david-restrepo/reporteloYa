@@ -11,8 +11,6 @@ class SimitWorkerService {
     }
 
     async consultar(documentType, documentNumber) {
-        console.log(`[SimitWorkerService] Consultando: ${documentType} - ${documentNumber}`);
-
         if (!this.validDocumentTypes.includes(documentType.toUpperCase())) {
             throw new Error(`Tipo de documento inválido. Use: ${this.validDocumentTypes.join(', ')}`);
         }
@@ -22,13 +20,10 @@ class SimitWorkerService {
         }
 
         if (!this.workerUrl) {
-            console.log('[SimitWorkerService] No hay Worker URL configurado, usando fallback');
             return this.consultarFallback(documentType, documentNumber);
         }
 
         try {
-            console.log(`[SimitWorkerService] Consultando Worker: ${this.workerUrl}`);
-
             const response = await axios.get(this.workerUrl, {
                 params: {
                     documentType: documentType.toUpperCase(),
@@ -48,7 +43,6 @@ class SimitWorkerService {
 
         } catch (error) {
             console.error('[SimitWorkerService] Error:', error.message);
-            console.log('[SimitWorkerService] Intentando con fallback...');
             return this.consultarFallback(documentType, documentNumber);
         }
     }

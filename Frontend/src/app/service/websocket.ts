@@ -35,7 +35,6 @@ export class WebsocketService {
 
   connect(placa?: string) {
     if (this.connected) {
-      console.log('WebSocket ya conectado');
       return;
     }
 
@@ -48,8 +47,6 @@ export class WebsocketService {
     });
 
     this.stompClient.onConnect = () => {
-      console.log('✅ WebSocket conectado');
-
       this.connected = true;
 
       // =========================
@@ -71,7 +68,6 @@ export class WebsocketService {
     };
 
     this.stompClient.onWebSocketClose = () => {
-      console.warn('⚠️ WebSocket cerrado');
       this.connected = false;
     };
 
@@ -87,9 +83,6 @@ export class WebsocketService {
 
     this.stompClient.subscribe('/topic/reportes', (msg) => {
       const reporte = JSON.parse(msg.body);
-
-      console.log('📡 Reporte recibido:', reporte);
-
       this.reportesSubject.next(reporte);
     });
   }
@@ -121,9 +114,6 @@ export class WebsocketService {
 
     this.stompClient.subscribe(`/topic/reporte-asignado/${placa}`, (msg) => {
       const reporte = JSON.parse(msg.body);
-
-      console.log('📌 Reporte asignado como compañero:', reporte);
-
       this.reporteAsignadoSubject.next(reporte);
     });
   }
@@ -135,10 +125,7 @@ export class WebsocketService {
   disconnect() {
     if (this.stompClient && this.connected) {
       this.stompClient.deactivate();
-
       this.connected = false;
-
-      console.log('🔌 WebSocket desconectado');
     }
   }
 }

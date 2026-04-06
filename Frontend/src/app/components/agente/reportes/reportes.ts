@@ -452,7 +452,7 @@ export class Reportes implements OnChanges, OnDestroy {
         this.updateAgentMarker();
         
         if (this.reporteSeleccionado && this.reporteSeleccionado.lat && this.reporteSeleccionado.lng) {
-          this.updateRoute().catch(e => console.log('Error updating route:', e));
+          this.updateRoute().catch(() => {});
         }
       },
       (error) => {
@@ -543,7 +543,6 @@ export class Reportes implements OnChanges, OnDestroy {
         this.showSimpleRoute(agentLatLng, reportLatLng);
       }
     } catch (e) {
-      console.log('Using simple line fallback', e);
       this.showSimpleRoute(agentLatLng, reportLatLng);
     }
   }
@@ -654,7 +653,6 @@ export class Reportes implements OnChanges, OnDestroy {
         this.showSimpleRoute(agentLatLng, reportLatLng);
       }
     } catch (e) {
-      console.log('Route update error, will recreate', e);
     }
   }
 

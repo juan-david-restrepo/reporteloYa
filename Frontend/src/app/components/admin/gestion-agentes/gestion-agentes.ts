@@ -182,10 +182,8 @@ export class GestionAgentes implements OnInit, OnDestroy {
       Si el agente actual cambia de estado, lo actualiza en pantalla
     */
     this.websocketService.estadosAgentes$.subscribe((estado:any)=>{
-      console.log('📡 Estado recibido por WS:', estado);
       if(this.agente && this.agente.placa?.toUpperCase() === estado.placa?.toUpperCase()){
         this.agente.estado = estado.estado;
-        console.log('✅ Estado actualizado:', estado.estado);
       }
     });
 
@@ -205,7 +203,6 @@ export class GestionAgentes implements OnInit, OnDestroy {
       Recarga la lista de tareas
     */
     this.websocketService.tareas$.subscribe((tarea:any) => {
-      console.log('📡 Nueva tarea/reporte WS:', tarea);
       if (this.agente && tarea.placaAgente === this.agente.placa) {
         this.cargarTareas();
       }
@@ -216,7 +213,6 @@ export class GestionAgentes implements OnInit, OnDestroy {
       Recarga la lista de reportes
     */
     this.websocketService.reportes$.subscribe((reporte:any) => {
-      console.log('📡 Nuevo reporte WS:', reporte);
       if (this.agente && reporte.placaAgente === this.agente.placa) {
         this.cargarReportes();
       }
@@ -306,7 +302,6 @@ export class GestionAgentes implements OnInit, OnDestroy {
     this.tareasService.obtenerTareasPorAgente(this.agente!.placa)
     .subscribe({
       next: (data: any) => {
-        console.log('📊 Tareas recibidas (raw):', JSON.stringify(data, null, 2));
         // Maneja diferentes formatos de respuesta del servidor
         if (Array.isArray(data)) {
           this.tareas = data;
@@ -314,9 +309,6 @@ export class GestionAgentes implements OnInit, OnDestroy {
           this.tareas = data.listaTareas;
         } else {
           this.tareas = [];
-        }
-        if (this.tareas.length > 0) {
-          console.log('📊 Primera tarea:', JSON.stringify(this.tareas[0], null, 2));
         }
         if (!silent) this.cargandoTareas = false;
       },

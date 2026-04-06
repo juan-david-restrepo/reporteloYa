@@ -48,7 +48,6 @@ export class Mensajes implements OnInit, OnDestroy {
         this.userId = user.userId;
         this.email = user.email;
         this.isLoggedIn = true;
-        console.log('📬 Mensajes: Usuario email:', this.email);
         this.cargarNotificaciones();
         this.conectarWebSocket();
       } else {
@@ -65,11 +64,8 @@ export class Mensajes implements OnInit, OnDestroy {
   private conectarWebSocket() {
     if (!this.email) return;
     
-    console.log('📬 Mensajes: Conectando WebSocket con email:', this.email);
-    
     this.wsSubscription?.unsubscribe();
     this.wsSubscription = this.websocketService.notificacionesCiudadano$.subscribe((notif: Notificacion) => {
-      console.log('📥 Notificación recibida en Mensajes:', notif);
       this.notificaciones.unshift(notif);
     });
 

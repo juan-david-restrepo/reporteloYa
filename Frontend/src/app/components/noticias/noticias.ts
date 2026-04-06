@@ -36,7 +36,6 @@ export class NoticiasComponent implements OnInit {
     this.noticiasService.obtenerNoticias(start)
       .subscribe(data => {
         this.noticias = data;
-        console.log('Noticias cargadas:', data);
       });
   }
 

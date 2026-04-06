@@ -203,14 +203,8 @@ export class Agente implements OnInit, OnDestroy {
   }
 
   finalizarTarea(t: Tarea) {
-    console.log('=== FINALIZAR TAREA ===');
-    console.log('Tarea ID:', t.id);
-    console.log('Resumen operativo:', t.resumenOperativo);
-    console.log('========================');
-    
     this.agenteService.actualizarEstadoTarea(t.id, 'FINALIZADO', t.resumenOperativo || '').subscribe({
       next: (res) => {
-        console.log('Respuesta backend:', res);
         t.estado = 'FINALIZADO';
         t.fechaFin = new Date();
         this.estadoAgente = 'DISPONIBLE';
@@ -428,8 +422,6 @@ export class Agente implements OnInit, OnDestroy {
     const nuevo = this._mapearReporte(rb);
     const idx   = this.reportesEntrantes.findIndex(r => r.id === nuevo.id);
 
-    console.log('🔍 Procesando reporte:', nuevo.estado, 'idx:', idx, 'id:', nuevo.id);
-
     switch (nuevo.estado) {
 
       case EstadoReporte.FINALIZADO:
@@ -450,39 +442,25 @@ export class Agente implements OnInit, OnDestroy {
         break;
 
       case EstadoReporte.EN_PROCESO:
-        console.log('📝 WS: Reporte EN_PROCESO recibido');
-        console.log('📝    Placa agente que aceptó:', nuevo.placaAgente);
-        console.log('📝    Mi placa:', this.perfilAgente.placa);
-        console.log('📝    Reporte ID:', nuevo.id);
-        console.log('📝    Está en reportesEntrantes:', idx !== -1);
-        
         // Determinar si fue otro agente quien lo aceptó
         const placaAgente = nuevo.placaAgente?.toUpperCase() || '';
         const placaActual = this.perfilAgente.placa?.toUpperCase() || '';
         const fueOtroAgente = placaAgente !== placaActual;
         
-        console.log('📝    Fue otro agente:', fueOtroAgente);
-        
         // Solo procesar si fue otro agente (no el actual)
         if (fueOtroAgente) {
-          console.log('📝 WS: Eliminando reporte (otro agente lo aceptó)');
-          
           // 1. Eliminar de reportesEntrantes si estaba ahí
           if (idx !== -1) {
             this.reportesEntrantes.splice(idx, 1);
-            console.log('📝    Eliminado de reportesEntrantes');
           }
           
-          // 2. SIEMPRE intentar eliminar de reportesScroll (sin importar si estaba en reportesEntrantes)
-          // Esto cubre el caso donde el reporte se cargó dinámicamente por scroll
+          // 2. SIEMPRE intentar eliminar de reportesScroll
           if (this.reportesComponente?.eliminarReportePorId) {
-            const eliminadoDelScroll = this.reportesComponente.eliminarReportePorId(nuevo.id);
-            console.log('📝    Eliminado de reportesScroll:', eliminadoDelScroll);
+            this.reportesComponente.eliminarReportePorId(nuevo.id);
           }
           
           this.cdr.detectChanges();
         } else {
-          console.log('📝 WS: NO eliminar - YO fui quien lo aceptó');
           // Actualizar el estado en reportesEntrantes si existe
           if (idx !== -1) {
             this.reportesEntrantes[idx] = {
@@ -501,7 +479,6 @@ export class Agente implements OnInit, OnDestroy {
             }
           } else {
             // El reporte no estaba en reportesEntrantes, agregarlo directamente
-            console.log('📝    Agregando a reportesEntrantes (no estaba)');
             this.reportesEntrantes.unshift({
               ...nuevo,
               estado: EstadoReporte.EN_PROCESO
@@ -511,10 +488,8 @@ export class Agente implements OnInit, OnDestroy {
         break;
 
       case EstadoReporte.PENDIENTE:
-        console.log('📝 Es PENDIENTE, idx:', idx);
         // Reporte nuevo
         if (idx === -1) {
-          console.log('➕ Agregando reporte y creando notificación');
           this.reportesEntrantes.unshift(nuevo);
           this.notificaciones.unshift({
             tipo:  'REPORTE',
@@ -637,7 +612,6 @@ export class Agente implements OnInit, OnDestroy {
       n.leida = true;
       if (n.id) {
         this.agenteService.marcarNotificacionLeida(n.id).subscribe({
-          next: () => console.log('Notificación marcada como leída:', n.id),
           error: (err) => console.error('Error al marcar notificación:', err)
         });
       }
@@ -742,8 +716,6 @@ export class Agente implements OnInit, OnDestroy {
         };
         this.estadoAgente = data.estado || 'DISPONIBLE';
         
-        console.log('📋 Perfil cargado:', this.perfilAgente.nombre, 'Placa:', this.perfilAgente.placa);
-        
         if (this.estadoAgente !== 'FUERA_SERVICIO') {
           this.iniciarCronometro();
         }
@@ -757,7 +729,6 @@ export class Agente implements OnInit, OnDestroy {
           
           // SUSCRIBIRSE a WebSocket DENTRO de la conexión para asegurar que perfilAgente.placa esté configurado
           this.websocketService.reportes$.subscribe((rb: any) => {
-            console.log('📥 WS: Reporte recibido en agente:', rb.estado, 'PlacaAgente:', rb.placaAgente);
             this._manejarReporteWebSocket(rb);
           });
 
@@ -823,7 +794,6 @@ export class Agente implements OnInit, OnDestroy {
   private _cargarNotificacionesNoLeidas() {
     this.agenteService.getNotificacionesNoLeidas().subscribe({
       next: (notificaciones: any[]) => {
-        console.log('📋 Notificaciones no leídas cargadas:', notificaciones.length);
         notificaciones.forEach(n => {
           const yaExiste = this.notificaciones.some(
             notif => notif.id === n.id

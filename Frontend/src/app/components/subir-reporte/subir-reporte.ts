@@ -300,7 +300,7 @@ export class SubirReporteComponent implements OnInit, OnDestroy {
         }
         URL.revokeObjectURL(imageUrl);
       })
-      .catch(() => console.warn('Error al procesar OCR'));
+      .catch(() => {});
   }
 
 

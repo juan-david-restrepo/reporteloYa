@@ -8,10 +8,8 @@ let ultimosResultados = new Map();
 
 function getSimitService() {
     if (process.env.SIMIT_WORKER_URL) {
-        console.log('[API] Usando SimitWorkerService');
         return new SimitWorkerService();
     }
-    console.log('[API] Usando SimitService (API gratuita)');
     return new SimitService();
 }
 
@@ -58,8 +56,6 @@ router.post('/consultar', async (req, res) => {
             mensaje: 'Ingrese un número de documento válido (solo números)'
         });
     }
-
-    console.log(`[API] Consulta: ${documentType} - ${valor}`);
 
     const sessionId = Date.now().toString();
 
@@ -117,12 +113,10 @@ router.post('/generar-pdf', async (req, res) => {
 
     if (sessionId && ultimosResultados.has(sessionId)) {
         resultado = ultimosResultados.get(sessionId);
-        console.log('[API] Generando PDF desde resultado guardado');
     } else if (docType && valor) {
         const validTypes = { 'CC': 'CC', 'cedula': 'CC', 'CE': 'CE', 'PA': 'PA', 'NIT': 'NIT' };
         const documentType = validTypes[docType.toUpperCase()] || 'CC';
 
-        console.log('[API] Generando PDF con nueva consulta');
         try {
             const simitService = getSimitService();
             resultado = await simitService.consultar(documentType, valor);
@@ -142,7 +136,6 @@ router.post('/generar-pdf', async (req, res) => {
     }
 
     try {
-        console.log('[API] Generando PDF con resultado:', JSON.stringify(resultado).substring(0, 200));
         const pdfGenerator = new PdfGenerator();
         const pdfBuffer = await pdfGenerator.generate(
             resultado,

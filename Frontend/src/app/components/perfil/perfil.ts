@@ -58,7 +58,6 @@ export class Perfil implements OnInit {
       next: (currentUser: AuthUser | null) => {
         if (!currentUser || !currentUser.userId) {
           this.isLoggedIn = false;
-          console.warn('Usuario no logueado: perfil no cargado.');
           return;
         }
 

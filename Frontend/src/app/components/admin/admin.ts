@@ -124,8 +124,6 @@ export class Admin implements OnInit, AfterViewInit, OnDestroy, OnChanges {
 
   /*------------------ 7. ngOnInit - INICIALIZACIÓN ------------------*/
   ngOnInit(): void {
-    console.log('=== Admin ngOnInit ===');
-    
     // Carga configuraciones
     this.loadSettings();
     
@@ -137,7 +135,6 @@ export class Admin implements OnInit, AfterViewInit, OnDestroy, OnChanges {
     
     // Suscripción a nuevos reportes
     this.websocketService.reportes$.subscribe((reporte: any) => {
-      console.log('Nuevo reporte recibido via WebSocket:', reporte);
       this.cargarInfracciones();
       this.cdr.detectChanges();
     });
@@ -159,7 +156,6 @@ export class Admin implements OnInit, AfterViewInit, OnDestroy, OnChanges {
 
   /*------------------ 9. ngAfterViewInit - DESPUÉS DE RENDERIZAR ------------------*/
   ngAfterViewInit(): void {
-    console.log('=== Admin ngAfterViewInit ===');
     this.cdr.detectChanges();
     
     // Función para inicializar el gráfico
@@ -235,12 +231,9 @@ export class Admin implements OnInit, AfterViewInit, OnDestroy, OnChanges {
     this.errorCarga = '';
     this.debugInfo = 'Cargando...';
 
-    console.log('=== Llamando API ===');
-
     // Obtiene las infracciones
     this.infraccionService.getInfraccionesSimple().subscribe({
       next: (response: any) => {
-        console.log('=== API Response ===', response);
         
         let items: any[] = [];
         
@@ -258,15 +251,12 @@ export class Admin implements OnInit, AfterViewInit, OnDestroy, OnChanges {
           this.debugInfo = 'Response es objeto: ' + JSON.stringify(response).substring(0, 100);
         }
         
-        console.log('Items length:', items.length);
-        
         // Transforma cada item al formato ReporteAdmin
         this.infracciones = items.map((item: any) => this.transformarReporte(item));
         this.infraccionesAMostrar = [...this.infracciones];
         this.cargando = false;
         
         this.debugInfo = `Cargados: ${this.infracciones.length}`;
-        console.log('=== Final ===', this.infracciones);
         
         this.cdr.detectChanges();
         
@@ -293,7 +283,6 @@ export class Admin implements OnInit, AfterViewInit, OnDestroy, OnChanges {
     // Obtiene estadísticas del dashboard
     this.infraccionService.getEstadisticasAdmin().subscribe({
       next: (data) => {
-        console.log('=== Dashboard ===', data);
         this.dashboard = data;
         this.cdr.detectChanges();
       },
@@ -310,7 +299,6 @@ export class Admin implements OnInit, AfterViewInit, OnDestroy, OnChanges {
   private inicializarGrafico(): void {
     const canvas = document.getElementById('barChart') as HTMLCanvasElement;
     if (!canvas) {
-      console.log('Canvas no encontrado, reintentando...');
       setTimeout(() => this.inicializarGrafico(), 200);
       return;
     }
@@ -351,9 +339,7 @@ export class Admin implements OnInit, AfterViewInit, OnDestroy, OnChanges {
           }
         }
       });
-      console.log('Gráfico inicializado');
     } catch (error) {
-      console.error('Error al crear gráfico:', error);
     }
   }
 
@@ -362,9 +348,6 @@ export class Admin implements OnInit, AfterViewInit, OnDestroy, OnChanges {
   
   // Transforma los datos del servidor al formato ReporteAdmin
   private transformarReporte(data: any): ReporteAdmin {
-    console.log('Transformando:', JSON.stringify(data, null, 2));
-    console.log('Transformando:', data);
-    
     // Extrae la URL de la foto
     let urlFoto = '';
     if (data.evidencias && data.evidencias.length > 0) {

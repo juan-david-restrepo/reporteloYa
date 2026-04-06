@@ -42,12 +42,9 @@ export class WebsocketService {
 
     this.stompClient.onConnect = () => {
 
-      console.log('✅ WebSocket conectado');
-
       // Reportes globales (nuevos y actualizaciones de estado)
       this.stompClient.subscribe('/topic/reportes', (msg) => {
         const reporte = JSON.parse(msg.body);
-        console.log('📨 WS Service: Reporte recibido del topic /topic/reportes:', reporte.estado, 'ID:', reporte.id, 'PlacaAgente:', reporte.placaAgente);
         this.reportesSubject.next(reporte);
       });
 
@@ -72,7 +69,6 @@ export class WebsocketService {
       // ✅ Canal personal del agente para recibir reportes como compañero
       this.stompClient.subscribe(`/topic/reporte-asignado/${placa}`, (msg) => {
         const reporte = JSON.parse(msg.body);
-        console.log('📌 Reporte asignado como compañero:', reporte);
         this.reporteAsignadoSubject.next(reporte);
       });
 
@@ -82,8 +78,6 @@ export class WebsocketService {
   }
 
   connectCiudadano(email: string) {
-    console.log('🔌 WS: Intentando conectar ciudadano con email:', email);
-
     if (this.stompClient) {
       this.stompClient.deactivate();
     }
@@ -96,13 +90,10 @@ export class WebsocketService {
     });
 
     this.stompClient.onConnect = () => {
-      console.log('✅ WS: WebSocket conectado para ciudadano');
-
       // Suscripción al topic privado /user/{email}/queue/notifications
       // Spring Security usará la cookie para autenticar y mapear al usuario
       this.stompClient.subscribe(`/user/${email}/queue/notifications`, (msg) => {
         const notificacion = JSON.parse(msg.body);
-        console.log('📨 WS: Notificación recibida del topic privado:', notificacion);
         this.notificacionesCiudadanoSubject.next(notificacion);
       });
     };
@@ -117,7 +108,6 @@ export class WebsocketService {
   disconnect() {
     if (this.stompClient) {
       this.stompClient.deactivate();
-      console.log('WebSocket desconectado');
     }
   }
 }

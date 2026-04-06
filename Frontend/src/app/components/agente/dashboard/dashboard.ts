@@ -324,9 +324,6 @@ export class Dashboard implements AfterViewInit, OnInit, OnDestroy, OnChanges {
 
   // Filtra las estadísticas por rango de fechas y actualiza tarjetas y gráficas
   filtrarPorRango() {
-    console.log('Filtrar desde', this.fechaInicio, 'hasta', this.fechaFin);
-
-    // Recargar todas las estadísticas (tarjetas + gráficas) con las nuevas fechas
     this.cargarEstadisticas();
   }
 

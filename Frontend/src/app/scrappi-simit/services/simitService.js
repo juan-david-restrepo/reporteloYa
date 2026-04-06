@@ -8,8 +8,6 @@ class SimitService {
     }
 
     async consultar(documentType, documentNumber) {
-        console.log(`[SimitService] Consultando: ${documentType} - ${documentNumber}`);
-
         if (!this.validDocumentTypes.includes(documentType.toUpperCase())) {
             throw new Error(`Tipo de documento inválido. Use: ${this.validDocumentTypes.join(', ')}`);
         }
@@ -19,7 +17,6 @@ class SimitService {
         }
 
         try {
-            console.log('[SimitService] Intentando API gratuita...');
             const response = await axios.get(SIMIT_FREE_API, {
                 params: {
                     documentType: documentType.toUpperCase(),
@@ -30,8 +27,6 @@ class SimitService {
                 },
                 timeout: 30000
             });
-
-            console.log('[SimitService] Respuesta recibida:', JSON.stringify(response.data).substring(0, 500));
 
             if (!response.data) {
                 throw new Error('No se recibió respuesta del servidor');
@@ -55,8 +50,6 @@ class SimitService {
     }
 
     formatearResultado(data) {
-        console.log('[SimitService] Formateando resultado...');
-
         if (data.error) {
             return {
                 success: false,

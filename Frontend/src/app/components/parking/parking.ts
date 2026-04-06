@@ -231,7 +231,6 @@ iniciarSeguimientoGPS(): void {
 async buscarParqueaderos(): Promise<void> {
 
   if (!this.userCoords) {
-    console.warn('Ubicación aún no disponible');
     return;
   }
 

@@ -634,25 +634,25 @@ export class VoiceChatBotComponent implements AfterViewInit, OnDestroy {
     const currentEnergy = this.getCurrentAudioEnergy();
 
     if (this.srPaused) {
-      console.log('[SR BLOCK] srPaused is true');
+
       return false;
     }
 
     if (this.processingDelayTimer !== null && !this.isSpeaking) {
-      console.log('[SR BLOCK] processingDelayTimer active');
+
       return false;
     }
 
     if (this.isSpeaking) {
       if (transcript.length < 4) {
-        console.log(`[SR BLOCK] Transcript too short during AI speech: "${transcript}"`);
+
         return false;
       }
 
       const cleanTranscript = transcript.toLowerCase().trim();
       for (const recent of this.recentTranscripts) {
         if (recent === cleanTranscript) {
-          console.log(`[SR BLOCK] Duplicate transcript: "${transcript}"`);
+
           return false;
         }
       }
@@ -663,35 +663,34 @@ export class VoiceChatBotComponent implements AfterViewInit, OnDestroy {
     }
 
     if (this.isLikelyEcho(currentEnergy) && currentEnergy < this.VOICE_ENERGY_THRESHOLD) {
-      console.log(`[SR BLOCK] Likely echo detected - energy: ${currentEnergy.toFixed(3)}`);
+
       return false;
     }
 
     const timeSinceAiSpeak = now - this.lastAiSpeakTime;
     if (timeSinceAiSpeak < this.MIN_SPEECH_INTERVAL) {
-      console.log(`[SR BLOCK] Too soon after AI speak: ${timeSinceAiSpeak}ms < ${this.MIN_SPEECH_INTERVAL}ms`);
+
       return false;
     }
 
     if (transcript.length < this.MIN_TRANSCRIPT_LENGTH) {
-      console.log(`[SR BLOCK] Transcript too short: "${transcript}"`);
+
       return false;
     }
 
     if (!this.hasContinuousSpeechPattern(transcript, transcriptTime)) {
-      console.log(`[SR BLOCK] No continuous speech pattern`);
+
       return false;
     }
 
     const cleanTranscript = transcript.toLowerCase().trim();
     for (const recent of this.recentTranscripts) {
       if (recent === cleanTranscript) {
-        console.log(`[SR BLOCK] Duplicate transcript: "${transcript}"`);
-        return false;
+
       }
       if (recent.includes(cleanTranscript) || cleanTranscript.includes(recent)) {
         if (recent.length > 3 && cleanTranscript.length > 3) {
-          console.log(`[SR BLOCK] Similar transcript: "${recent}" vs "${cleanTranscript}"`);
+
           return false;
         }
       }
