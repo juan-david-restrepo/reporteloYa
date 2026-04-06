@@ -67,6 +67,12 @@ public class SecurityConfig {
 
                                                 .requestMatchers("/api/reportes/ciudadano/**").hasRole("CIUDADANO")
 
+                                                // Soporte - ciudadano puede crear y ver sus tickets
+                                                .requestMatchers("/api/soporte/crear").hasRole("CIUDADANO")
+                                                .requestMatchers("/api/soporte/mis-tickets/**").hasRole("CIUDADANO")
+                                                // Soporte - admin y agente pueden gestionar tickets
+                                                .requestMatchers("/api/soporte/admin/**").hasAnyRole("ADMIN", "AGENTE")
+
                                                 .requestMatchers("/ws/**").permitAll()
                                                 .requestMatchers("/error").permitAll()
 

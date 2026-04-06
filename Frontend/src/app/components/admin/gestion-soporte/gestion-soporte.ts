@@ -2,43 +2,36 @@ import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
-import { SoporteService } from '../../service/soporte.service';
-import { SoporteWebSocketService } from '../../service/soporte-websocket.service';
-import { AuthService } from '../../service/auth.service';
-import { TicketSoporte, TicketDetalle, NotificacionSoporte } from '../../models/soporte.model';
-import { Nav } from '../../shared/nav/nav';
-import { Footer } from '../../shared/footer/footer';
+import { SoporteService } from '../../../service/soporte.service';
+import { SoporteWebSocketService } from '../../../service/soporte-websocket.service';
+import { TicketSoporte, TicketDetalle } from '../../../models/soporte.model';
 
 @Component({
-  selector: 'app-soporte',
+  selector: 'app-gestion-soporte',
   standalone: true,
-  imports: [CommonModule, FormsModule, Nav, Footer],
-  templateUrl: './soporte.html',
-  styleUrls: ['./soporte.css']
+  imports: [CommonModule, FormsModule],
+  templateUrl: './gestion-soporte.html',
+  styleUrls: ['./gestion-soporte.css']
 })
-export class Soporte implements OnInit, OnDestroy {
+export class GestionSoporte implements OnInit, OnDestroy {
   tickets: TicketSoporte[] = [];
+  ticketsFiltrados: TicketSoporte[] = [];
   ticketSeleccionado: TicketDetalle | null = null;
   
-  mostrarCrear = false;
+  filtroEstado = 'TODOS';
   respuestaTexto = '';
-  tituloNuevo = '';
-  descripcionNueva = '';
-  prioridadNueva = 'MEDIA';
-  
   cargando = false;
-  creando = false;
   enviandoRespuesta = false;
   
-  toastNotificacion: NotificacionSoporte | null = null;
-  private timeoutToast: any;
+  ticketsAbiertos = 0;
+  ticketsEnProceso = 0;
+  ticketsCerrados = 0;
 
   private subscriptions: Subscription[] = [];
 
   constructor(
     private soporteService: SoporteService,
     private wsService: SoporteWebSocketService,
-    private authService: AuthService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -50,48 +43,43 @@ export class Soporte implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe());
     this.wsService.disconnect();
-    if (this.timeoutToast) {
-      clearTimeout(this.timeoutToast);
-    }
   }
 
   conectarWebSocket(): void {
-    const userId = this.authService.getUserId();
-    if (userId) {
-      this.wsService.connectUser(userId);
-      
-      const subNotif = this.wsService.notifications$.subscribe(notif => {
-        this.mostrarToast(notif);
-        this.cargarTickets();
-        this.cdr.detectChanges();
-      });
-      this.subscriptions.push(subNotif);
-    }
-  }
-
-  mostrarToast(notif: NotificacionSoporte): void {
-    this.toastNotificacion = notif;
-    if (this.timeoutToast) {
-      clearTimeout(this.timeoutToast);
-    }
-    this.timeoutToast = setTimeout(() => {
-      this.toastNotificacion = null;
+    this.wsService.connectAdmin();
+    
+    const subNuevo = this.wsService.nuevosTickets$.subscribe(ticket => {
+      const index = this.tickets.findIndex(t => t.id === ticket.id);
+      if (index >= 0) {
+        this.tickets[index] = ticket;
+      } else {
+        this.tickets.unshift(ticket);
+      }
+      this.actualizarContadores();
+      this.filtrarPorEstado(this.filtroEstado);
       this.cdr.detectChanges();
-    }, 5000);
-  }
+    });
+    this.subscriptions.push(subNuevo);
 
-  cerrarToast(): void {
-    this.toastNotificacion = null;
-    if (this.timeoutToast) {
-      clearTimeout(this.timeoutToast);
-    }
+    const subUpdate = this.wsService.ticketUpdates$.subscribe(ticket => {
+      const index = this.tickets.findIndex(t => t.id === ticket.id);
+      if (index >= 0) {
+        this.tickets[index] = ticket;
+      }
+      this.actualizarContadores();
+      this.filtrarPorEstado(this.filtroEstado);
+      this.cdr.detectChanges();
+    });
+    this.subscriptions.push(subUpdate);
   }
 
   cargarTickets(): void {
     this.cargando = true;
-    this.soporteService.misTickets().subscribe({
+    this.soporteService.todosLosTickets().subscribe({
       next: (tickets) => {
         this.tickets = tickets;
+        this.actualizarContadores();
+        this.filtrarPorEstado(this.filtroEstado);
         this.cargando = false;
         this.cdr.detectChanges();
       },
@@ -102,35 +90,25 @@ export class Soporte implements OnInit, OnDestroy {
     });
   }
 
-  crearTicket(): void {
-    if (!this.tituloNuevo.trim() || !this.descripcionNueva.trim()) {
-      return;
-    }
+  actualizarContadores(): void {
+    this.ticketsAbiertos = this.tickets.filter(t => t.estado === 'ABIERTO').length;
+    this.ticketsEnProceso = this.tickets.filter(t => t.estado === 'EN_PROCESO').length;
+    this.ticketsCerrados = this.tickets.filter(t => t.estado === 'CERRADO').length;
+  }
 
-    this.creando = true;
-    this.soporteService.crearTicket({
-      titulo: this.tituloNuevo.trim(),
-      descripcion: this.descripcionNueva.trim(),
-      prioridad: this.prioridadNueva
-    }).subscribe({
-      next: () => {
-        this.tituloNuevo = '';
-        this.descripcionNueva = '';
-        this.prioridadNueva = 'MEDIA';
-        this.mostrarCrear = false;
-        this.creando = false;
-        this.cargarTickets();
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.creando = false;
-        this.cdr.detectChanges();
-      }
-    });
+  filtrarPorEstado(estado: string): void {
+    this.filtroEstado = estado;
+    if (estado === 'TODOS') {
+      this.ticketsFiltrados = [...this.tickets];
+    } else {
+      this.ticketsFiltrados = this.tickets.filter(t => t.estado === estado);
+    }
   }
 
   seleccionarTicket(ticket: TicketSoporte): void {
-    this.soporteService.verMiTicket(ticket.id).subscribe({
+    this.wsService.subscribeToTicket(ticket.id);
+    
+    this.soporteService.verTicketAdmin(ticket.id).subscribe({
       next: (detalle) => {
         this.ticketSeleccionado = detalle;
         this.cdr.detectChanges();
@@ -147,7 +125,7 @@ export class Soporte implements OnInit, OnDestroy {
     if (!this.respuestaTexto.trim() || !this.ticketSeleccionado) return;
 
     this.enviandoRespuesta = true;
-    this.soporteService.responderMiTicket(
+    this.soporteService.responderComoAdmin(
       this.ticketSeleccionado.id,
       this.respuestaTexto.trim()
     ).subscribe({
@@ -161,6 +139,17 @@ export class Soporte implements OnInit, OnDestroy {
       error: () => {
         this.enviandoRespuesta = false;
         this.cdr.detectChanges();
+      }
+    });
+  }
+
+  cerrarTicket(): void {
+    if (!this.ticketSeleccionado) return;
+
+    this.soporteService.cerrarTicket(this.ticketSeleccionado.id).subscribe({
+      next: () => {
+        this.cerrarDetalle();
+        this.cargarTickets();
       }
     });
   }

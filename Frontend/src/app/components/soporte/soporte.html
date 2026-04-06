@@ -2,7 +2,6 @@
 
 <div class="padre">
   <div class="soporte-container">
-
     <div class="soporte-header">
       <div class="icono-soporte">
         <i class="fas fa-headset"></i>
@@ -10,55 +9,160 @@
       <div>
         <h2>Centro de Soporte</h2>
         <p class="descripcion">
-          Nuestro equipo está listo para ayudarte. Completa el formulario y nos
-          pondremos en contacto contigo lo antes posible.
+          Nuestro equipo está listo para ayudarte. Crea un ticket o consulta tus solicitudes anteriores.
         </p>
+      </div>
+      <button class="btn-nuevo-ticket" (click)="mostrarCrear = true">
+        <i class="fas fa-plus"></i> Nuevo Ticket
+      </button>
+    </div>
+
+    <div class="loading-state" *ngIf="cargando">
+      <i class="fas fa-spinner fa-spin"></i>
+      <p>Cargando tus tickets...</p>
+    </div>
+
+    <div class="mis-tickets" *ngIf="!cargando && tickets.length > 0">
+      <h3><i class="fas fa-ticket-alt"></i> Mis Tickets</h3>
+      <div class="tickets-lista">
+        <div class="ticket-card" *ngFor="let ticket of tickets" 
+             [class.selected]="ticketSeleccionado?.id === ticket.id"
+             (click)="seleccionarTicket(ticket)">
+          <div class="ticket-header">
+            <span class="prioridad-badge" [ngClass]="getClasePrioridad(ticket.prioridad)">
+              {{ ticket.prioridad }}
+            </span>
+            <span class="estado-badge" [ngClass]="getClaseEstado(ticket.estado)">
+              {{ ticket.estado.replace('_', ' ') }}
+            </span>
+          </div>
+          <h4 class="ticket-titulo">{{ ticket.titulo }}</h4>
+          <p class="ticket-resumen">{{ ticket.descripcion | slice:0:80 }}...</p>
+          <div class="ticket-footer">
+            <span><i class="fas fa-clock"></i> {{ formatearFecha(ticket.fechaActualizacion) }}</span>
+            <span><i class="fas fa-comments"></i> {{ ticket.cantidadMensajes }}</span>
+          </div>
+        </div>
       </div>
     </div>
 
-    <form (submit)="enviarSoporte()" #formSoporte="ngForm">
-
-      <div class="grid-2">
-        <div class="campo">
-          <label><i class="fas fa-user"></i> Nombre completo</label>
-          <input type="text" name="nombre" ngModel required />
-        </div>
-
-        <div class="campo">
-          <label><i class="fas fa-envelope"></i> Correo electrónico</label>
-          <input type="email" name="correo" ngModel required />
-        </div>
-      </div>
-
-      <div class="campo">
-        <label><i class="fas fa-list"></i> Tipo de solicitud</label>
-        <select name="tipo" ngModel required>
-          <option value="" disabled selected>Selecciona una opción</option>
-          <option value="problema">🚨 Reportar un problema</option>
-          <option value="pregunta">❓ Hacer una consulta</option>
-          <option value="sugerencia">💡 Enviar una sugerencia</option>
-        </select>
-      </div>
-
-      <div class="campo">
-        <label><i class="fas fa-comment-dots"></i> Descripción</label>
-        <textarea
-          name="mensaje"
-          rows="5"
-          ngModel
-          required
-          placeholder="Explícanos el detalle de tu solicitud para poder ayudarte mejor..."
-        ></textarea>
-      </div>
-
-      <div class="acciones">
-        <button class="btn-enviar" [disabled]="formSoporte.invalid">
-          <i class="fas fa-paper-plane"></i> Enviar solicitud
-        </button>
-      </div>
-
-    </form>
+    <div class="sin-tickets" *ngIf="!cargando && tickets.length === 0">
+      <i class="fas fa-inbox"></i>
+      <p>No tienes tickets de soporte</p>
+      <small>Crea tu primer ticket usando el botón de arriba</small>
+    </div>
   </div>
 </div>
 
 <app-footer></app-footer>
+
+<div class="modal-overlay" *ngIf="mostrarCrear" (click)="mostrarCrear = false">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header-crear">
+      <h3><i class="fas fa-plus-circle"></i> Crear Nuevo Ticket</h3>
+      <button class="btn-cerrar-modal" (click)="mostrarCrear = false">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body-crear">
+      <div class="campo">
+        <label><i class="fas fa-heading"></i> Título</label>
+        <input type="text" [(ngModel)]="tituloNuevo" placeholder="Breve descripción del problema" />
+      </div>
+      <div class="campo">
+        <label><i class="fas fa-flag"></i> Prioridad</label>
+        <select [(ngModel)]="prioridadNueva">
+          <option value="BAJA">Baja</option>
+          <option value="MEDIA">Media</option>
+          <option value="ALTA">Alta</option>
+        </select>
+      </div>
+      <div class="campo">
+        <label><i class="fas fa-comment-dots"></i> Descripción</label>
+        <textarea [(ngModel)]="descripcionNueva" rows="4" 
+                  placeholder="Explica detalladamente tu solicitud..."></textarea>
+      </div>
+      <div class="modal-acciones">
+        <button class="btn-cancelar" (click)="mostrarCrear = false">Cancelar</button>
+        <button class="btn-crear" (click)="crearTicket()" 
+                [disabled]="!tituloNuevo.trim() || !descripcionNueva.trim() || creando">
+          <i class="fas fa-paper-plane"></i>
+          {{ creando ? 'Creando...' : 'Crear Ticket' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="ticketSeleccionado" (click)="cerrarDetalle()">
+  <div class="modal-container modal-detalle" (click)="$event.stopPropagation()">
+    <div class="modal-header-detalle">
+      <div class="modal-title-group">
+        <div class="modal-icon">
+          <i class="fas fa-ticket-alt"></i>
+        </div>
+        <div class="modal-title-text">
+          <h5>{{ ticketSeleccionado.titulo }}</h5>
+          <p>Ticket #{{ ticketSeleccionado.id }}</p>
+        </div>
+      </div>
+      <div class="modal-header-right">
+        <span class="prioridad-badge" [ngClass]="getClasePrioridad(ticketSeleccionado.prioridad)">
+          {{ ticketSeleccionado.prioridad }}
+        </span>
+        <span class="estado-badge" [ngClass]="getClaseEstado(ticketSeleccionado.estado)">
+          {{ ticketSeleccionado.estado.replace('_', ' ') }}
+        </span>
+        <button class="btn-cerrar-modal" (click)="cerrarDetalle()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="conversacion">
+        <div class="mensaje mensaje-usuario" *ngFor="let msg of ticketSeleccionado.mensajes" 
+             [class.mensaje-admin]="msg.esAdmin">
+          <div class="mensaje-header">
+            <span class="mensaje-emisor">
+              <i [class]="msg.esAdmin ? 'fas fa-user-shield' : 'fas fa-user'"></i>
+              {{ msg.emisorNombre }}
+              <span class="badge-role" *ngIf="msg.esAdmin">ADMIN</span>
+            </span>
+            <span class="mensaje-fecha">{{ formatearFecha(msg.fechaEnvio) }}</span>
+          </div>
+          <div class="mensaje-contenido">{{ msg.contenido }}</div>
+        </div>
+      </div>
+
+      <div class="respuesta-form" *ngIf="ticketSeleccionado.estado !== 'CERRADO'">
+        <textarea [(ngModel)]="respuestaTexto" 
+                  placeholder="Escribe un mensaje adicional..." rows="3"></textarea>
+        <div class="respuesta-acciones">
+          <button class="btn-enviar-respuesta" (click)="enviarRespuesta()" 
+                  [disabled]="!respuestaTexto.trim() || enviandoRespuesta">
+            <i class="fas fa-paper-plane"></i>
+            {{ enviandoRespuesta ? 'Enviando...' : 'Enviar' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="ticket-cerrado-info" *ngIf="ticketSeleccionado.estado === 'CERRADO'">
+        <i class="fas fa-check-circle"></i>
+        <p>Este ticket ha sido cerrado por el equipo de soporte</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-notificacion" *ngIf="toastNotificacion" (click)="cerrarToast()">
+  <div class="toast-icon">
+    <i class="fas fa-bell"></i>
+  </div>
+  <div class="toast-content">
+    <p class="toast-titulo">{{ toastNotificacion.titulo }}</p>
+    <p class="toast-mensaje">{{ toastNotificacion.mensaje }}</p>
+  </div>
+  <button class="toast-cerrar" (click)="cerrarToast()">
+    <i class="fas fa-times"></i>
+  </button>
+</div>

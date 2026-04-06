@@ -17,7 +17,7 @@ public class EmailService {
 
     public void enviarCorreoRecuperacion(String destinatario, String enlace) {
         // Remitente
-        Email from = new Email("reporteloyaa@gmail.com", "RepórteloYa"); // si verificaste gmail
+        Email from = new Email("reporteloy@gmail.com", "RepórteloYa"); // si verificaste gmail
 
         // Asunto
         String subject = "Recupera tu contraseña - RepórteloYa";
@@ -85,7 +85,7 @@ public class EmailService {
     }
 
     public void enviarCorreoVerificacion(String destinatario, String enlace) {
-        Email from = new Email("reporteloyaa@gmail.com", "RepórteloYa");
+        Email from = new Email("reporteloy@gmail.com", "RepórteloYa");
 
         String subject = "Verifica tu correo electrónico - RepórteloYa";
 

@@ -22,6 +22,7 @@ import { PerfilAgente } from './components/agente/perfil-agente/perfil-agente';
 import { ConfigAdminComponent } from './components/admin/config-admin/config-admin';
 import { GestionAgentes } from './components/admin/gestion-agentes/gestion-agentes';
 import { MapaReportesComponent } from './components/admin/mapa-reportes/mapa-reportes';
+import { GestionSoporte } from './components/admin/gestion-soporte/gestion-soporte';
 import { SidebarAdmin } from './components/admin/sidebar-admin/sidebar-admin';
 import { Admin } from './components/admin/admin';
 import { Routes } from '@angular/router';
@@ -58,6 +59,7 @@ export const routes: Routes = [
   {path: 'dashboard', component: Dashboard, canActivate: [authGuard] },
   {path: 'perfil-agente', component: PerfilAgente, canActivate: [authGuard] },
   {path: 'gestion-agentes', component: GestionAgentes, canActivate: [authGuard] }, 
+  {path: 'gestion-soporte', component: GestionSoporte, canActivate: [authGuard] },
   {path: 'sidebar-admin', component: SidebarAdmin },
   {path: 'config-admin', component: ConfigAdminComponent},
   {path: 'mapa-reportes', component: MapaReportesComponent},

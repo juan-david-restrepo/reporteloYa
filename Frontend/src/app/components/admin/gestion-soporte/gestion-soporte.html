@@ -1,0 +1,150 @@
+<div class="soporte-container">
+
+  <!-- Header con contadores -->
+  <div class="soporte-header">
+    <div class="header-info">
+      <h1>Respuesta a Soporte</h1>
+      <p>Gestiona los tickets de soporte de los ciudadanos</p>
+    </div>
+    <div class="stats-resumen">
+      <div class="stat-item stat-abierto">
+        <span class="stat-numero">{{ ticketsAbiertos }}</span>
+        <span class="stat-label">Abiertos</span>
+      </div>
+      <div class="stat-item stat-proceso">
+        <span class="stat-numero">{{ ticketsEnProceso }}</span>
+        <span class="stat-label">En Proceso</span>
+      </div>
+      <div class="stat-item stat-cerrado">
+        <span class="stat-numero">{{ ticketsCerrados }}</span>
+        <span class="stat-label">Cerrados</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filtros-wrapper">
+    <div class="filtros-container">
+      <button [class.activo]="filtroEstado === 'TODOS'" (click)="filtrarPorEstado('TODOS')">
+        Todos
+      </button>
+      <button [class.activo]="filtroEstado === 'ABIERTO'" (click)="filtrarPorEstado('ABIERTO')">
+        Abiertos
+      </button>
+      <button [class.activo]="filtroEstado === 'EN_PROCESO'" (click)="filtrarPorEstado('EN_PROCESO')">
+        En Proceso
+      </button>
+      <button [class.activo]="filtroEstado === 'CERRADO'" (click)="filtrarPorEstado('CERRADO')">
+        Cerrados
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-state" *ngIf="cargando">
+    <i class="fas fa-spinner fa-spin"></i>
+    <p>Cargando tickets...</p>
+  </div>
+
+  <!-- Lista de Tickets -->
+  <div class="tickets-lista" *ngIf="!cargando">
+    <div class="ticket-card" *ngFor="let ticket of ticketsFiltrados" 
+         [class.selected]="ticketSeleccionado?.id === ticket.id"
+         (click)="seleccionarTicket(ticket)">
+      
+      <div class="ticket-header">
+        <span class="prioridad-badge" [ngClass]="getClasePrioridad(ticket.prioridad)">
+          {{ ticket.prioridad }}
+        </span>
+        <span class="estado-badge" [ngClass]="getClaseEstado(ticket.estado)">
+          {{ ticket.estado }}
+        </span>
+      </div>
+      
+      <h3 class="ticket-titulo">{{ ticket.titulo }}</h3>
+      <p class="ticket-resumen">{{ ticket.descripcion | slice:0:100 }}...</p>
+      
+      <div class="ticket-footer">
+        <span class="ticket-usuario">
+          <i class="fas fa-user"></i>
+          {{ ticket.nombreUsuario }}
+        </span>
+        <span class="ticket-fecha">
+          <i class="fas fa-clock"></i>
+          {{ formatearFecha(ticket.fechaActualizacion) }}
+        </span>
+        <span class="ticket-mensajes">
+          <i class="fas fa-comments"></i>
+          {{ ticket.cantidadMensajes }}
+        </span>
+      </div>
+    </div>
+
+    <div class="sin-resultados" *ngIf="ticketsFiltrados.length === 0">
+      <i class="fas fa-inbox"></i>
+      <p>No hay tickets con este filtro</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- Modal de Detalle -->
+<div class="modal-overlay" *ngIf="ticketSeleccionado" (click)="cerrarDetalle()">
+  <div class="modal-container modal-soporte" (click)="$event.stopPropagation()">
+    
+    <div class="modal-header">
+      <div class="modal-title-group">
+        <div class="modal-icon">
+          <i class="fas fa-headset"></i>
+        </div>
+        <div class="modal-title-text">
+          <h5>{{ ticketSeleccionado.titulo }}</h5>
+          <p>Ticket #{{ ticketSeleccionado.id }} - {{ ticketSeleccionado.nombreUsuario }}</p>
+        </div>
+      </div>
+      <button class="btn-cerrar-modal" (click)="cerrarDetalle()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="conversacion">
+        <div class="mensaje mensaje-usuario" *ngFor="let msg of ticketSeleccionado.mensajes" 
+             [class.mensaje-admin]="msg.esAdmin">
+          <div class="mensaje-header">
+            <span class="mensaje-emisor">
+              <i [class]="msg.esAdmin ? 'fas fa-user-shield' : 'fas fa-user'"></i>
+              {{ msg.emisorNombre }}
+              <span class="badge-role" *ngIf="msg.esAdmin">ADMIN</span>
+            </span>
+            <span class="mensaje-fecha">{{ formatearFecha(msg.fechaEnvio) }}</span>
+          </div>
+          <div class="mensaje-contenido">{{ msg.contenido }}</div>
+        </div>
+      </div>
+
+      <div class="respuesta-form" *ngIf="ticketSeleccionado.estado !== 'CERRADO'">
+        <textarea 
+          [(ngModel)]="respuestaTexto"
+          placeholder="Escribe tu respuesta al ciudadano..."
+          rows="3"></textarea>
+        <div class="respuesta-acciones">
+          <button class="btn-responder" (click)="enviarRespuesta()" 
+                  [disabled]="!respuestaTexto.trim() || enviandoRespuesta">
+            <i class="fas fa-paper-plane"></i>
+            {{ enviandoRespuesta ? 'Enviando...' : 'Enviar Respuesta' }}
+          </button>
+          <button class="btn-cerrar-ticket" (click)="cerrarTicket()">
+            <i class="fas fa-check"></i>
+            Cerrar Ticket
+          </button>
+        </div>
+      </div>
+
+      <div class="ticket-cerrado-info" *ngIf="ticketSeleccionado.estado === 'CERRADO'">
+        <i class="fas fa-check-circle"></i>
+        <p>Este ticket ha sido cerrado</p>
+      </div>
+    </div>
+  </div>
+</div>
