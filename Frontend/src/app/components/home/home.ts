@@ -1,5 +1,4 @@
 import * as AOS from 'aos';
-import 'aos/dist/aos.css';
 import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';

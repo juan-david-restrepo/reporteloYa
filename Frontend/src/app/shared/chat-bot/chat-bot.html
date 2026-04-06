@@ -5,8 +5,8 @@
 </div>
 
 <!-- OVERLAY + CONTENEDOR DEL CHAT (solo usuarios logueados) -->
-<div class="chat-overlay" *ngIf="showChat && mostrarChat">
-  <div class="chat-container">
+<div class="chat-overlay" *ngIf="showChat && mostrarChat" (click)="toggleChat()">
+  <div class="chat-container" (click)="$event.stopPropagation()">
 
     <!-- SIDEBAR -->
     <div class="sidebar" [ngClass]="{'active': sidebarCollapsed}">
@@ -67,6 +67,12 @@
     <!-- CHAT MODAL -->
     <div class="chatbot-modal">
 
+      <!-- Drag Handle para ajustar altura -->
+      <div class="drag-handle" 
+           [class.visible]="mostrarChat"
+           (mousedown)="startDrag($event)"
+           (touchstart)="startDrag($event)"></div>
+
       <div class="chat-header">
         <div class="chat-left">
           <div class="logo">
@@ -108,6 +114,7 @@
               [placeholder]="'Pregunta a Robotransit ...'" 
               [(ngModel)]="mensaje"
               (keydown.enter)="enviarMensaje()"
+              (focus)="onInputFocus()"
               [readonly]="isListening" />
 
         <button class="voice-btn"> <span class="bars" *ngIf="!mensaje" title="Usar el modo de voz">

@@ -45,6 +45,7 @@ export class Nav implements OnInit, OnDestroy {
 
   notificaciones: NotificacionCiudadano[] = [];
   mostrarNotifDropdown = false;
+  mostrarNotifDropdownMobile = false;
 
   constructor(
     private authService: AuthService,
@@ -149,6 +150,29 @@ export class Nav implements OnInit, OnDestroy {
     }
   }
 
+  toggleNotificacionesMobile(event: Event) {
+    event.stopPropagation();
+    this.mostrarNotifDropdownMobile = !this.mostrarNotifDropdownMobile;
+    if (!this.mostrarNotifDropdownMobile) {
+      this.marcarTodasLeidas();
+    }
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event) {
+    if (!this.mostrarNotifDropdownMobile) return;
+    
+    const target = event.target as HTMLElement;
+    const notifWrapper = document.querySelector('.mobile-notif-wrapper');
+    const notifDropdown = document.querySelector('.mobile-notif-dropdown');
+    
+    if (notifWrapper && notifDropdown) {
+      if (!notifWrapper.contains(target) && !notifDropdown.contains(target)) {
+        this.mostrarNotifDropdownMobile = false;
+      }
+    }
+  }
+
   marcarTodasLeidas() {
     this.notificaciones.forEach(n => n.leida = true);
     this.http.put('http://localhost:8080/api/ciudadano/notificaciones/leer-todas', {}).subscribe({
@@ -197,6 +221,11 @@ export class Nav implements OnInit, OnDestroy {
   closeMobileMenu(): void {
     this.isMobileMenuOpen = false;
     document.body.style.overflow = '';
+  }
+
+  openSidebarFromMobile(): void {
+    this.closeMobileMenu();
+    this.toggleSidebar();
   }
 
   toggleDropdown(event: Event): void {

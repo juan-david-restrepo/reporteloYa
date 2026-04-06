@@ -1037,27 +1037,28 @@
 /* Mobile Large */
 @media (max-width: 768px) {
   .interfaz {
-    height: 60vh;
+    height: 55vh;
   }
 
   .slide{
-    margin-top: 75px;
+    margin-top: 50px;
   }
   
   .text-box {
     font-size: 22px;
-    bottom: 30%;
+    bottom: 25%;
     padding: 0 15px;
   }
   
   .text-box h1 {
     font-size: 26px !important;
-    margin-top: 60px;
+    margin-top: 50px;
   }
   
   .slide-btn {
     padding: 10px 24px;
     font-size: 16px;
+    margin-top: 15px;
   }
   
   .arrow {
@@ -1066,7 +1067,7 @@
   }
   
   .dots {
-    bottom: 15px;
+    bottom: 20px;
   }
   
   .dots span {
@@ -1269,7 +1270,11 @@
 @media (max-width: 480px) {
   .interfaz {
     height: 50vh;
-  }   
+  }
+
+  .slide {
+    margin-top: 40px;
+  }
   
   .text-box {
     font-size: 18px;
@@ -1279,16 +1284,22 @@
     font-size: 22px !important;
     padding: 10px;
     letter-spacing: 1px;
+    margin-top: 45px;
   }
   
   .slide-btn {
     padding: 8px 20px;
     font-size: 14px;
+    margin-top: 12px;
   }
   
   .arrow {
     font-size: 20px;
     padding: 6px 10px;
+  }
+
+  .dots {
+    bottom: 18px;
   }
   
   .title {
@@ -1370,6 +1381,169 @@
   .btn-login {
     padding: 10px 20px;
     font-size: 14px;
+  }
+}
+
+/* Extra Small */
+@media (max-width: 375px) {
+  .interfaz {
+    height: 45vh;
+  }
+
+  .slide {
+    margin-top: 65px;
+  }
+
+  .text-box {
+    font-size: 15px;
+    bottom: 28%;
+    padding: 0px 10px;
+  }
+
+  .text-box h1 {
+    font-size: 19px !important;
+    padding: 8px;
+    margin-top: 40px;
+  }
+
+  .slide-btn {
+    padding: 7px 16px;
+    font-size: 13px;
+    margin-top: 0px;
+  }
+
+  .arrow {
+    font-size: 18px;
+    padding: 5px 8px;
+  }
+
+  .dots {
+    bottom: 3px;
+  }
+
+  .dots span {
+    width: 8px;
+    height: 8px;
+    margin: 0 2px;
+  }
+
+  .title {
+    font-size: 19px;
+  }
+
+  .container p {
+    font-size: 0.85rem;
+    margin-top: 25px;
+  }
+
+  .module {
+    max-width: 230px;
+    height: 140px;
+  }
+
+  .icon {
+    width: 90px;
+    height: 90px;
+  }
+
+  .layer {
+    width: 90px;
+    height: 90px;
+  }
+
+  .icon i {
+    font-size: 30px;
+  }
+
+  .layer .bx {
+    font-size: 26px;
+  }
+
+  .text {
+    font-size: 0.85rem;
+  }
+
+  .pyp-left h1 {
+    font-size: 22px;
+  }
+
+  .pyp-left h2 {
+    font-size: 15px;
+  }
+
+  .pyp-left p {
+    font-size: 13px;
+  }
+
+  .accordion-header {
+    font-size: 12px;
+    height: 48px;
+  }
+
+  .accordion .icon {
+    font-size: 16px;
+  }
+
+  .features-header h1 {
+    font-size: 1.2rem;
+  }
+
+  .features-header p {
+    font-size: 0.8rem;
+  }
+
+  .nav-item {
+    padding: 10px;
+  }
+
+  .nav-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .nav-icon i {
+    font-size: 14px;
+  }
+
+  .nav-text h3 {
+    font-size: 0.8rem;
+  }
+
+  .card-content h2 {
+    font-size: 1.1rem;
+  }
+
+  .card-content p {
+    font-size: 0.85rem;
+  }
+
+  .card-image {
+    height: 140px;
+  }
+
+  .stat-number {
+    font-size: 1.2rem;
+  }
+
+  .modal-image {
+    height: 130px;
+  }
+
+  .modal-body {
+    padding: 12px;
+  }
+
+  .modal-body h2 {
+    font-size: 1.1rem;
+  }
+
+  .modal-body p {
+    font-size: 0.85rem;
+  }
+
+  .btn-login {
+    padding: 8px 16px;
+    font-size: 13px;
   }
 }
 

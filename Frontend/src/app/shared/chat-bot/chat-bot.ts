@@ -29,6 +29,57 @@ interface Conversacion {
 export class ChatBotComponent implements OnInit {
 
   // -----------------------------
+  // DRAG HANDLE - Bottom Sheet
+  // -----------------------------
+  isDragging = false;
+  startY = 0;
+  startHeight = 75;
+  currentChatHeight = 75;
+  minHeight = 30;
+  maxHeight = 90;
+
+  private getClientY(event: TouchEvent | MouseEvent): number {
+    if (event instanceof TouchEvent) {
+      return event.touches[0].clientY;
+    }
+    return event.clientY;
+  }
+
+  startDrag(event: TouchEvent | MouseEvent) {
+    event.preventDefault();
+    this.isDragging = true;
+    this.startY = this.getClientY(event);
+    this.startHeight = this.currentChatHeight;
+    document.body.style.overflow = 'hidden';
+  }
+
+  onDrag(event: TouchEvent | MouseEvent) {
+    if (!this.isDragging) return;
+    
+    const currentY = this.getClientY(event);
+    const delta = this.startY - currentY;
+    const windowHeight = window.innerHeight;
+    const newHeight = this.startHeight + (delta / windowHeight * 100);
+    this.currentChatHeight = Math.min(Math.max(newHeight, this.minHeight), this.maxHeight);
+    
+    this.updateChatHeight(this.currentChatHeight);
+  }
+
+  endDrag() {
+    if (!this.isDragging) return;
+    this.isDragging = false;
+    document.body.style.overflow = '';
+    localStorage.setItem('chatHeight', String(Math.round(this.currentChatHeight)));
+  }
+
+  updateChatHeight(height: number) {
+    const container = document.querySelector('.chat-container') as HTMLElement;
+    if (container) {
+      container.style.setProperty('--chat-height', `${height}vh`);
+    }
+  }
+
+  // -----------------------------
   // SCROLL DEL CHAT
   // -----------------------------
   @ViewChild('chatContainer') chatContainer!: ElementRef;
@@ -401,6 +452,26 @@ clickOutside(event: MouseEvent) {
   }
 }
 
+@HostListener('document:mousemove', ['$event'])
+onMouseMove(event: MouseEvent) {
+  this.onDrag(event);
+}
+
+@HostListener('document:mouseup')
+onMouseUp() {
+  this.endDrag();
+}
+
+@HostListener('document:touchmove', ['$event'])
+onTouchMove(event: TouchEvent) {
+  this.onDrag(event);
+}
+
+@HostListener('document:touchend')
+onTouchEnd() {
+  this.endDrag();
+}
+
   // =============================
   // ELIMINAR CONVERSACIONES
   // =============================
@@ -501,9 +572,24 @@ stopVoiceDictation() {
 // -----------------------------
 async onMainAction() {
   if (this.mensaje.trim()) {
+    // Aumentar altura cuando usuario escribe/envía
+    if (this.currentChatHeight < 85) {
+      this.currentChatHeight = 85;
+      this.updateChatHeight(85);
+      localStorage.setItem('chatHeight', '85');
+    }
     await this.enviarMensaje();
   } else {
     this.isListening ? this.stopVoiceDictation() : await this.startVoiceDictation();
+  }
+}
+
+onInputFocus() {
+  // Reducir un poco cuando el teclado aparece
+  if (window.innerWidth <= 768 && this.currentChatHeight > 60) {
+    const newHeight = Math.max(60, this.currentChatHeight - 15);
+    this.currentChatHeight = newHeight;
+    this.updateChatHeight(newHeight);
   }
 }
 
@@ -528,6 +614,14 @@ async onMainAction() {
 // INIT
 // =============================
 async ngOnInit() {
+  // Cargar altura guardada del chat
+  const savedHeight = localStorage.getItem('chatHeight');
+  if (savedHeight) {
+    this.currentChatHeight = parseInt(savedHeight, 10);
+    this.startHeight = this.currentChatHeight;
+    setTimeout(() => this.updateChatHeight(this.currentChatHeight), 0);
+  }
+
   // 🔹 Suscribirse al usuario autenticado
   this.authService.currentUser$.subscribe(async (user) => {
     if (user?.userId) {

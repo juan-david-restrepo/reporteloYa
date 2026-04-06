@@ -9,6 +9,48 @@
             <span></span>
         </button>
 
+        <!-- Campana notificaciones móvil (solo logueado) -->
+        <div class="mobile-notif-wrapper" *ngIf="isLoggedIn" (click)="toggleNotificacionesMobile($event)">
+            <div class="mobile-notif-icon" [class.ring]="notificacionesNoLeidas > 0">
+                <i class="fa-solid fa-bell"></i>
+                <span class="mobile-notif-badge" *ngIf="notificacionesNoLeidas > 0">
+                    {{ notificacionesNoLeidas }}
+                </span>
+            </div>
+            <div class="mobile-notif-dropdown" *ngIf="mostrarNotifDropdownMobile" (click)="$event.stopPropagation()">
+                <div class="notif-header-nav">
+                    <span>Notificaciones</span>
+                    <button class="notif-clear-nav" (click)="marcarTodasLeidas(); $event.stopPropagation()">
+                        <i class="fa-solid fa-check-double"></i>
+                    </button>
+                </div>
+                <div class="notif-list-nav">
+                    <div class="notif-item-nav" [class.no-leida-nav]="!n.leida" *ngFor="let n of notificaciones"
+                        (click)="abrirNotificacion(n)">
+                        <div class="notif-icon-tipo-nav">
+                            <i class="fa-solid" [class.fa-check]="n.tipo === 'REPORTE_ACEPTADO'"
+                                [class.fa-xmark]="n.tipo === 'REPORTE_RECHAZADO'"
+                                [class.fa-check-double]="n.tipo === 'REPORTE_FINALIZADO'"
+                                [class.fa-bell]="n.tipo !== 'REPORTE_ACEPTADO' && n.tipo !== 'REPORTE_RECHAZADO' && n.tipo !== 'REPORTE_FINALIZADO'"
+                                [class.notif-aceptada]="n.tipo === 'REPORTE_ACEPTADO'"
+                                [class.notif-rechazada]="n.tipo === 'REPORTE_RECHAZADO'"
+                                [class.notif-finalizada]="n.tipo === 'REPORTE_FINALIZADO'"></i>
+                        </div>
+                        <div class="notif-content-nav">
+                            <strong>{{ n.titulo }}</strong>
+                            <p>{{ n.mensaje }}</p>
+                            <span class="notif-fecha-nav">{{ n.fechaCreacion | date:'short' }}</span>
+                        </div>
+                        <div class="notif-unread-dot-nav" *ngIf="!n.leida"></div>
+                    </div>
+                    <div class="notif-empty-nav" *ngIf="notificaciones.length === 0">
+                        <i class="fa-solid fa-bell-slash"></i>
+                        <p>Sin notificaciones</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="menu-and-logo" [class.mobile-open]="isMobileMenuOpen">
             <div class="menu-buttons-group">
 
@@ -16,6 +58,13 @@
                     [routerLinkActiveOptions]="{ exact: true }" (click)="closeMobileMenu()">
                     <i class="fa-solid fa-house"></i> Inicio
                 </a>
+
+                <!-- Mi Cuenta - acceder al sidebar (logueado) -->
+                <button class="mobile-account-btn" *ngIf="isLoggedIn" (click)="openSidebarFromMobile()">
+                    <img [src]="currentAvatar" alt="Perfil" class="mobile-account-avatar">
+                    <span class="mobile-account-text">Mi Cuenta</span>
+                    <i class='bx bx-chevron-right'></i>
+                </button>
 
                 <!-- REPORTES -->
                 <div class="menu-item-container" routerLinkActive="active">

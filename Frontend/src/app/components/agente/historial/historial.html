@@ -42,10 +42,14 @@
       <b>{{ h.tipoInfraccion }}</b>
       <p class="hist-dir">{{ h.direccion }}</p>
 
-      <!-- ✅ Mostrar si fue con compañero -->
+      <!-- ✅ Mostrar si fue con compañero o solo -->
       <p class="hist-companero" *ngIf="h.acompanado">
         <i class="fa-solid fa-user-group"></i>
         Acompañado por: {{ h.esCompanero ? (h.placaAgente | uppercase) : (h.nombreCompanero || h.placaCompanero) }}
+      </p>
+      <p class="hist-companero" *ngIf="!h.acompanado">
+        <i class="fa-solid fa-user"></i>
+        En solitario
       </p>
     </div>
 

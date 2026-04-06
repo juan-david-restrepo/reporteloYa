@@ -160,6 +160,15 @@
           </div>
         </div>
 
+        <!-- ✅ Muestra "En solitario" cuando va solo -->
+        <div class="dato" *ngIf="!r.acompanado">
+          <i class="fa-solid fa-user"></i>
+          <div class="label-datos">
+            <span class="info-label">Modalidad</span>
+            En solitario
+          </div>
+        </div>
+
       </div>
 
       <!-- Fechas de gestión -->

@@ -1,4 +1,4 @@
-import { Component, ChangeDetectorRef, ViewChild } from '@angular/core';
+import { Component, ChangeDetectorRef, ViewChild, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SidebarAgente } from './sidebar-agente/sidebar-agente';
@@ -597,6 +597,18 @@ export class Agente implements OnInit, OnDestroy {
     }
 
     this.mostrarNotificaciones = !this.mostrarNotificaciones;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event) {
+    if (!this.mostrarNotificaciones) return;
+    
+    const target = event.target as HTMLElement;
+    const notifWrapper = document.querySelector('.notif-wrapper');
+    
+    if (notifWrapper && !notifWrapper.contains(target)) {
+      this.mostrarNotificaciones = false;
+    }
   }
 
   get notificacionesNoLeidas(): number {

@@ -570,7 +570,70 @@
   padding: 0;
   z-index: 10000;
   margin-left: auto;
-  margin-right: 15px;
+  margin-right: 10px;
+}
+
+/* ==========================================
+   CAMPANA NOTIFICACIONES MÓVIL
+   ========================================== */
+.mobile-notif-wrapper {
+  display: none;
+  position: relative;
+  z-index: 10000;
+}
+
+.mobile-notif-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  cursor: pointer;
+  background: transparent;
+  margin-right: 5px;
+  position: relative;
+}
+
+.mobile-notif-icon i {
+  font-size: 18px;
+  color: #333;
+}
+
+.mobile-notif-icon.ring {
+  animation: bellRing 0.3s ease-in-out;
+}
+
+.mobile-notif-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: #CE1126;
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+}
+
+.mobile-notif-dropdown {
+  position: fixed;
+  top: 60px;
+  right: 10px;
+  width: 300px;
+  max-height: 350px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  z-index: 10004;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .hamburger span {
@@ -607,8 +670,18 @@
    RESPONSIVE - TABLET Y MOBILE
    ========================================== */
 @media (max-width: 1024px) {
+
   .hamburger {
     display: flex;
+  }
+
+  .mobile-notif-wrapper {
+    display: flex;
+    align-items: center;
+  }
+
+  .desktop-profile-btn {
+    display: none;
   }
 
   .navbar {
@@ -627,12 +700,15 @@
     flex-direction: column;
     padding: 80px 20px 30px;
     gap: 0;
-    transition: display 0.3s ease;
     z-index: 10003;
     overflow-y: auto;
     overflow-x: hidden;
     box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
     box-sizing: border-box;
+    opacity: 0;
+    transform: translateX(-100%);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    visibility: hidden;
   }
 
   .menu-and-logo * {
@@ -641,12 +717,60 @@
 
   .menu-and-logo.mobile-open {
     display: flex;
+    opacity: 1;
+    transform: translateX(0);
+    visibility: visible;
   }
 
   .menu-buttons-group {
     flex-direction: column;
     width: 100%;
     gap: 5px;
+  }
+
+  /* Botón Mi Cuenta solo visible cuando el menú está abierto */
+  .mobile-account-btn {
+    display: none;
+  }
+
+  .menu-and-logo.mobile-open .mobile-account-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 12px 15px;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    margin-top: 15px;
+    margin-bottom: 10px;
+    transition: all 0.2s ease;
+  }
+
+  .menu-and-logo.mobile-open .mobile-account-btn:hover {
+    background: linear-gradient(135deg, #e9ecef, #dee2e6);
+  }
+
+  .menu-and-logo.mobile-open .mobile-account-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #007bff;
+  }
+
+  .menu-and-logo.mobile-open .mobile-account-text {
+    flex: 1;
+    font-size: 15px;
+    font-weight: 600;
+    color: #333;
+    text-align: left;
+  }
+
+  .menu-and-logo.mobile-open .mobile-account-btn i {
+    font-size: 20px;
+    color: #666;
   }
 
   .menu-item-home,
@@ -721,7 +845,7 @@
 
   /* Overlay para menú móvil */
   .mobile-overlay {
-    display: none;
+    display: block;
     position: fixed;
     top: 0;
     left: 0;
@@ -730,12 +854,13 @@
     background: rgba(0, 0, 0, 0.5);
     z-index: 9998;
     opacity: 0;
-    transition: opacity 0.3s ease;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
   }
 
   .mobile-overlay.active {
-    display: block;
     opacity: 1;
+    visibility: visible;
   }
 
   /* Ajustar botones en móvil */
@@ -799,7 +924,8 @@
   }
 
   .menu-item-home,
-  .menu-item-container > .menu-item {
+  .menu-item-container > .menu-item,
+  .menu-buttons-group > a.menu-item {
     padding: 12px 14px;
     font-size: 14px;
   }
@@ -816,6 +942,7 @@
   .dropdown-section p {
     font-size: 11px;
   }
+
 }
 
 @media (max-width: 480px) {
@@ -825,13 +952,69 @@
   }
 
   .menu-item-home,
-  .menu-item-container > .menu-item {
+  .menu-item-container > .menu-item,
+  .menu-buttons-group > a.menu-item {
     padding: 11px 12px;
     font-size: 13px;
   }
 
   .dropdown-section h4 {
     font-size: 12px;
+  }
+}
+
+@media (max-width: 375px) {
+  .menu-and-logo {
+    width: 90%;
+    padding: 65px 12px 20px;
+  }
+
+  .menu-item-home,
+  .menu-item-container > .menu-item,
+  .menu-buttons-group > a.menu-item {
+    padding: 10px 10px;
+    font-size: 12px;
+  }
+
+  .dropdown-section a {
+    font-size: 12px;
+    padding: 5px 0;
+  }
+
+  .dropdown-section p {
+    font-size: 10px;
+  }
+
+  .dropdown-section h4 {
+    font-size: 11px;
+  }
+
+  .logo {
+    width: 40px;
+  }
+
+  .hamburger {
+    width: 32px;
+    height: 32px;
+    margin-right: 10px;
+  }
+
+  .hamburger span {
+    width: 20px;
+    height: 2px;
+  }
+
+  .mobile-profile-name {
+    font-size: 14px;
+  }
+
+  .mobile-profile-link {
+    font-size: 11px;
+  }
+
+  .mobile-profile-menu a {
+    font-size: 13px;
+    padding: 10px 12px;
   }
 }
 
@@ -937,6 +1120,11 @@
   padding-top: 20px;
   border-top: 1px solid #eee;
   width: 100%;
+}
+
+/* Botón Mi Cuenta - oculto por defecto (solo para móvil) */
+.mobile-account-btn {
+  display: none;
 }
 
 @media (max-width: 1024px) {
