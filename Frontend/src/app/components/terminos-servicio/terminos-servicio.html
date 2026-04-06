@@ -1,0 +1,391 @@
+<app-nav></app-nav>
+
+<div class="terminos-container">
+  <div class="header-section" data-aos="fade-down">
+    <div class="header-icon">
+      <i class="fa-solid fa-file-contract"></i>
+    </div>
+    <h1>Términos de Servicio</h1>
+    <p>Al utilizar Reportelo Ya, aceptas los siguientes términos y condiciones</p>
+    <div class="header-date">
+      <i class="fa-solid fa-calendar"></i>
+      <span>Última actualización: 15 de Diciembre de 2025</span>
+    </div>
+  </div>
+
+  <div class="content-wrapper">
+    <nav class="side-nav" data-aos="fade-right">
+      <div class="nav-header">
+        <i class="fa-solid fa-list-ul"></i>
+        <span>Contenido</span>
+      </div>
+      <ul>
+        <li *ngFor="let seccion of secciones">
+          <a 
+            [class.active]="activeSection === seccion.id"
+            (click)="scrollToSection(seccion.id)"
+          >
+            <i [class]="seccion.icono"></i>
+            <span>{{ seccion.titulo }}</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="content-area">
+      <!-- Introducción -->
+      <section id="introduccion" class="term-section" data-aos="fade-up">
+        <div class="section-header">
+          <div class="section-icon">
+            <i class="fa-solid fa-info-circle"></i>
+          </div>
+          <h2>1. Introducción</h2>
+        </div>
+        <div class="section-content">
+          <p class="intro-text">
+            Bienvenido a <strong>Reportelo Ya</strong>. Estos Términos de Servicio ("Términos") 
+            constituyen un acuerdo legal entre tú ("Usuario" o "tú") y el equipo de desarrollo 
+            de Reportelo Ya ("nosotros", "nuestro" o "la Plataforma").
+          </p>
+          <p>
+            Al acceder y utilizar nuestra aplicación web, declaras haber leído, comprendido 
+            y aceptado bound a estos Términos. Si no estás de acuerdo con alguna disposición 
+            de estos Términos, por favor no utilices nuestra Plataforma.
+          </p>
+          <div class="highlight-box">
+            <i class="fa-solid fa-lightbulb"></i>
+            <span>Reportelo Ya es una plataforma digital para el reporte de incidentes viales en el departamento del Quindío, Colombia.</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Aceptación de Términos -->
+      <section id="aceptacion" class="term-section" data-aos="fade-up">
+        <div class="section-header">
+          <div class="section-icon">
+            <i class="fa-solid fa-handshake"></i>
+          </div>
+          <h2>2. Aceptación de Términos</h2>
+        </div>
+        <div class="section-content">
+          <p>
+            Al registrarte, acceder o utilizar cualquier función de Reportelo Ya, confirmas 
+            que:
+          </p>
+          <ul class="accept-list">
+            <li>
+              <i class="fa-solid fa-check-circle"></i>
+              <span>Tienes al menos 18 años de edad o contar con autorización de un tutor legal</span>
+            </li>
+            <li>
+              <i class="fa-solid fa-check-circle"></i>
+              <span>Tienes capacidad legal para celebrar un contrato vinculante</span>
+            </li>
+            <li>
+              <i class="fa-solid fa-check-circle"></i>
+              <span>Aceptas cumplir con estos Términos y todas las leyes aplicables</span>
+            </li>
+            <li>
+              <i class="fa-solid fa-check-circle"></i>
+              <span>Proporcionarás información veraz y actualizada</span>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Uso de la Plataforma -->
+      <section id="uso" class="term-section" data-aos="fade-up">
+        <div class="section-header">
+          <div class="section-icon">
+            <i class="fa-solid fa-laptop"></i>
+          </div>
+          <h2>3. Uso de la Plataforma</h2>
+        </div>
+        <div class="section-content">
+          <p>
+            Reportelo Ya te permite:
+          </p>
+          <div class="features-grid">
+            <div class="feature-card">
+              <i class="fa-solid fa-camera"></i>
+              <h3>Reportar Incidentes</h3>
+              <p>Documentar infracciones de tránsito con fotos, videos y descripciones</p>
+            </div>
+            <div class="feature-card">
+              <i class="fa-solid fa-map-marker-alt"></i>
+              <h3>Ubicar Incidentes</h3>
+              <p>Proporcionar la ubicación exacta del incidente reportado</p>
+            </div>
+            <div class="feature-card">
+              <i class="fa-solid fa-comments"></i>
+              <h3>Comunicarte</h3>
+              <p>Recibir actualizaciones sobre el estado de tus reportes</p>
+            </div>
+            <div class="feature-card">
+              <i class="fa-solid fa-robot"></i>
+              <h3>Asistente Virtual</h3>
+              <p>Utilizar Robotransit para resolver dudas sobre la plataforma</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Cuenta de Usuario -->
+      <section id="cuenta" class="term-section" data-aos="fade-up">
+        <div class="section-header">
+          <div class="section-icon">
+            <i class="fa-solid fa-user-circle"></i>
+          </div>
+          <h2>4. Cuenta de Usuario</h2>
+        </div>
+        <div class="section-content">
+          <div class="account-card">
+            <i class="fa-solid fa-id-card"></i>
+            <div>
+              <h3>Registro</h3>
+              <p>
+                Para utilizar nuestras funciones completas, debes crear una cuenta proporcionando 
+                información veraz, incluyendo tu número de Cédula de Ciudadanía.
+              </p>
+            </div>
+          </div>
+          <div class="account-card">
+            <i class="fa-solid fa-lock"></i>
+            <div>
+              <h3>Seguridad de la Cuenta</h3>
+              <p>
+                Eres responsable de mantener la confidencialidad de tu contraseña y de todas 
+                las actividades que ocurran bajo tu cuenta. Debes notificarnos inmediatamente 
+                sobre cualquier uso no autorizado.
+              </p>
+            </div>
+          </div>
+          <div class="account-card">
+            <i class="fa-solid fa-user-shield"></i>
+            <div>
+              <h3>Verificación de Identidad</h3>
+              <p>
+                Nos reservamos el derecho de verificar tu identidad en cualquier momento y 
+                de suspender o terminate tu cuenta si la información proporcionada es falsa 
+                o incorrecta.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Reportes e Incidentes -->
+      <section id="reportes" class="term-section" data-aos="fade-up">
+        <div class="section-header">
+          <div class="section-icon">
+            <i class="fa-solid fa-exclamation-circle"></i>
+          </div>
+          <h2>5. Reportes e Incidentes</h2>
+        </div>
+        <div class="section-content">
+          <p>
+            Al realizar un reporte en Reportelo Ya, aceptas que:
+          </p>
+          <ul class="report-list">
+            <li>
+              <i class="fa-solid fa-camera"></i>
+              <span>La evidencia (fotos/videos) debe ser auténtica y tomada por ti</span>
+            </li>
+            <li>
+              <i class="fa-solid fa-location-dot"></i>
+              <span>La ubicación proporcionada debe ser precisa y real</span>
+            </li>
+            <li>
+              <i class="fa-solid fa-clock"></i>
+              <span>El incidente reportado debe haber ocurrido recientemente</span>
+            </li>
+            <li>
+              <i class="fa-solid fa-ban"></i>
+              <span>No puedes reportar incidentes falsos o maliciousos</span>
+            </li>
+            <li>
+              <i class="fa-solid fa-users"></i>
+              <span>No puedes realizar reportes masivos automatizados</span>
+            </li>
+          </ul>
+          <div class="warning-box">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <div>
+              <h4>Consecuencias por Reportes Falsos</h4>
+              <p>
+                La presentación de reportes falsos o maliciosos puede resultar en la 
+                suspensión permanente de tu cuenta y las medidas legales pertinentes.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Conducta del Usuario -->
+      <section id="conducta" class="term-section" data-aos="fade-up">
+        <div class="section-header">
+          <div class="section-icon">
+            <i class="fa-solid fa-gavel"></i>
+          </div>
+          <h2>6. Conducta del Usuario</h2>
+        </div>
+        <div class="section-content">
+          <p>
+            Te comprometes a NO utilizar la Plataforma para:
+          </p>
+          <div class="conduct-grid">
+            <div class="conduct-item prohibited">
+              <i class="fa-solid fa-xmark"></i>
+              <span>Realizar actividades ilegales o fraudulentas</span>
+            </div>
+            <div class="conduct-item prohibited">
+              <i class="fa-solid fa-xmark"></i>
+              <span> acosar, difamar o dañar a terceros</span>
+            </div>
+            <div class="conduct-item prohibited">
+              <i class="fa-solid fa-xmark"></i>
+              <span>Publicar contenido ofensivo, violento o inapropiado</span>
+            </div>
+            <div class="conduct-item prohibited">
+              <i class="fa-solid fa-xmark"></i>
+              <span>Intentar acceder a cuentas de otros usuarios</span>
+            </div>
+            <div class="conduct-item prohibited">
+              <i class="fa-solid fa-xmark"></i>
+              <span>Interferir con el funcionamiento de la Plataforma</span>
+            </div>
+            <div class="conduct-item prohibited">
+              <i class="fa-solid fa-xmark"></i>
+              <span>Recolectar datos de otros usuarios sin consentimiento</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Propiedad Intelectual -->
+      <section id="propiedad" class="term-section" data-aos="fade-up">
+        <div class="section-header">
+          <div class="section-icon">
+            <i class="fa-solid fa-copyright"></i>
+          </div>
+          <h2>7. Propiedad Intelectual</h2>
+        </div>
+        <div class="section-content">
+          <p>
+            Todo el contenido, diseño, logos, código y demás materiales presentes en 
+            Reportelo Ya son propiedad intelectual del equipo de desarrollo.
+          </p>
+          <div class="property-card">
+            <i class="fa-solid fa-lightbulb"></i>
+            <div>
+              <h3>Licencia de Uso</h3>
+              <p>
+                Te otorgamos una licencia limitada, no exclusiva y revocable para utilizar 
+                la Plataforma exclusivamente para los fines previstos en estos Términos.
+              </p>
+            </div>
+          </div>
+          <div class="property-card">
+            <i class="fa-solid fa-camera"></i>
+            <div>
+              <h3>Contenido del Usuario</h3>
+              <p>
+                Mantienes la propiedad sobre el contenido (fotos, videos, descripciones) 
+                que submites a la Plataforma, pero nos otorgas licencia para utilizarlos 
+                en relación con el funcionamiento del servicio.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Limitación de Responsabilidad -->
+      <section id="limitacion" class="term-section" data-aos="fade-up">
+        <div class="section-header">
+          <div class="section-icon">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          <h2>8. Limitación de Responsabilidad</h2>
+        </div>
+        <div class="section-content">
+          <div class="limitation-card">
+            <i class="fa-solid fa-info-circle"></i>
+            <p>
+              <strong>Reportelo Ya</strong> es una herramienta de reporte ciudadano. No somos 
+              responsables de las acciones tomadas por las autoridades de tránsito o de 
+              los resultados de los reportes submitidos.
+            </p>
+          </div>
+          <p>
+            En la máxima medida permitida por la ley, la Plataforma no será responsable de:
+          </p>
+          <ul class="limitation-list">
+            <li>
+              <i class="fa-solid fa-times-circle"></i>
+              <span>Daños directos, indirectos, incidentales o consecuenciales</span>
+            </li>
+            <li>
+              <i class="fa-solid fa-times-circle"></i>
+              <span>Pérdida de datos, oportunidades o goodwill</span>
+            </li>
+            <li>
+              <i class="fa-solid fa-times-circle"></i>
+              <span>Errores o interrupciones en el servicio</span>
+            </li>
+            <li>
+              <i class="fa-solid fa-times-circle"></i>
+              <span>Acciones de terceros o autoridades</span>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Modificaciones -->
+      <section id="modificaciones" class="term-section" data-aos="fade-up">
+        <div class="section-header">
+          <div class="section-icon">
+            <i class="fa-solid fa-pen-to-square"></i>
+          </div>
+          <h2>9. Modificaciones</h2>
+        </div>
+        <div class="section-content">
+          <p>
+            Nos reservamos el derecho de modificar estos Términos en cualquier momento. 
+            Las modificaciones entrarán en vigor desde su publicación en la Plataforma.
+          </p>
+          <div class="modification-box">
+            <i class="fa-solid fa-bell"></i>
+            <p>
+              Te notificaremos sobre cambios significativos. El uso continuado de la 
+              Plataforma después de las modificaciones constituye tu aceptación 
+              de los nuevos Términos.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Contacto -->
+      <section id="contacto" class="term-section" data-aos="fade-up">
+        <div class="section-header">
+          <div class="section-icon">
+            <i class="fa-solid fa-envelope"></i>
+          </div>
+          <h2>10. Contacto</h2>
+        </div>
+        <div class="section-content">
+          <div class="contact-card-final">
+            <i class="fa-solid fa-headset"></i>
+            <h3>¿Tienes preguntas sobre estos Términos?</h3>
+            <p>Contáctanos en: <strong>reporteloya@gmail.com</strong></p>
+            <div class="location-info">
+              <i class="fa-solid fa-location-dot"></i>
+              <span>Armenia, Quindío, Colombia</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<app-footer></app-footer>

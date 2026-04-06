@@ -1,29 +1,401 @@
 <app-nav></app-nav>
 
-<div class="container" *ngIf="!loading && !error">
-  <div *ngFor="let tipo of tipos">
-    <h2>{{ tipo | uppercase }}</h2>
-
-    <div class="grid">
-      <div class="card" *ngFor="let s of getPorTipo(tipo)">
-        <img [src]="s.imagen" [alt]="s.nombre" *ngIf="s.imagen">
-        <h3>{{ s.nombre }}</h3>
-        <p>{{ s.descripcion }}</p>
+@if (loading) {
+  <div class="loading-overlay">
+    <div class="loading-content">
+      <div class="spinner-container">
+        <div class="spinner"></div>
+        <div class="spinner-inner"></div>
+      </div>
+      <h2 class="loading-title">Señales de Tránsito</h2>
+      <p class="loading-text">Cargando señales de tránsito...</p>
+      <div class="loading-dots">
+        <span></span>
+        <span></span>
+        <span></span>
       </div>
     </div>
-
-    <!-- Paginación -->
-    <div class="pagination" *ngIf="totalPages(tipo) > 1">
-      <button (click)="changePage(tipo, currentPage[tipo]-1)" [disabled]="currentPage[tipo]===0">&laquo;</button>
-      <button *ngFor="let page of [].constructor(totalPages(tipo)); let i = index"
-              (click)="changePage(tipo,i)"
-              [class.active]="i===currentPage[tipo]">{{i+1}}</button>
-      <button (click)="changePage(tipo, currentPage[tipo]+1)" [disabled]="currentPage[tipo]===totalPages(tipo)-1">&raquo;</button>
-    </div>
   </div>
-</div>
+}
 
-<div *ngIf="loading">Cargando señales...</div>
-<div *ngIf="error">{{ error }}</div>
+@if (error) {
+  <div class="error-container">
+    <div class="error-icon">
+      <i class="fas fa-exclamation-triangle"></i>
+    </div>
+    <h2>Error al cargar</h2>
+    <p>{{ error }}</p>
+    <button class="btn-retry" (click)="retry()">
+      <i class="fas fa-redo"></i>
+      Reintentar
+    </button>
+  </div>
+}
+
+@if (!loading && !error) {
+
+  <!-- HERO SECTION -->
+  <section class="hero-section">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <div class="hero-icon">
+        <i class="fas fa-traffic-light"></i>
+      </div>
+      <h1>Señales de Tránsito en Colombia</h1>
+      <p class="hero-subtitle">
+        Conoce las señales de tránsito que regulan la circulación vial en Colombia. 
+        Aprende su significado para una conducción segura y responsable.
+      </p>
+      <div class="hero-stats">
+        <div class="stat-item">
+          <span class="stat-number">{{ getTotalSenales() }}</span>
+          <span class="stat-label">Señales</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-number">4</span>
+          <span class="stat-label">Categorías</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-number">24/7</span>
+          <span class="stat-label">Disponibles</span>
+        </div>
+      </div>
+    </div>
+    <div class="hero-wave">
+      <svg viewBox="0 0 1440 120" preserveAspectRatio="none">
+        <path d="M0,64 C480,120 960,0 1440,64 L1440,120 L0,120 Z" fill="#ffffff"></path>
+      </svg>
+    </div>
+  </section>
+
+  <!-- INTRODUCCIÓN -->
+  <section class="intro-section">
+    <div class="intro-content">
+      <div class="intro-icon">
+        <i class="fas fa-info-circle"></i>
+      </div>
+      <div class="intro-text">
+        <h2>Normativa y Importancia</h2>
+        <p>
+          Las señales de tránsito en Colombia se basan en la normativa nacional establecida por el 
+          <strong>Ministerio de Transporte</strong> y follow los acuerdos internacionales para mantener 
+          un formato estandarizado en la señalización vertical vial. Aunque cada país realiza 
+          ligeras variaciones en la tipología, se mantienen las señales más importantes: 
+          <strong>STOP, Ceda el Paso, Prohibido,</strong> entre otras.
+        </p>
+        <p>
+          Conocer y respetar estas señales es fundamental para garantizar la seguridad de todos 
+          los actores viales: conductores, pasajeros y peatones.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- MÓDULOS POR TIPO -->
+  <div class="modulos-container">
+    
+    <!-- SEÑALES REGLAMENTARIAS -->
+    <section class="modulo-section">
+      <div class="modulo-header">
+        <div class="modulo-icon reglamentarias">
+          <i class="fas fa-exclamation-circle"></i>
+        </div>
+        <div class="modulo-info">
+          <h2>Señales Reglamentarias</h2>
+          <p class="modulo-desc">
+            Indican obligaciones, prohibiciones y restricciones que los usuarios de las vías deben 
+            cumplir necesariamente. Su incumplimiento constituye una infracción de tránsito.
+          </p>
+        </div>
+        <div class="modulo-badge">
+          <i class="fas fa-gavel"></i>
+          Cumplimiento Obligatorio
+        </div>
+      </div>
+      
+      <div class="modulo-features">
+        <div class="feature-item">
+          <i class="fas fa-ban"></i>
+          <span>Prohibiciones</span>
+        </div>
+        <div class="feature-item">
+          <i class="fas fa-exclamation-triangle"></i>
+          <span>Restricciones</span>
+        </div>
+        <div class="feature-item">
+          <i class="fas fa-check-circle"></i>
+          <span>Obligaciones</span>
+        </div>
+        <div class="feature-item">
+          <i class="fas fa-road"></i>
+          <span>Regulación Vial</span>
+        </div>
+      </div>
+
+      <div class="senal-count">
+        <i class="fas fa-layer-group"></i>
+        {{ getCountPorTipo('reglamentarias') }} señales en esta categoría
+      </div>
+
+      <div class="grid">
+        @for (s of getPorTipo('reglamentarias'); track $index) {
+          <div class="card">
+            <img [src]="s.imagen" [alt]="s.nombre" *ngIf="s.imagen">
+            <h3>{{ s.nombre }}</h3>
+            <p>{{ s.descripcion }}</p>
+          </div>
+        }
+      </div>
+
+      @if (totalPages('reglamentarias') > 1) {
+        <div class="pagination">
+          <button (click)="changePage('reglamentarias', currentPage['reglamentarias']-1)" 
+                  [disabled]="currentPage['reglamentarias']===0">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          @for (page of getPageRange('reglamentarias'); track page) {
+            <button (click)="changePage('reglamentarias', page)" 
+                    [class.active]="page===currentPage['reglamentarias']">{{page + 1}}</button>
+          }
+          <button (click)="changePage('reglamentarias', currentPage['reglamentarias']+1)" 
+                  [disabled]="currentPage['reglamentarias']===totalPages('reglamentarias')-1">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      }
+    </section>
+
+    <!-- SEÑALES PREVENTIVAS -->
+    <section class="modulo-section">
+      <div class="modulo-header">
+        <div class="modulo-icon preventivas">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="modulo-info">
+          <h2>Señales Preventivas</h2>
+          <p class="modulo-desc">
+            Tienen como propósito alertar a los usuarios de la vía sobre una condición peligrosa 
+            o riesgo potencial. Advierten sobre situaciones que requieren atención especial para 
+            prevenir accidentes.
+          </p>
+        </div>
+        <div class="modulo-badge preventivas-badge">
+          <i class="fas fa-shield-alt"></i>
+          Seguridad Vial
+        </div>
+      </div>
+      
+      <div class="modulo-features">
+        <div class="feature-item">
+          <i class="fas fa-road"></i>
+          <span>Estado de Vía</span>
+        </div>
+        <div class="feature-item">
+          <i class="fas fa-curve-down"></i>
+          <span>Curvas Peligrosas</span>
+        </div>
+        <div class="feature-item">
+          <i class="fas fa-child"></i>
+          <span>Zonas Peatonales</span>
+        </div>
+        <div class="feature-item">
+          <i class="fas fa-paw"></i>
+          <span>Animales en Vía</span>
+        </div>
+      </div>
+
+      <div class="senal-count">
+        <i class="fas fa-layer-group"></i>
+        {{ getCountPorTipo('preventivas') }} señales en esta categoría
+      </div>
+
+      <div class="grid">
+        @for (s of getPorTipo('preventivas'); track $index) {
+          <div class="card">
+            <img [src]="s.imagen" [alt]="s.nombre" *ngIf="s.imagen">
+            <h3>{{ s.nombre }}</h3>
+            <p>{{ s.descripcion }}</p>
+          </div>
+        }
+      </div>
+
+      @if (totalPages('preventivas') > 1) {
+        <div class="pagination">
+          <button (click)="changePage('preventivas', currentPage['preventivas']-1)" 
+                  [disabled]="currentPage['preventivas']===0">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          @for (page of getPageRange('preventivas'); track page) {
+            <button (click)="changePage('preventivas', page)" 
+                    [class.active]="page===currentPage['preventivas']">{{page + 1}}</button>
+          }
+          <button (click)="changePage('preventivas', currentPage['preventivas']+1)" 
+                  [disabled]="currentPage['preventivas']===totalPages('preventivas')-1">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      }
+    </section>
+
+    <!-- SEÑALES INFORMATIVAS -->
+    <section class="modulo-section">
+      <div class="modulo-header">
+        <div class="modulo-icon informativas">
+          <i class="fas fa-map-marked-alt"></i>
+        </div>
+        <div class="modulo-info">
+          <h2>Señales Informativas</h2>
+          <p class="modulo-desc">
+            Proporcionan información sobre direcciones, nombres de calles, servicios disponibles 
+            y lugares de interés turístico o utilitario. No imponen obligaciones ni prohibiciones, 
+            solo orientan al usuario.
+          </p>
+        </div>
+        <div class="modulo-badge informativas-badge">
+          <i class="fas fa-compass"></i>
+          Orientación
+        </div>
+      </div>
+      
+      <div class="modulo-features">
+        <div class="feature-item">
+          <i class="fas fa-directions"></i>
+          <span>Direcciones</span>
+        </div>
+        <div class="feature-item">
+          <i class="fas fa-hospital"></i>
+          <span>Servicios de Salud</span>
+        </div>
+        <div class="feature-item">
+          <i class="fas fa-gas-pump"></i>
+          <span>Combustibles</span>
+        </div>
+        <div class="feature-item">
+          <i class="fas fa-utensils"></i>
+          <span>Servicios Turísticos</span>
+        </div>
+      </div>
+
+      <div class="senal-count">
+        <i class="fas fa-layer-group"></i>
+        {{ getCountPorTipo('informativas') }} señales en esta categoría
+      </div>
+
+      <div class="grid">
+        @for (s of getPorTipo('informativas'); track $index) {
+          <div class="card">
+            <img [src]="s.imagen" [alt]="s.nombre" *ngIf="s.imagen">
+            <h3>{{ s.nombre }}</h3>
+            <p>{{ s.descripcion }}</p>
+          </div>
+        }
+      </div>
+
+      @if (totalPages('informativas') > 1) {
+        <div class="pagination">
+          <button (click)="changePage('informativas', currentPage['informativas']-1)" 
+                  [disabled]="currentPage['informativas']===0">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          @for (page of getPageRange('informativas'); track page) {
+            <button (click)="changePage('informativas', page)" 
+                    [class.active]="page===currentPage['informativas']">{{page + 1}}</button>
+          }
+          <button (click)="changePage('informativas', currentPage['informativas']+1)" 
+                  [disabled]="currentPage['informativas']===totalPages('informativas')-1">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      }
+    </section>
+
+    <!-- SEÑALES TRANSITORIAS -->
+    <section class="modulo-section">
+      <div class="modulo-header">
+        <div class="modulo-icon transitorias">
+          <i class="fas fa-tools"></i>
+        </div>
+        <div class="modulo-info">
+          <h2>Señales Transitorias</h2>
+          <p class="modulo-desc">
+            Son señales de carácter temporal utilizadas para indicar obras en la vía, desvíos, 
+            reparaciones o cualquier situación eventual que requiera modificación en la circulación. 
+            Su presencia indica que la condición es temporal.
+          </p>
+        </div>
+        <div class="modulo-badge transitorias-badge">
+          <i class="fas fa-clock"></i>
+          Temporal
+        </div>
+      </div>
+      
+      <div class="modulo-features">
+        <div class="feature-item">
+          <i class="fas fa-hard-hat"></i>
+          <span>Obras Viales</span>
+        </div>
+        <div class="feature-item">
+          <i class="fas fa-project-diagram"></i>
+          <span>Desvíos</span>
+        </div>
+        <div class="feature-item">
+          <i class="fas fa-concierge-bell"></i>
+          <span>Eventos</span>
+        </div>
+        <div class="feature-item">
+          <i class="fas fa-exclamation"></i>
+          <span>Emergencias</span>
+        </div>
+      </div>
+
+      <div class="senal-count">
+        <i class="fas fa-layer-group"></i>
+        {{ getCountPorTipo('transitorias') }} señales en esta categoría
+      </div>
+
+      <div class="grid">
+        @for (s of getPorTipo('transitorias'); track $index) {
+          <div class="card">
+            <img [src]="s.imagen" [alt]="s.nombre" *ngIf="s.imagen">
+            <h3>{{ s.nombre }}</h3>
+            <p>{{ s.descripcion }}</p>
+          </div>
+        }
+      </div>
+
+      @if (totalPages('transitorias') > 1) {
+        <div class="pagination">
+          <button (click)="changePage('transitorias', currentPage['transitorias']-1)" 
+                  [disabled]="currentPage['transitorias']===0">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          @for (page of getPageRange('transitorias'); track page) {
+            <button (click)="changePage('transitorias', page)" 
+                    [class.active]="page===currentPage['transitorias']">{{page + 1}}</button>
+          }
+          <button (click)="changePage('transitorias', currentPage['transitorias']+1)" 
+                  [disabled]="currentPage['transitorias']===totalPages('transitorias')-1">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      }
+    </section>
+  </div>
+
+  <!-- FOOTER INFO -->
+  <section class="footer-info">
+    <div class="footer-info-content">
+      <i class="fas fa-balance-scale"></i>
+      <p>
+        Las señales de tránsito en Colombia están reguladas por el 
+        <strong>Ministerio de Transporte</strong> y la 
+        <strong>Ley 769 de 2002</strong> (Código Nacional de Tránsito). 
+        Su conocimiento y respeto son fundamentales para una convivencia vial segura.
+      </p>
+    </div>
+  </section>
+}
 
 <app-footer></app-footer>

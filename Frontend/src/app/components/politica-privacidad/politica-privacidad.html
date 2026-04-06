@@ -1,0 +1,316 @@
+<app-nav></app-nav>
+
+<div class="politica-container">
+  <div class="header-section" data-aos="fade-down">
+    <div class="header-icon">
+      <i class="fa-solid fa-shield-halved"></i>
+    </div>
+    <h1>Política de Privacidad</h1>
+    <p>Conoce cómo protegemos y manejamos tus datos personales en Reportelo Ya</p>
+    <div class="header-date">
+      <i class="fa-solid fa-calendar"></i>
+      <span>Última actualización: 15 de Diciembre de 2025</span>
+    </div>
+  </div>
+
+  <div class="content-wrapper">
+    <nav class="side-nav" data-aos="fade-right">
+      <div class="nav-header">
+        <i class="fa-solid fa-list-ul"></i>
+        <span>Contenido</span>
+      </div>
+      <ul>
+        <li *ngFor="let seccion of secciones">
+          <a 
+            [class.active]="activeSection === seccion.id"
+            (click)="scrollToSection(seccion.id)"
+          >
+            <i [class]="seccion.icono"></i>
+            <span>{{ seccion.titulo }}</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="content-area">
+      <!-- Información del Proyecto -->
+      <section id="informacion" class="policy-section" data-aos="fade-up">
+        <div class="section-header">
+          <div class="section-icon">
+            <i class="fa-solid fa-info-circle"></i>
+          </div>
+          <h2>1. Información del Proyecto</h2>
+        </div>
+        <div class="section-content">
+          <div class="info-card">
+            <h3><i class="fa-solid fa-globe"></i> Nombre del Proyecto</h3>
+            <p><strong>Repórtelo Yá</strong></p>
+          </div>
+          <div class="info-card">
+            <h3><i class="fa-solid fa-file-text"></i> Descripción General</h3>
+            <p>
+              "Repórtelo Yá" es una plataforma digital (aplicación web) para que los ciudadanos 
+              del Quindío reporten incidentes viales, con énfasis en infracciones como el mal 
+              estacionamiento. El sistema permite ingresar datos del incidente —dirección, hora, 
+              foto o video del vehículo infringiendo— y enviar la información directamente a la 
+              Secretaría de Tránsito.
+            </p>
+          </div>
+          <div class="info-card">
+            <h3><i class="fa-solid fa-user"></i> Responsable del Proyecto</h3>
+            <p>Equipo de desarrollo de Repórtelo Ya</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Finalidad del Tratamiento -->
+      <section id="finalidad" class="policy-section" data-aos="fade-up">
+        <div class="section-header">
+          <div class="section-icon">
+            <i class="fa-solid fa-bullseye"></i>
+          </div>
+          <h2>2. Finalidad del Tratamiento de Datos</h2>
+        </div>
+        <div class="section-content">
+          <div class="info-card">
+            <h3><i class="fa-solid fa-target"></i> Objetivo del Tratamiento</h3>
+            <p>
+              En el proyecto "Repórtelo Ya", el objetivo del tratamiento de datos es recoger y usar 
+              la información necesaria para que los usuarios puedan reportar situaciones de manera 
+              efectiva, facilitar la gestión de esos reportes y mejorar el servicio, siempre 
+              procurando un uso responsable de los datos y enfocado en brindar una experiencia 
+              segura y útil para las personas.
+            </p>
+          </div>
+          <div class="info-card">
+            <h3><i class="fa-solid fa-magnifying-glass"></i> Uso de la Información</h3>
+            <p>
+              La información recolectada se utiliza para identificar al usuario de manera básica, 
+              mantener comunicación sobre el estado de sus reportes y garantizar un uso responsable 
+              de la aplicación. Los datos de localización y las descripciones ingresadas permiten 
+              ubicar con precisión el lugar del incidente, facilitando así una atención más rápida 
+              y efectiva.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tipos de Datos -->
+      <section id="tipos" class="policy-section" data-aos="fade-up">
+        <div class="section-header">
+          <div class="section-icon">
+            <i class="fa-solid fa-database"></i>
+          </div>
+          <h2>3. Tipos de Datos a Recolectar</h2>
+        </div>
+        <div class="section-content">
+          <div class="data-grid">
+            <div class="data-card personal">
+              <div class="data-icon">
+                <i class="fa-solid fa-id-card"></i>
+              </div>
+              <h3>Datos Personales</h3>
+              <ul>
+                <li><i class="fa-solid fa-check"></i> Número de Cédula de Ciudadanía</li>
+              </ul>
+            </div>
+            <div class="data-card non-personal">
+              <div class="data-icon">
+                <i class="fa-solid fa-map-location-dot"></i>
+              </div>
+              <h3>Datos No Personales</h3>
+              <ul>
+                <li><i class="fa-solid fa-check"></i> Ubicación en tiempo real (opcional)</li>
+                <li><i class="fa-solid fa-check"></i> Descripción del incidente</li>
+                <li><i class="fa-solid fa-check"></i> Imágenes o videos (evidencia)</li>
+              </ul>
+            </div>
+          </div>
+          <div class="method-box">
+            <i class="fa-solid fa-clipboard-list"></i>
+            <span><strong>Método de recolección:</strong> Formulario</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Base Legal -->
+      <section id="legal" class="policy-section" data-aos="fade-up">
+        <div class="section-header">
+          <div class="section-icon">
+            <i class="fa-solid fa-gavel"></i>
+          </div>
+          <h2>4. Base Legal del Tratamiento</h2>
+        </div>
+        <div class="section-content">
+          <div class="legal-card">
+            <div class="legal-badge">
+              <i class="fa-solid fa-scale-balanced"></i>
+            </div>
+            <h3>Normatividad Aplicable</h3>
+            <p>
+              <strong>Ley de Protección de Datos Personales - Ley 1581 de 2012</strong>
+            </p>
+            <p class="legal-note">
+              Esta ley establece el régimen general de protección de datos personales en Colombia, 
+              regulando la recolección, almacenamiento, uso y circulación de datos personales.
+            </p>
+          </div>
+          <div class="consent-box">
+            <i class="fa-solid fa-hand-sparkles"></i>
+            <div>
+              <h4>Consentimiento Requerido</h4>
+              <p>Ingreso del número de la Cédula de Ciudadanía y ubicación en tiempo real</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Almacenamiento y Seguridad -->
+      <section id="seguridad" class="policy-section" data-aos="fade-up">
+        <div class="section-header">
+          <div class="section-icon">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          <h2>5. Almacenamiento y Seguridad de los Datos</h2>
+        </div>
+        <div class="section-content">
+          <div class="security-grid">
+            <div class="security-card">
+              <i class="fa-solid fa-cloud"></i>
+              <h3>Ubicación del Almacenamiento</h3>
+              <p>Base de datos en la nube basada en MySQL</p>
+            </div>
+            <div class="security-card">
+              <i class="fa-solid fa-lock"></i>
+              <h3>Medidas de Seguridad</h3>
+              <ul>
+                <li>Encriptamiento de la base de datos</li>
+                <li>Verificación de dos pasos (2FA)</li>
+                <li>Conexiones seguras (SSL/TLS)</li>
+              </ul>
+            </div>
+            <div class="security-card">
+              <i class="fa-solid fa-clock"></i>
+              <h3>Tiempo de Conservación</h3>
+              <p>Indefinido</p>
+              <span class="note">(Sujeto a políticas de retención)</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Acceso y Actualización -->
+      <section id="acceso" class="policy-section" data-aos="fade-up">
+        <div class="section-header">
+          <div class="section-icon">
+            <i class="fa-solid fa-user-gear"></i>
+          </div>
+          <h2>6. Acceso, Actualización y Eliminación de Datos</h2>
+        </div>
+        <div class="section-content">
+          <div class="access-card">
+            <i class="fa-solid fa-envelopevelope"></i>
+            <h3>Procedimiento</h3>
+            <p>
+              Para solicitar modificación o eliminación de tus datos personales, contacta 
+              directamente con el correo de soporte de la aplicación.
+            </p>
+          </div>
+          <div class="contact-box">
+            <i class="fa-solid fa-headset"></i>
+            <div>
+              <h4>Responsable de Atenciones</h4>
+              <p>Personal de "Repórtelo Yá" encargado de administrar las solicitudes o problemas manifestados por los usuarios.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Transferencia de Datos -->
+      <section id="transferencia" class="policy-section" data-aos="fade-up">
+        <div class="section-header">
+          <div class="section-icon">
+            <i class="fa-solid fa-share-nodes"></i>
+          </div>
+          <h2>7. Transferencia y Compartición de Datos</h2>
+        </div>
+        <div class="section-content">
+          <div class="transfer-info">
+            <div class="transfer-item">
+              <i class="fa-solid fa-building"></i>
+              <div>
+                <h3>¿Se comparten datos con terceros?</h3>
+                <p>Sí, únicamente con el personal de Tránsito.</p>
+              </div>
+            </div>
+            <div class="transfer-item">
+              <i class="fa-solid fa-clipboard-check"></i>
+              <div>
+                <h3>Finalidad de la Transferencia</h3>
+                <p>
+                  Validar de manera correcta la identidad de la persona que hace el reporte 
+                  en caso de fraude o falsificación de información. Evitar reportes falsos y masivos.
+                </p>
+              </div>
+            </div>
+            <div class="transfer-item">
+              <i class="fa-solid fa-user-shield"></i>
+              <div>
+                <h3>Medidas de Protección</h3>
+                <p>
+                  Solo el personal de tránsito tendrá acceso a dicha información en caso de 
+                  inconsistencia. Quedará un registro de consulta con todos los datos del agente 
+                  que consultó la información.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Riesgos y Controles -->
+      <section id="riesgos" class="policy-section" data-aos="fade-up">
+        <div class="section-header">
+          <div class="section-icon">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+          </div>
+          <h2>8. Riesgos y Controles</h2>
+        </div>
+        <div class="section-content">
+          <div class="risk-card">
+            <div class="risk-icon">
+              <i class="fa-solid fa-exclamation-triangle"></i>
+            </div>
+            <h3>Posibles Riesgos</h3>
+            <ul>
+              <li>Filtración de datos del usuario por parte de personal corrupto de Tránsito</li>
+              <li>Ciberataques a la base de datos o aplicación</li>
+            </ul>
+          </div>
+          <div class="mitigation-card">
+            <div class="mitigation-icon">
+              <i class="fa-solid fa-shield-cat"></i>
+            </div>
+            <h3>Medidas de Mitigación</h3>
+            <ul>
+              <li>Extremar medidas de seguridad en la encriptación de la base de datos</li>
+              <li>Implementar protocolos de seguridad robustos en la aplicación</li>
+              <li>Validación propia del denunciante antes de validar identidad</li>
+              <li>Registro completo de consultas (datos del agente consultante)</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <div class="contact-section" data-aos="fade-up">
+        <div class="contact-card">
+          <i class="fa-solid fa-question-circle"></i>
+          <h3>¿Tienes preguntas sobre nuestra Política de Privacidad?</h3>
+          <p>Contáctanos en: <strong>reporteloya@gmail.com</strong></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-footer></app-footer>

@@ -29,7 +29,13 @@ export class SenalesComponent implements OnInit {
   constructor(private senalesService: SenalesService) {}
 
   ngOnInit(): void {
-    // Inicializar página actual y arreglos
+    this.cargarSenales();
+  }
+
+  cargarSenales(): void {
+    this.loading = true;
+    this.error = '';
+    
     this.tipos.forEach(tipo => {
       this.currentPage[tipo] = 0;
       this.senalesPorTipo[tipo] = [];
@@ -72,5 +78,22 @@ export class SenalesComponent implements OnInit {
     if (page >= 0 && page < this.totalPages(tipo)) {
       this.currentPage[tipo] = page;
     }
+  }
+
+  getPageRange(tipo: string): number[] {
+    const total = this.totalPages(tipo);
+    return Array.from({ length: total }, (_, i) => i);
+  }
+
+  getCountPorTipo(tipo: string): number {
+    return this.senalesPorTipo[tipo]?.length || 0;
+  }
+
+  getTotalSenales(): number {
+    return this.senales.length;
+  }
+
+  retry(): void {
+    this.cargarSenales();
   }
 }

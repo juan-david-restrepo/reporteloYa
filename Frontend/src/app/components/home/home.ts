@@ -8,7 +8,7 @@ import { interval, Subscription } from 'rxjs';
 import { NoticiasComponent } from '../noticias/noticias';
 import { AuthService } from '../../service/auth.service';
 
-type ModuleKey = 'subir-reporte' | 'multas' | 'pico-placa' | 'parking';
+type ModuleKey = 'subir-reporte' | 'consulta-multas' | 'pico-placa' | 'parking';
 
 interface Module {
   title: string;
@@ -38,7 +38,7 @@ export class Home implements OnInit, OnDestroy, AfterViewInit {
         'Sube evidencias de infracciones y contribuye a mejorar la movilidad en tu ciudad.',
       image: 'assets/images/foto_multaslegales_carroya.webp',
     },
-    multas: {
+    'consulta-multas': {
       title: 'Consulta tus Multas',
       description:
         'Revisa fácilmente el estado de tus infracciones de tránsito.',

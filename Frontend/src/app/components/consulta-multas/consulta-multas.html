@@ -1,0 +1,157 @@
+<app-nav></app-nav>
+<div class="container">
+    <header class="header">
+        <div class="logo-container">
+            <div class="logo-icon">
+                <i class="fas fa-car-crash"></i>
+            </div>
+            <h1>Consulta de Multas <span>con Reportelo Ya</span></h1>
+            <p class="subtitle">Consulta tus comparendos y multas de tránsito de forma rápida y segura</p>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <!-- Información sobre SIMIT -->
+        <div class="info-box info" style="margin-bottom: 1.5rem;">
+            <div class="info-box-icon">
+                <i class="fas fa-info-circle"></i>
+            </div>
+            <div class="info-box-content">
+                <strong>¿Qué es SIMIT?</strong>
+                <p>El Sistema Integrado de Información de Multas y Otros Cobros (SIMIT) es la plataforma oficial para consultar comparendos y multas de tránsito en todo Colombia.</p>
+            </div>
+        </div>
+
+        <!-- Formulario -->
+        <div class="form-card" [class.hidden]="mostrarResultado">
+            <div class="form-card-inner">
+                <div class="card-header">
+                    <div class="card-header-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h2>Buscar Comparendos</h2>
+                </div>
+                
+                <form id="consultaForm" (ngSubmit)="enviarFormulario()">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="tipoDocumento">Tipo de Documento</label>
+                            <div class="select-wrapper">
+                                <select id="tipoDocumento" name="tipoDocumento" [(ngModel)]="tipoDocumento">
+                                    <option value="CC">Cédula de Ciudadanía</option>
+                                </select>
+                                <i class="fas fa-chevron-down select-icon"></i>
+                            </div>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="numeroDocumento">Número de Documento</label>
+                            <input type="text" 
+                                   id="numeroDocumento" 
+                                   name="numeroDocumento" 
+                                   placeholder="Ej: 12345678"
+                                   [(ngModel)]="numeroDocumento"
+                                   required>
+                            <small class="help-text">Ingrese su número de documento sin puntos ni comas</small>
+                        </div>
+                    </div>
+
+                    <div class="form-footer">
+                        <!-- Info de requisitos -->
+                        <div class="info-box warning">
+                            <div class="info-box-icon">
+                                <i class="fas fa-exclamation-circle"></i>
+                            </div>
+                            <div class="info-box-content">
+                                <strong>Requisitos para la consulta</strong>
+                                <p>Tenga a la mano su documento de identidad válido. Los datos mostrados son informativos y proporcionados por SIMIT.</p>
+                            </div>
+                        </div>
+
+                        <!-- Info de gratis -->
+                        <div class="info-box success">
+                            <div class="info-box-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="info-box-content">
+                                <strong>100% Gratuito</strong>
+                                <p>Consulta directa sin CAPTCHA, sin API key y sin costo alguno. Tus datos están protegidos.</p>
+                            </div>
+                        </div>
+
+                        <button type="submit" id="btnConsultar" class="btn-primary" [disabled]="mostrarLoading">
+                            <i class="fas fa-search"></i>
+                            <span>Consultar Multas</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div id="loadingOverlay" class="loading-overlay" [class.hidden]="!mostrarLoading">
+            <div class="spinner"></div>
+            <p class="loading-text">Consultando SIMIT...</p>
+            <p class="loading-subtext">Buscando comparendos en la base de datos</p>
+            <div class="progress-bar">
+                <div class="progress-fill" [style.width.%]="progreso"></div>
+            </div>
+            <p class="progress-text">{{ textoProgreso }}</p>
+        </div>
+
+        <!-- Resultados -->
+        <div id="resultContainer" class="result-container" [class.hidden]="!mostrarResultado">
+            <div class="result-header" [ngClass]="headerClass">
+                <h3><i class="fas" [ngClass]="headerIcon"></i> {{ headerTitle }}</h3>
+                <button id="btnNuevaConsulta" class="btn-secondary" (click)="nuevaConsulta()">
+                    <i class="fas fa-plus"></i>
+                    Nueva Consulta
+                </button>
+            </div>
+
+            <div id="resultContent" [innerHTML]="htmlResultado"></div>
+
+            <div class="result-actions" id="resultActions">
+                <button id="btnGenerarPDF" class="btn-primary" (click)="generarPDF()">
+                    <i class="fas fa-file-pdf"></i>
+                    Generar PDF
+                </button>
+                <button id="btnLimpiar" class="btn-secondary" (click)="limpiarResultados()">
+                    <i class="fas fa-trash"></i>
+                    Limpiar
+                </button>
+            </div>
+        </div>
+
+        <!-- Error -->
+        <div id="errorContainer" class="error-container" [class.hidden]="!mostrarError">
+            <div class="error-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h3>Error en la Consulta</h3>
+            <p>{{ mensajeError }}</p>
+            <button id="btnReintentar" class="btn-primary" (click)="nuevaConsulta()">
+                <i class="fas fa-redo"></i>
+                Reintentar
+            </button>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>Servicio proporcionado por Reportelo Ya en colaboración con SIMIT</p>
+        <p class="disclaimer">Los datos mostrados son informativos y pueden variar. Para información oficial, consulte directamente con las autoridades de tránsito.</p>
+    </footer>
+</div>
+
+<!-- Modal PDF -->
+<div id="pdfModal" class="modal" [class.hidden]="!mostrarPdfModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-spinner fa-spin"></i> Generando PDF</h3>
+        </div>
+        <div class="modal-body">
+            <p>Por favor espere mientras se genera el PDF...</p>
+        </div>
+    </div>
+</div>
+<app-footer></app-footer>

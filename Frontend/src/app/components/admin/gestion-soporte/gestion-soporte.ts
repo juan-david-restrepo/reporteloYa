@@ -5,15 +5,17 @@ import { Subscription } from 'rxjs';
 import { SoporteService } from '../../../service/soporte.service';
 import { SoporteWebSocketService } from '../../../service/soporte-websocket.service';
 import { TicketSoporte, TicketDetalle } from '../../../models/soporte.model';
+import { SidebarAdmin } from '../sidebar-admin/sidebar-admin';
 
 @Component({
   selector: 'app-gestion-soporte',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, SidebarAdmin],
   templateUrl: './gestion-soporte.html',
   styleUrls: ['./gestion-soporte.css']
 })
 export class GestionSoporte implements OnInit, OnDestroy {
+  menuAbierto = false;
   tickets: TicketSoporte[] = [];
   ticketsFiltrados: TicketSoporte[] = [];
   ticketSeleccionado: TicketDetalle | null = null;

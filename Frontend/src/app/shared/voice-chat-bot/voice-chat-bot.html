@@ -1,0 +1,43 @@
+<div class="modal-overlay"></div>
+<button class="close-btn" (click)="onCloseClick()">
+  <i class="fas fa-times"></i>
+</button>
+
+<div class="intro-overlay" #introOverlayEl>
+  <button class="intro-close-btn" (click)="onIntroCloseClick()">
+    <i class="fas fa-times"></i>
+  </button>
+  <div class="intro-icon">
+    <img src="assets/voice-chat-bot/logo.png" alt="">
+  </div>
+  <div class="intro-title">Robot Transit</div>
+  <div class="intro-subtitle">
+    Tu asistente virtual especializado en normas de tránsito y seguridad vial en Colombia. Habla y te responderé por voz.
+    <br>
+    <br>
+    Este asistente no dispone de memoria y utiliza los momentos de silencio del micrófono para comunicarse, evitando así la generación de eco.
+  </div>
+  <button class="intro-btn" id="startBtn" (click)="onStartBtnClick()">
+    <i class="fas fa-phone"></i> Iniciar Llamada
+  </button>
+</div>
+
+<canvas #bgCanvas></canvas>
+
+<div class="header-title" #headerTitleEl>Asistente Inteligente Robotransit</div>
+<div class="status-text" #statusTextEl>Presiona iniciar llamada</div>
+<div class="speak-prompt" #speakPromptEl>Di tu pregunta...</div>
+
+<div class="button-container">
+  <button class="btn btn-mute hidden" #muteBtnEl title="Silenciar Microfono" (click)="onMuteBtnClick()">
+    <i class="fas fa-microphone"></i>
+  </button>
+  <button class="btn btn-start hidden" #callBtnEl title="Llamar Nuevamente" (click)="onCallBtnClick()">
+    <i class="fas fa-phone"></i>
+  </button>
+  <button class="btn btn-end hidden" #endBtnEl title="Finalizar llamada" (click)="onEndBtnClick()">
+    <i class="fas fa-phone-slash"></i>
+  </button>
+</div>
+
+<div class="toast" #toastEl></div>

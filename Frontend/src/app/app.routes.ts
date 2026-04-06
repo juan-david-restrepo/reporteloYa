@@ -26,13 +26,20 @@ import { GestionSoporte } from './components/admin/gestion-soporte/gestion-sopor
 import { SidebarAdmin } from './components/admin/sidebar-admin/sidebar-admin';
 import { Admin } from './components/admin/admin';
 import { Routes } from '@angular/router';
-import { SenalesComponent } from './components/senales/senales';
 import { SobreNosotros } from './components/sobre-nosotros/sobre-nosotros';
 import { ServiciosFooter } from './components/servicios-footer/servicios-footer';
 import { PreguntasFrecuentes } from './components/preguntas-frecuentes/preguntas-frecuentes';
 import { MisReportes } from './components/mis-reportes/mis-reportes';
 import { ReportesPublicos } from './reportes-publicos/reportes-publicos';
 import { Mensajes } from './components/mensajes/mensajes';
+import { VoiceChatBotComponent } from './shared/voice-chat-bot/voice-chat-bot';
+import { PuntosAtencion } from './components/puntos-atencion/puntos-atencion';
+import { ConsultaMultas } from './components/consulta-multas/consulta-multas';
+import { TerminosServicio } from './components/terminos-servicio/terminos-servicio';
+import { PoliticaPrivacidad } from './components/politica-privacidad/politica-privacidad';
+import { AvisoPrivacidad } from './components/aviso-privacidad/aviso-privacidad';
+import { SenalesComponent } from './components/senales/senales';
+
 
 
 
@@ -59,16 +66,24 @@ export const routes: Routes = [
   {path: 'dashboard', component: Dashboard, canActivate: [authGuard] },
   {path: 'perfil-agente', component: PerfilAgente, canActivate: [authGuard] },
   {path: 'gestion-agentes', component: GestionAgentes, canActivate: [authGuard] }, 
-  {path: 'gestion-soporte', component: GestionSoporte, canActivate: [authGuard] },
+  {path: 'gestion-soporte', component: GestionSoporte,  },
   {path: 'sidebar-admin', component: SidebarAdmin },
   {path: 'config-admin', component: ConfigAdminComponent},
   {path: 'mapa-reportes', component: MapaReportesComponent},
   { path: 'admin', component: Admin, },
-  { path: 'senales', component: SenalesComponent },
+  {path: 'senales', component: SenalesComponent },
   { path: 'sobre-nosotros', component: SobreNosotros },
   { path: 'servicios-footer', component: ServiciosFooter },
   { path: 'preguntas-frecuentes', component: PreguntasFrecuentes },
     { path: 'mis-reportes', component: MisReportes, canActivate: [authGuard] },
   {path: 'reportes-publicos', component: ReportesPublicos},
-  { path: 'mensajes', component: Mensajes, canActivate: [authGuard] }
+  { path: 'mensajes', component: Mensajes, canActivate: [authGuard] },
+  {path: 'voice-chat-bot', component: VoiceChatBotComponent },
+  {path: 'puntos-atencion', component: PuntosAtencion },
+  {path: 'consulta-multas', component: ConsultaMultas,  },
+  {path: 'terminos-servicio', component: TerminosServicio },
+  {path: 'politica-privacidad', component: PoliticaPrivacidad },
+  {path: 'aviso-privacidad', component: AvisoPrivacidad }
+
+
 ];
