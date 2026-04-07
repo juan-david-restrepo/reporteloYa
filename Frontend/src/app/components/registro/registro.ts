@@ -205,8 +205,15 @@ export class Registro {
             <p>Por favor, revisa tu bandeja de entrada y verifica tu correo para activar tu cuenta.</p>
           `,
           confirmButtonText: 'Entendido',
-        }).then(() => {
-          this.router.navigate(['/login']);
+          showCancelButton: true,
+          cancelButtonText: 'Reenviar correo',
+          cancelButtonColor: '#6b7280'
+        }).then((result) => {
+          if (result.isDismissed) {
+            this.reenviarCorreo(data.email);
+          } else {
+            this.router.navigate(['/login']);
+          }
         });
       },
       error: (err) => {
@@ -324,5 +331,28 @@ export class Registro {
     }
 
     return '';
+  }
+
+  private reenviarCorreo(email: string): void {
+    this.authService.resendVerification(email).subscribe({
+      next: () => {
+        Swal.fire({
+          icon: 'success',
+          title: 'Correo reenviado',
+          html: `<p>Hemos enviado un nuevo correo de verificación a <strong>${email}</strong>.</p><p>Por favor, revisa tu bandeja de entrada.</p>`,
+          confirmButtonText: 'Entendido',
+          confirmButtonColor: '#2563eb'
+        }).then(() => {
+          this.router.navigate(['/login']);
+        });
+      },
+      error: () => {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudo reenviar el correo de verificación.',
+        });
+      }
+    });
   }
 }
