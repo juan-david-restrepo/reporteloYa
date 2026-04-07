@@ -22,6 +22,11 @@ class ChatRequest(BaseModel):
     message: str = Field(default="", max_length=1000)
 
 
+class UpdateTitleRequest(BaseModel):
+    titulo: str = Field(..., min_length=1, max_length=255)
+    manual: bool = Field(default=True)
+
+
 # ======================================================
 # 🤖 ENDPOINT PRINCIPAL CHAT
 # ======================================================
@@ -299,4 +304,64 @@ def delete_conversation(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Error eliminando conversación."
+        )
+
+
+# ======================================================
+# ✏️ ACTUALIZAR TÍTULO DE CONVERSACIÓN
+# ======================================================
+
+@router.patch("/conversations/{conversation_id}/title", status_code=status.HTTP_200_OK)
+def update_conversation_title(
+    conversation_id: int,
+    request: UpdateTitleRequest,
+    user_id: int = Query(..., gt=0),
+    db: Session = Depends(get_db)
+):
+
+    try:
+        user = UserService(db).get_user(user_id)
+
+        if user is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Usuario no encontrado."
+            )
+
+        conversation = (
+            db.query(Conversation)
+            .filter(
+                Conversation.id_conversacion == conversation_id,
+                Conversation.id_usuario == user_id
+            )
+            .first()
+        )
+
+        if not conversation:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Conversación no encontrada."
+            )
+
+        conversation.titulo = request.titulo
+        conversation.titulo_manual = request.manual
+        db.commit()
+        db.refresh(conversation)
+
+        return {
+            "id_conversacion": conversation.id_conversacion,
+            "titulo": conversation.titulo,
+            "titulo_manual": conversation.titulo_manual,
+            "message": "Título actualizado correctamente."
+        }
+
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        logger.exception(f"Error actualizando título: {str(e)}")
+
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error actualizando el título."
         )

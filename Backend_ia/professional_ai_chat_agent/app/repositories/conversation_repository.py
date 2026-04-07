@@ -84,16 +84,19 @@ class ConversationRepository:
     def update_title(
         self,
         id_conversacion: int,
-        titulo: str
-    ) -> None:
+        titulo: str,
+        manual: bool = False
+    ) -> bool:
 
         conversacion = self.get_conversation(id_conversacion)
         if not conversacion:
-            return
+            return False
 
         conversacion.titulo = titulo
+        conversacion.titulo_manual = manual
         conversacion.updated_at = datetime.utcnow()
         self.db.commit()
+        return True
 
     # ==========================================
     # ACTUALIZAR ÚLTIMA ACTIVIDAD
