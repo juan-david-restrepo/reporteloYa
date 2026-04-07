@@ -1,3 +1,4 @@
+import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth-guard';
 import { Home } from './components/home/home';
 import { Login } from './components/login/login';
@@ -24,7 +25,7 @@ import { MapaReportesComponent } from './components/admin/mapa-reportes/mapa-rep
 import { GestionSoporte } from './components/admin/gestion-soporte/gestion-soporte';
 import { SidebarAdmin } from './components/admin/sidebar-admin/sidebar-admin';
 import { Admin } from './components/admin/admin';
-import { Routes } from '@angular/router';
+import { PuntosAtencion } from './components/puntos-atencion/puntos-atencion';
 import { SobreNosotros } from './components/sobre-nosotros/sobre-nosotros';
 import { ServiciosFooter } from './components/servicios-footer/servicios-footer';
 import { PreguntasFrecuentes } from './components/preguntas-frecuentes/preguntas-frecuentes';
@@ -32,12 +33,12 @@ import { MisReportes } from './components/mis-reportes/mis-reportes';
 import { ReportesPublicos } from './reportes-publicos/reportes-publicos';
 import { Mensajes } from './components/mensajes/mensajes';
 import { VoiceChatBotComponent } from './shared/voice-chat-bot/voice-chat-bot';
-import { PuntosAtencion } from './components/puntos-atencion/puntos-atencion';
 import { ConsultaMultas } from './components/consulta-multas/consulta-multas';
 import { TerminosServicio } from './components/terminos-servicio/terminos-servicio';
 import { PoliticaPrivacidad } from './components/politica-privacidad/politica-privacidad';
 import { AvisoPrivacidad } from './components/aviso-privacidad/aviso-privacidad';
 import { SenalesComponent } from './components/senales/senales';
+
 
 
 
@@ -81,7 +82,8 @@ export const routes: Routes = [
   {path: 'consulta-multas', component: ConsultaMultas,  },
   {path: 'terminos-servicio', component: TerminosServicio },
   {path: 'politica-privacidad', component: PoliticaPrivacidad },
-  {path: 'aviso-privacidad', component: AvisoPrivacidad }
+  {path: 'aviso-privacidad', component: AvisoPrivacidad },
+  {path: 'puntos-atencion', component: PuntosAtencion }
 
 
 ];
