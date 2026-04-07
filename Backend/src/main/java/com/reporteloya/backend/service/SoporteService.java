@@ -23,6 +23,7 @@ public class SoporteService {
     private final MensajeSoporteRepository mensajeRepository;
     private final UsuarioRepository usuarioRepository;
     private final SimpMessagingTemplate messagingTemplate;
+    private final NotificationService notificationService;
 
     @Transactional
     public ResponseEntity<?> crearTicket(CrearTicketRequest request, Authentication auth) {
@@ -155,18 +156,7 @@ public class SoporteService {
         TicketSoporteDTO ticketDTO = convertirATicketDTO(ticket);
         messagingTemplate.convertAndSend("/topic/soporte/" + ticket.getId(), ticketDTO);
 
-        Object notificacion = Map.of(
-                "tipo", "NUEVO_MENSAJE_SOPORTE",
-                "ticketId", ticket.getId(),
-                "titulo", ticket.getTitulo(),
-                "mensaje", "El administrador ha respondido tu ticket",
-                "fecha", LocalDateTime.now().toString()
-        );
-        messagingTemplate.convertAndSendToUser(
-                ticket.getUsuario().getId().toString(),
-                "/notificaciones",
-                notificacion
-        );
+        notificationService.notifyTicketRespondido(ticket, request.getContenido());
 
         messagingTemplate.convertAndSend("/topic/soporte/nuevos", ticketDTO);
 
@@ -185,6 +175,8 @@ public class SoporteService {
         TicketSoporteDTO ticketDTO = convertirATicketDTO(ticket);
         messagingTemplate.convertAndSend("/topic/soporte/" + ticket.getId(), ticketDTO);
         messagingTemplate.convertAndSend("/topic/soporte/nuevos", ticketDTO);
+
+        notificationService.notifyTicketCerrado(ticket);
 
         return ResponseEntity.ok(ticketDTO);
     }

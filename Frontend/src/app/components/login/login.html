@@ -19,9 +19,15 @@
   <label for="passwordLogin">Contraseña</label>
   <div class="input-group">
     <i class="fa-solid fa-lock"></i>
-    <input type="password" id="passwordLogin"
+    <input [type]="mostrarPassword ? 'text' : 'password'" id="passwordLogin"
       placeholder="********"
       formControlName="password" required />
+    <i 
+      class="fa-solid toggle-password" 
+      [class.fa-eye]="!mostrarPassword" 
+      [class.fa-eye-slash]="mostrarPassword"
+      (click)="toggleMostrarPassword()"
+    ></i>
   </div>
   <div class="error-message" *ngIf="getErrorMessage('password')">{{ getErrorMessage('password') }}</div>
 

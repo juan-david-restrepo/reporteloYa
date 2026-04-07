@@ -10,12 +10,15 @@ import com.reporteloya.backend.repository.NotificationRepository;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.reporteloya.backend.entity.TicketSoporte;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @Service
 public class NotificationService {
+
+    
 
     private final SimpMessagingTemplate messagingTemplate;
     private final NotificationRepository notificationRepository;
@@ -189,5 +192,62 @@ public class NotificationService {
     @Transactional
     public void cleanupNotificacionesAntiguas(Long usuarioId) {
         notificationRepository.eliminarExtrasParaUsuario(usuarioId);
+    }
+
+    public void notifyTicketRespondido(TicketSoporte ticket, String contenidoRespuesta) {
+        if (ticket.getUsuario() == null) {
+            return;
+        }
+
+        Usuario usuario = ticket.getUsuario();
+        String titulo = "Tu ticket de soporte ha sido respondido";
+        String mensaje = "El administrador ha respondido tu ticket: " + ticket.getTitulo();
+        
+        String preview = contenidoRespuesta != null && contenidoRespuesta.length() > 50 
+            ? contenidoRespuesta.substring(0, 50) + "..." 
+            : contenidoRespuesta;
+        
+        Map<String, Object> datosAdicionales = new HashMap<>();
+        datosAdicionales.put("ticketId", ticket.getId());
+        datosAdicionales.put("preview", preview);
+        datosAdicionales.put("estado", ticket.getEstado().toString());
+        
+        Notification notificacion = crearNotificacion(
+            "TICKET_RESPONDIDO",
+            titulo,
+            mensaje,
+            usuario,
+            null,
+            ticket.getId(),
+            datosAdicionales
+        );
+        
+        enviarNotificacionCiudadano(notificacion, usuario.getEmail());
+    }
+
+    public void notifyTicketCerrado(TicketSoporte ticket) {
+        if (ticket.getUsuario() == null) {
+            return;
+        }
+
+        Usuario usuario = ticket.getUsuario();
+        String titulo = "Tu ticket de soporte ha sido cerrado";
+        String mensaje = "El ticket \"" + ticket.getTitulo() + "\" ha sido marcado como resuelto";
+        
+        Map<String, Object> datosAdicionales = new HashMap<>();
+        datosAdicionales.put("ticketId", ticket.getId());
+        datosAdicionales.put("estado", ticket.getEstado().toString());
+        
+        Notification notificacion = crearNotificacion(
+            "TICKET_CERRADO",
+            titulo,
+            mensaje,
+            usuario,
+            null,
+            ticket.getId(),
+            datosAdicionales
+        );
+        
+        enviarNotificacionCiudadano(notificacion, usuario.getEmail());
     }
 }

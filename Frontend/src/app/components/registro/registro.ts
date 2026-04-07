@@ -31,6 +31,8 @@ export class Registro {
   contrasenaSegura = false;
   tipoDocumentoSeleccionado = '';
   terminosAceptados = false;
+  mostrarContrasena = false;
+  mostrarConfirmarContrasena = false;
 
   get placeholderDocumento(): string {
     return this.tipoDocumentoSeleccionado === 'PASAPORTE' 
@@ -132,6 +134,14 @@ export class Registro {
 
   onCheckboxChange(): void {
     this.terminosAceptados = !this.terminosAceptados;
+  }
+
+  toggleMostrarContrasena(): void {
+    this.mostrarContrasena = !this.mostrarContrasena;
+  }
+
+  toggleMostrarConfirmarContrasena(): void {
+    this.mostrarConfirmarContrasena = !this.mostrarConfirmarContrasena;
   }
 
   /** Redirección según rol */

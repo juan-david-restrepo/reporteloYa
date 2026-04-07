@@ -42,24 +42,36 @@
   <div class="input-group">
     <i class="fa-solid fa-lock"></i>
     <input 
-      type="password" 
+      [type]="mostrarContrasena ? 'text' : 'password'" 
       formControlName="contrasena" 
       placeholder="********" 
       required 
       (input)="onContrasenaChange()"
       [class.input-segura]="contrasenaSegura"
     />
+    <i 
+      class="fa-solid toggle-password" 
+      [class.fa-eye]="!mostrarContrasena" 
+      [class.fa-eye-slash]="mostrarContrasena"
+      (click)="toggleMostrarContrasena()"
+    ></i>
   </div>
   <div class="error-message" *ngIf="getErrorMessage('contrasena')">{{ getErrorMessage('contrasena') }}</div>
 
   <div class="input-group">
     <i class="fa-solid fa-lock"></i>
     <input 
-      type="password" 
+      [type]="mostrarConfirmarContrasena ? 'text' : 'password'" 
       formControlName="confirmarContrasena" 
       placeholder="Confirmar contraseña" 
       required 
     />
+    <i 
+      class="fa-solid toggle-password" 
+      [class.fa-eye]="!mostrarConfirmarContrasena" 
+      [class.fa-eye-slash]="mostrarConfirmarContrasena"
+      (click)="toggleMostrarConfirmarContrasena()"
+    ></i>
   </div>
   <div class="error-message" *ngIf="getErrorMessage('confirmarContrasena')">{{ getErrorMessage('confirmarContrasena') }}</div>
 

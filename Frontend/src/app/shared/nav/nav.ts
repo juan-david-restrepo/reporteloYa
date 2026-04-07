@@ -148,15 +148,27 @@ export class Nav implements OnInit, OnDestroy {
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: Event) {
-    if (!this.mostrarNotifDropdownMobile) return;
-    
     const target = event.target as HTMLElement;
-    const notifWrapper = document.querySelector('.mobile-notif-wrapper');
-    const notifDropdown = document.querySelector('.mobile-notif-dropdown');
     
-    if (notifWrapper && notifDropdown) {
-      if (!notifWrapper.contains(target) && !notifDropdown.contains(target)) {
-        this.mostrarNotifDropdownMobile = false;
+    if (this.mostrarNotifDropdown) {
+      const dropdown = document.querySelector('.notif-dropdown-nav');
+      const bellBtn = document.querySelector('.notif-icon-nav');
+      
+      if (dropdown && bellBtn) {
+        if (!dropdown.contains(target) && !bellBtn.contains(target)) {
+          this.mostrarNotifDropdown = false;
+        }
+      }
+    }
+    
+    if (this.mostrarNotifDropdownMobile) {
+      const mobileWrapper = document.querySelector('.mobile-notif-wrapper');
+      const mobileDropdown = document.querySelector('.mobile-notif-dropdown');
+      
+      if (mobileWrapper && mobileDropdown) {
+        if (!mobileWrapper.contains(target) && !mobileDropdown.contains(target)) {
+          this.mostrarNotifDropdownMobile = false;
+        }
       }
     }
   }
@@ -175,7 +187,11 @@ export class Nav implements OnInit, OnDestroy {
     }
     
     if (notif.idReferencia) {
-      this.router.navigate(['/mis-reportes']);
+      if (notif.tipo === 'TICKET_RESPONDIDO' || notif.tipo === 'NUEVO_MENSAJE_SOPORTE') {
+        this.router.navigate(['/soporte']);
+      } else {
+        this.router.navigate(['/soporte']);
+      }
     }
     this.mostrarNotifDropdown = false;
   }

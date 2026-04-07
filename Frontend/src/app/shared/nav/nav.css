@@ -484,6 +484,16 @@
   color: #0c5460;
 }
 
+.notif-icon-tipo-nav .notif-soporte {
+  background: #e8d5f2;
+  color: #6f42c1;
+}
+
+.notif-icon-tipo-nav .notif-soporte-resuelto {
+  background: #d4edda;
+  color: #155724;
+}
+
 .notif-content-nav {
   flex: 1;
   min-width: 0;
@@ -693,7 +703,7 @@
     position: fixed;
     top: 0;
     left: 0;
-    width: 85%;
+    width: 75%;
     max-width: 320px;
     height: 100vh;
     background: white;
@@ -918,7 +928,7 @@
   }
 
   .menu-and-logo {
-    width: 80%;
+    width: 75%;
     max-width: 280px;
     padding: 70px 15px 25px;
   }
@@ -947,7 +957,7 @@
 
 @media (max-width: 480px) {
   .menu-and-logo {
-    width: 85%;
+    width: 75%;
     max-width: none;
   }
 
@@ -965,7 +975,7 @@
 
 @media (max-width: 375px) {
   .menu-and-logo {
-    width: 90%;
+    width: 75%;
     padding: 65px 12px 20px;
   }
 

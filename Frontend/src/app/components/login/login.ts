@@ -16,6 +16,7 @@ import Swal from 'sweetalert2';
 })
 export class Login {
   formLogin: FormGroup;
+  mostrarPassword = false;
 
   constructor(
     private fb: FormBuilder,
@@ -175,5 +176,9 @@ export class Login {
         });
       },
     });
+  }
+
+  toggleMostrarPassword(): void {
+    this.mostrarPassword = !this.mostrarPassword;
   }
 }

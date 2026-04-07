@@ -16,7 +16,6 @@ import { Perfil } from './components/perfil/perfil';
 import { Tareas } from './components/agente/tareas/tareas';
 import { Historial } from './components/agente/historial/historial';
 import { Reportes } from './components/agente/reportes/reportes';
-import { ConfiguracionCiudadano } from './components/ciudadano/configuracion/configuracion-ciudadano';
 import { Dashboard } from './components/agente/dashboard/dashboard';
 import { PerfilAgente } from './components/agente/perfil-agente/perfil-agente';
 import { ConfigAdminComponent } from './components/admin/config-admin/config-admin';
@@ -62,7 +61,6 @@ export const routes: Routes = [
   {path: 'tareas', component: Tareas, canActivate: [authGuard] },
   {path: 'historial', component: Historial, canActivate: [authGuard] },
   {path: 'reportes', component: Reportes, canActivate: [authGuard] },
-  {path: 'configuracion', component: ConfiguracionCiudadano, canActivate: [authGuard] },
   {path: 'dashboard', component: Dashboard, canActivate: [authGuard] },
   {path: 'perfil-agente', component: PerfilAgente, canActivate: [authGuard] },
   {path: 'gestion-agentes', component: GestionAgentes, canActivate: [authGuard] }, 
