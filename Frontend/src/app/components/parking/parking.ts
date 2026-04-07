@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { UserService, Usuario } from '../../service/user.service';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import * as L from 'leaflet';
 import 'leaflet-routing-machine';
 
@@ -16,7 +17,7 @@ L.Icon.Default.mergeOptions({
 @Component({
   selector: 'app-parking',
   standalone: true,
-  imports: [RouterModule, CommonModule],
+  imports: [RouterModule, CommonModule, FormsModule],
   templateUrl: './parking.html',
   styleUrl: './parking.css',
 })
@@ -54,6 +55,11 @@ private parkingIcon = L.icon({
 
   parkingData: any[] = [];
   selectedParking: any = null;
+  errorMessage = '';
+  locationAccuracy = 0;
+  showAccuracyWarning = false;
+  searchAddress = '';
+  isLocating = false;
 
   isLoading = false;
   searchCompleted = false;
@@ -168,31 +174,67 @@ private parkingIcon = L.icon({
 
   async mostrarUbicacion(): Promise<void> {
 
-  const pos = await new Promise<GeolocationPosition>((resolve, reject) =>
-    navigator.geolocation.getCurrentPosition(resolve, reject, {
-      enableHighAccuracy: true
-    })
-  );
+  const options: PositionOptions = {
+    enableHighAccuracy: true,
+    timeout: 10000,
+    maximumAge: 0
+  };
 
-  this.userCoords = L.latLng(pos.coords.latitude, pos.coords.longitude);
+  try {
+    const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(resolve, reject, options);
+    });
 
-  this.map.setView(this.userCoords, 16);
+    this.locationAccuracy = pos.coords.accuracy;
+    this.showAccuracyWarning = this.locationAccuracy > 100;
 
-  setTimeout(() => {
-    if (this.sidebarOpen) {
-      this.map.panBy([180, 10]); // mueve el centro hacia la izquierda
+   
+
+    this.userCoords = L.latLng(pos.coords.latitude, pos.coords.longitude);
+
+    this.map.setView(this.userCoords, 16);
+
+    setTimeout(() => {
+      if (this.sidebarOpen) {
+        this.map.panBy([180, 10]);
+      }
+    }, 300);
+
+    if (!this.userMarker) {
+      this.userMarker = L.marker(this.userCoords, {
+        icon: this.userIcon,
+        draggable: true
+      }).addTo(this.map);
+
+      this.userMarker.on('dragend', (e: any) => {
+        const newCoords = e.target.getLatLng();
+        this.userCoords = L.latLng(newCoords.lat, newCoords.lng);
+        
+        
+        if (this.selectedParking && this.routeControl) {
+          this.routeControl.setWaypoints([
+            this.userCoords,
+            L.latLng(this.selectedParking.lat, this.selectedParking.lng)
+          ]);
+        }
+      });
+    } else {
+      this.userMarker.setLatLng(this.userCoords);
     }
-  }, 300);
 
-  if (!this.userMarker) {
-    this.userMarker = L.marker(this.userCoords, {
-      icon: this.userIcon
-    }).addTo(this.map);
-  } else {
-    this.userMarker.setLatLng(this.userCoords);
+    this.iniciarSeguimientoGPS();
+  } catch (error: any) {
+    console.error('Error al obtener ubicación:', error);
+    if (error.code === 1) {
+      this.errorMessage = 'Permiso de ubicación denegado. Por favor habilita la ubicación en tu navegador.';
+    } else if (error.code === 2) {
+      this.errorMessage = 'Ubicación no disponible. Verifica tu conexión GPS.';
+    } else if (error.code === 3) {
+      this.errorMessage = 'Tiempo de espera de ubicación agotado. Intenta de nuevo.';
+    } else {
+      this.errorMessage = 'No se pudo obtener tu ubicación.';
+    }
   }
-
-  this.iniciarSeguimientoGPS();
 }
 
   /* ================= GEO ================= */
@@ -202,11 +244,23 @@ async obtenerUbicacion(): Promise<void> {
 }
 
 
-iniciarSeguimientoGPS(): void {
+  iniciarSeguimientoGPS(): void {
 
   if (this.watchId) return;
 
+  const watchOptions: PositionOptions = {
+    enableHighAccuracy: true,
+    timeout: 10000,
+    maximumAge: 30000
+  };
+
   this.watchId = navigator.geolocation.watchPosition(pos => {
+    const newAccuracy = pos.coords.accuracy;
+    
+    if (newAccuracy > 100 && !this.showAccuracyWarning) {
+      this.showAccuracyWarning = true;
+      this.locationAccuracy = newAccuracy;
+    }
 
     this.userCoords = L.latLng(
       pos.coords.latitude,
@@ -221,12 +275,169 @@ iniciarSeguimientoGPS(): void {
         L.latLng(this.selectedParking.lat, this.selectedParking.lng)
       ]);
     }
-
-  }, undefined, { enableHighAccuracy: true });
+  }, (error) => {
+    console.error('Error en seguimiento GPS:', error.message);
+  }, watchOptions);
 }
+
+  /* ================= BUSCAR POR DIRECCIÓN ================= */
+
+  async buscarPorDireccion(): Promise<void> {
+    if (!this.searchAddress.trim()) {
+      this.errorMessage = 'Ingresa una dirección para buscar';
+      return;
+    }
+
+    this.isLocating = true;
+    this.errorMessage = '';
+
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(this.searchAddress)}&limit=1`
+      );
+
+      if (!response.ok) {
+        throw new Error('Error al buscar dirección');
+      }
+
+      const data = await response.json();
+
+      if (!data || data.length === 0) {
+        this.errorMessage = 'No se encontró la dirección. Intenta con otra.';
+        this.isLocating = false;
+        return;
+      }
+
+      const result = data[0];
+      const lat = parseFloat(result.lat);
+      const lon = parseFloat(result.lon);
+
+      this.userCoords = L.latLng(lat, lon);
+      this.map.setView(this.userCoords, 16);
+
+      if (this.userMarker) {
+        this.userMarker.setLatLng(this.userCoords);
+      } else {
+        this.userMarker = L.marker(this.userCoords, {
+          icon: this.userIcon,
+          draggable: true
+        }).addTo(this.map);
+
+        this.userMarker.on('dragend', (e: any) => {
+          const newCoords = e.target.getLatLng();
+          this.userCoords = L.latLng(newCoords.lat, newCoords.lng);
+          console.log('Ubicación manual - Lat:', newCoords.lat, 'Lng:', newCoords.lng);
+          
+          if (this.selectedParking && this.routeControl) {
+            this.routeControl.setWaypoints([
+              this.userCoords,
+              L.latLng(this.selectedParking.lat, this.selectedParking.lng)
+            ]);
+          }
+        });
+      }
+
+      this.showAccuracyWarning = false;
+      console.log(`Dirección encontrada: ${result.display_name}`);
+
+    } catch (error: any) {
+      this.errorMessage = 'Error al buscar dirección. Intenta más tarde.';
+      console.error('Error buscando dirección:', error);
+    } finally {
+      this.isLocating = false;
+    }
+  }
+
+  /* ================= REINTENTAR GPS ================= */
+
+  async reintentarUbicacion(): Promise<void> {
+    this.isLocating = true;
+    this.errorMessage = '';
+    this.showAccuracyWarning = false;
+
+    const options: PositionOptions = {
+      enableHighAccuracy: true,
+      timeout: 15000,
+      maximumAge: 0
+    };
+
+    try {
+      const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, options);
+      });
+
+      this.locationAccuracy = pos.coords.accuracy;
+      this.showAccuracyWarning = this.locationAccuracy > 100;
+
+      console.log(`Ubicación obtenida - Lat: ${pos.coords.latitude}, Lng: ${pos.coords.longitude}, Precisión: ${this.locationAccuracy}m`);
+
+      this.userCoords = L.latLng(pos.coords.latitude, pos.coords.longitude);
+
+      this.map.setView(this.userCoords, 16);
+
+      if (this.userMarker) {
+        this.userMarker.setLatLng(this.userCoords);
+      }
+
+      if (this.selectedParking && this.routeControl) {
+        this.routeControl.setWaypoints([
+          this.userCoords,
+          L.latLng(this.selectedParking.lat, this.selectedParking.lng)
+        ]);
+      }
+
+    } catch (error: any) {
+      console.error('Error al reintentar ubicación:', error);
+      if (error.code === 1) {
+        this.errorMessage = 'Permiso de ubicación denegado.';
+      } else if (error.code === 2) {
+        this.errorMessage = 'Ubicación no disponible.';
+      } else if (error.code === 3) {
+        this.errorMessage = 'Tiempo agotado. Intenta de nuevo.';
+      } else {
+        this.errorMessage = 'No se pudo obtener ubicación.';
+      }
+    } finally {
+      this.isLocating = false;
+    }
+  }
 
   /* ================= BUSCAR PARQUEADEROS ================= */
   private cargandoParqueaderos = false;
+
+  private readonly overpassApi = 'https://overpass-api.de/api/interpreter';
+
+  private async fetchWithRetry(url: string, maxRetries = 3): Promise<Response> {
+    let lastError: Error | null = null;
+    
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000);
+        
+        const res = await fetch(url, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        
+        if (res.ok) return res;
+        
+        if (res.status === 504 || res.status === 503 || res.status >= 500) {
+          lastError = new Error(`Servidor ocupado: ${res.status}`);
+          console.log(`Intento ${attempt + 1} fallado, reintentando...`);
+        } else {
+          throw new Error(`HTTP ${res.status}`);
+        }
+      } catch (err: any) {
+        lastError = err;
+        console.log(`Intento ${attempt + 1} error: ${err.message}`);
+      }
+      
+      if (attempt < maxRetries - 1) {
+        await new Promise(r => setTimeout(r, 2000 * (attempt + 1)));
+      }
+    }
+    
+    throw lastError || new Error('Todos los intentos fallaron');
+  }
 
 async buscarParqueaderos(): Promise<void> {
 
@@ -246,19 +457,26 @@ async buscarParqueaderos(): Promise<void> {
 
     const query = `
       [out:json][timeout:25];
-      node(around:30000,${this.userCoords.lat},${this.userCoords.lng}) [amenity=parking];
+      node(around:8000,${this.userCoords.lat},${this.userCoords.lng}) [amenity=parking];
       out center;
     `;
 
-    const res = await fetch(
-      `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`
-    );
+    const encodedQuery = encodeURIComponent(query);
 
-    if (!res.ok) {
-      throw new Error('Error consultando Overpass API');
+    
+
+    let data: any = null;
+    
+    try {
+      const res = await this.fetchWithRetry(`${this.overpassApi}?data=${encodedQuery}`);
+      data = await res.json();
+    } catch (err: any) {
+      throw new Error('Overpass API ocupada. Intenta más tarde.');
     }
 
-    const data = await res.json();
+    if (!data || !data.elements) {
+      throw new Error('No se recibió respuesta de Overpass API');
+    }
 
     this.parkingData = data.elements
       .filter((n: any) => n.lat || n.center)
@@ -294,12 +512,16 @@ async buscarParqueaderos(): Promise<void> {
 
     if (this.parkingData.length > 0) {
       this.trazarRuta(this.parkingData[0]);
+    } else {
+      this.errorMessage = 'No se encontraron parqueaderos en esta zona';
     }
 
     this.searchCompleted = true;
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error buscando parqueaderos:', error);
+    this.errorMessage = error.message || 'Error al buscar parqueaderos';
+    this.searchCompleted = true;
   } finally {
     this.isLoading = false;
     this.cargandoParqueaderos = false;

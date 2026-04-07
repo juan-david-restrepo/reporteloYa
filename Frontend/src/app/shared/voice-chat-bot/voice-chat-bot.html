@@ -1,12 +1,11 @@
 <div class="modal-overlay"></div>
-<button class="close-btn" (click)="onCloseClick()">
+
+<!-- Botón de cerrar siempre visible (fuera del intro-overlay) -->
+<button class="close-floating-btn" (click)="onIntroCloseClick()">
   <i class="fas fa-times"></i>
 </button>
 
 <div class="intro-overlay" #introOverlayEl>
-  <button class="intro-close-btn" (click)="onIntroCloseClick()">
-    <i class="fas fa-times"></i>
-  </button>
   <div class="intro-icon">
     <img src="assets/voice-chat-bot/logo.png" alt="">
   </div>

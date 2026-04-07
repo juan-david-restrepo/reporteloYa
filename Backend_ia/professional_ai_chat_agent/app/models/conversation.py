@@ -11,6 +11,7 @@ class Conversation(Base):
     id_usuario = Column(BigInteger, ForeignKey("usuarios.id_usuario"), nullable=False)
 
     titulo = Column(String(255), nullable=True)
+    titulo_manual = Column(Boolean, default=False)
     activa = Column(Boolean, default=True)
 
     created_at = Column(TIMESTAMP, server_default=func.now())

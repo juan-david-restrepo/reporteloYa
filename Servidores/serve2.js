@@ -6,7 +6,10 @@ const puppeteer = require('puppeteer');
 const app = express();
 const PORT = 3001;
 
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:4200',
+  credentials: true
+}));
 
 app.get('/api/senales', async (req, res) => {
   let browser;

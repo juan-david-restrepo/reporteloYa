@@ -3,7 +3,6 @@ import os
 
 # 🔹 Carga el .env al inicio
 load_dotenv()
-print("GEMINI_API_KEY cargada:", os.getenv("GEMINI_API_KEY"))  # para verificar
 
 from fastapi import FastAPI
 from app.api import ai

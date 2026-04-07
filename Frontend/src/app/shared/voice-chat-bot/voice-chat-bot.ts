@@ -450,12 +450,38 @@ export class VoiceChatBotComponent implements AfterViewInit, OnDestroy {
     this.speakPromptTimer = null;
   }
 
+  private isCallActive = false;
+  private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+  private readonly MAX_RECONNECT_ATTEMPTS = 3;
+  private reconnectAttempts = 0;
+
   private connectWebSocket(): void {
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const host = window.location.host || 'localhost:8000';
-    this.ws = new WebSocket(`${protocol}//${host}/ws/${this.CLIENT_ID}`);
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsHost = window.location.hostname + (window.location.port ? ':' + window.location.port : '');
+    const wsUrl = `${wsProtocol}//${wsHost}:8000/ws/${this.CLIENT_ID}`;
+    console.log('[WS] Connecting to:', wsUrl);
+
+    if (this.ws) {
+      this.ws.close();
+    }
+
+    this.ws = new WebSocket(wsUrl);
+    this.isCallActive = true;
+    let connectionTimeout: any = null;
+
+    connectionTimeout = setTimeout(() => {
+      if (this.ws && this.ws.readyState !== WebSocket.OPEN && this.isCallActive) {
+        console.log('[WS] Connection timeout, closing...');
+        this.ws.close();
+        this.showToast('Tiempo de conexión agotado (10s). El servidor no está disponible.', 'error');
+        this.updateStatus('Error de conexión', 'error');
+      }
+    }, 10000);
 
     this.ws.onopen = () => {
+      console.log('[WS] Connected successfully');
+      clearTimeout(connectionTimeout);
+      this.reconnectAttempts = 0;
       this.isInCall = true;
       this.callBtnRef.nativeElement.classList.add('hidden');
       this.endBtnRef.nativeElement.classList.remove('hidden');
@@ -475,8 +501,43 @@ export class VoiceChatBotComponent implements AfterViewInit, OnDestroy {
       this.handleMessage(msg);
     };
 
-    this.ws.onclose = () => this.cleanup();
-    this.ws.onerror = () => this.showToast('Error de conexión', 'error');
+    this.ws.onclose = (event) => {
+      console.log('[WS] Closed:', event.code, event.reason);
+      if (!this.isCallActive) return;
+      this.cleanupConnection();
+      if (event.code !== 1000 && this.reconnectAttempts < this.MAX_RECONNECT_ATTEMPTS) {
+        this.attemptReconnect();
+      } else {
+        this.isCallActive = false;
+        this.cleanup();
+      }
+    };
+
+    this.ws.onerror = (error) => {
+      console.error('[WS] Error:', error);
+      this.showToast('Error de conexión con el servidor. Intenta de nuevo.', 'error');
+      this.updateStatus('Error de conexión', 'error');
+    };
+  }
+
+  private attemptReconnect(): void {
+    this.reconnectAttempts++;
+    console.log(`[WS] Reconnection attempt ${this.reconnectAttempts}/${this.MAX_RECONNECT_ATTEMPTS}`);
+    this.showToast(`Reconectando... (${this.reconnectAttempts}/${this.MAX_RECONNECT_ATTEMPTS})`, 'info');
+    this.updateStatus('Reconectando...', '');
+
+    this.reconnectTimer = setTimeout(() => {
+      if (this.isCallActive) {
+        this.connectWebSocket();
+      }
+    }, 3000);
+  }
+
+  private cleanupConnection(): void {
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
+    }
   }
 
   private handleMessage(msg: any): void {
@@ -796,8 +857,11 @@ export class VoiceChatBotComponent implements AfterViewInit, OnDestroy {
     this.isSpeaking = false;
     this.isProcessing = false;
     this.aiAudioLevel = 0;
+    this.isCallActive = false;
+    this.reconnectAttempts = 0;
     this.clearTimers();
     this.clearProcessingDelay();
+    this.cleanupConnection();
     this.recentTranscripts = [];
     this.srPaused = false;
     if (this.srPauseTimer) {
@@ -822,6 +886,9 @@ export class VoiceChatBotComponent implements AfterViewInit, OnDestroy {
     if (this.audioContext) {
       this.audioContext.close();
       this.audioContext = null;
+    }
+    if (this.ws) {
+      this.ws = null;
     }
     if (this.callBtnRef) this.callBtnRef.nativeElement.classList.remove('hidden');
     if (this.endBtnRef) this.endBtnRef.nativeElement.classList.add('hidden');
@@ -875,7 +942,7 @@ export class VoiceChatBotComponent implements AfterViewInit, OnDestroy {
   }
 
   onIntroCloseClick(): void {
-    this.location.back();
+    this.close.emit();
   }
 
   onCallBtnClick(): void {
@@ -897,7 +964,6 @@ export class VoiceChatBotComponent implements AfterViewInit, OnDestroy {
       this.headerTitleRef.nativeElement.classList.remove('visible');
     } else {
       this.close.emit();
-      this.location.back();
     }
   }
 }

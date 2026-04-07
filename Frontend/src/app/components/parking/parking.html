@@ -46,11 +46,44 @@
 
       </button>
 
+      <!-- BUSCAR POR DIRECCIÓN -->
+      <div class="address-search">
+        <input 
+          type="text" 
+          [(ngModel)]="searchAddress"
+          placeholder="Buscar dirección..."
+          (keyup.enter)="buscarPorDireccion()"
+        />
+        <button 
+          class="btn-search"
+          (click)="buscarPorDireccion()"
+          [disabled]="isLocating"
+        >
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+      </div>
+
+      <!-- REINTENTAR GPS -->
+      <button 
+        class="btn-retry"
+        (click)="reintentarUbicacion()"
+        [disabled]="isLocating"
+      >
+        <ng-container *ngIf="!isLocating">
+          <i class="fa-solid fa-location-crosshairs"></i>
+          <span>Mi ubicación</span>
+        </ng-container>
+        <ng-container *ngIf="isLocating">
+          <span class="spinner"></span>
+        </ng-container>
+      </button>
+
       <div class="sidebar-list">
         <h3>Parqueaderos cercanos</h3>
 
         <ul class="parking-list">
-          <li *ngIf="parkingData.length === 0" class="empty">Presiona buscar para comenzar</li>
+          
+          <li *ngIf="parkingData.length === 0 && !errorMessage" class="empty">Presiona buscar para comenzar</li>
           <li 
             *ngFor="let p of parkingData"
             class="parking-card"
@@ -104,6 +137,11 @@
 
     <div class="map-info">
       Bienvenido {{ user.name }} {{ user.lastname }}, Listo para buscar Parqueaderos
+    </div>
+
+    <div class="accuracy-info" *ngIf="showAccuracyWarning">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      <span>Precisión: {{ locationAccuracy | number:'1.0-0' }}m - Arrastra el marcador para corregir</span>
     </div>
   </main>
 

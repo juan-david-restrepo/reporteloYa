@@ -57,9 +57,10 @@
   inset: 0;
   background: rgba(0,0,0,0.45);
   backdrop-filter: blur(4px);
-  z-index: 2000;
+  z-index: 10010;
   display: flex;
   justify-content: flex-end; /* chat al lado derecho */
+  isolation: isolate;
 }
 
 /* =========================
@@ -68,15 +69,15 @@
 .chat-container {
   display: flex;
   position: fixed;
-  top: 60px;
+  top: 0;
   right: 0;
   width: 75%;
-  height: calc(100vh - 90px);
-  z-index: 2000;
+  height: 100vh;
+  z-index: 10010;
   background: rgba(0,0,0,0.45);
   backdrop-filter: blur(4px);
   border-radius: 12px 0 0 12px;
-  margin-top: 29px;
+  isolation: isolate;
 }
 
 /* =========================
@@ -91,9 +92,10 @@
   flex-direction: column;
   box-shadow: 4px 0 20px rgba(0,0,0,0.3);
   transition: transform 0.3s ease;
-  position: relative; /* asegurar que dropdowns se posicionen correctamente */
-  overflow: hidden;
+  position: relative;
+  overflow: visible;
   border-radius: 12px 0 0 12px;
+  isolation: isolate;
 }
 
 
@@ -233,14 +235,17 @@ hr {
 .menu-dropdown {
   position: absolute;
   right: 0;
-  top: 35px;
+  top: 100%;
   width: 170px;
   background: #1c1c1c;
   border-radius: 8px;
   box-shadow: 0 6px 16px rgba(0,0,0,0.4);
   padding: 6px 0;
-  z-index: 1000; /* subir mucho más que cualquier conversación */
-  pointer-events: auto; /* asegura que reciba eventos */
+  z-index: 9999;
+  pointer-events: auto;
+  user-select: none;
+  transform: translateZ(0);
+  isolation: isolate;
 }
 
 .menu-item{
@@ -283,10 +288,12 @@ hr {
 .chat-list {
   flex: 1;
   overflow-y: auto;
+  overflow-x: visible;
   padding: 0 10px;
   display: flex;
   flex-direction: column;
   gap: 6px;
+  position: relative;
 }
 
 
@@ -299,6 +306,8 @@ hr {
   display: flex;
   align-items: center;
   gap: 10px;
+  position: relative;
+  overflow: visible;
 }
 
 .chat-list .chat-item:hover {
@@ -953,4 +962,40 @@ hr {
   .chat-message {
     max-width: 80%;
   }
+}
+
+/* =========================
+   SWEETALERT POR ENCIMA DEL CHAT
+   ========================= */
+::ng-deep .chatbot-swal-container {
+  z-index: 10050 !important;
+}
+
+::ng-deep .chatbot-swal-container .swal2-container {
+  z-index: 10050 !important;
+}
+
+::ng-deep .chatbot-swal-container .swal2-popup {
+  z-index: 10060 !important;
+}
+
+/* =========================
+   DROPDOWN ABIERTO - EVITAR TITILEO
+   ========================= */
+/* Cuando hay un dropdown abierto, deshabilitar hover de otros items */
+.chat-list.dropdown-open .chat-item:not(:has(.menu-dropdown)):hover {
+  background: rgba(255,255,255,0.05) !important;
+  transform: none !important;
+}
+
+/* El item con dropdown abierto sigue funcionando normal */
+.chat-list .chat-item:has(.menu-dropdown) {
+  position: relative;
+  z-index: 9998;
+  isolation: isolate;
+}
+
+/* Cuando dropdown abierto - quitar transiciones de TODOS los items */
+.chat-list.dropdown-open .chat-item {
+  transition: none !important;
 }

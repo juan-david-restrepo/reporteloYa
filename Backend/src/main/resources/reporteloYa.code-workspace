@@ -1,0 +1,13 @@
+{
+  "folders": [
+	{
+		"path": "../../../.."
+	},
+	{
+		"path": "../../../../../reporteloYa - copia/Backend_ia/professional_ai_chat_agent"
+	}
+],
+  "settings": {
+    "java.configuration.updateBuildConfiguration": "interactive"
+  }
+}

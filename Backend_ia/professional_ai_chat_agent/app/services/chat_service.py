@@ -376,12 +376,16 @@ Mensaje actual del usuario: {message}
                     # Obtener título actual de la conversación
                     titulo_actual = conversation.titulo.strip() if conversation.titulo else ""
 
+                    # Verificar si el título fue establecido manualmente
+                    # Si titulo_manual = True, respetar el título manual y no actualizarlo
+                    titulo_Manual = getattr(conversation, 'titulo_manual', False)
+
                     # Últimos 5 mensajes relevantes para el contexto
                     context_text = "\n".join(mensajes_relevantes[-5:])
 
                     # 4️⃣ DETECTAR CAMBIO DE CONTEXTO Y GENERAR NUEVO TÍTULO
                     # El LLM analiza si el tema actual es diferente al título existente
-                    # Solo actualiza si hay un cambio significativo de tema
+                    # Solo actualiza si hay un cambio significativo de tema Y el título no es manual
                     title_prompt = f"""
 Eres un asistente que analiza conversaciones para generar títulos contextuales.
 
@@ -425,9 +429,10 @@ Ejemplos de decisión:
 
                             # 6️⃣ DECIDIR SI ACTUALIZAR EL TÍTULO
                             # Actualizar solo si:
+                            # - No está establecido como título manual (titulo_manual = False)
                             # - Hay cambio de contexto Y hay nuevo título, O
                             # - No existe título actual (primera vez)
-                            debe_actualizar = (cambio and nuevo_titulo) or not titulo_actual
+                            debe_actualizar = ((cambio and nuevo_titulo) or not titulo_actual) and not titulo_Manual
 
                             if debe_actualizar and nuevo_titulo:
                                 # Limitar a máximo 6 palabras

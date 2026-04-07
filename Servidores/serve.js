@@ -4,7 +4,10 @@ const cheerio = require("cheerio");
 const app = express();
 const PORT = 3000;
 const cors = require("cors");
-app.use(cors({ origin: "http://localhost:4200" }));
+app.use(cors({
+  origin: "http://localhost:4200",
+  credentials: true
+}));
 app.use(express.json());
 
 async function obtenerNoticiasIDTQ(start = 0) {

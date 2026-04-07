@@ -6,6 +6,8 @@ import { Avatar } from '../../service/avatar'; // <-- servicio de avatar
 import { ViewChild, ElementRef } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { AuthService } from '../../service/auth.service';
+import Swal from 'sweetalert2';
+import { VoiceChatBotComponent } from '../voice-chat-bot/voice-chat-bot';
 
 interface Mensaje {
   tipo: 'user' | 'bot';
@@ -17,12 +19,13 @@ interface Conversacion {
   id_conversacion: number;
   titulo: string;
   created_at?: string;
+  titulo_manual?: boolean;
 }
 
 @Component({
   selector: 'app-chat-bot',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgIf, NgFor, NgClass],
+  imports: [CommonModule, FormsModule, NgIf, NgFor, NgClass, VoiceChatBotComponent],
   templateUrl: './chat-bot.html',
   styleUrls: ['./chat-bot.css']
 })
@@ -116,6 +119,7 @@ export class ChatBotComponent implements OnInit {
   // -----------------------------
   currentYear = new Date().getFullYear();
   mostrarChat = false;
+  mostrarVoiceChat = false;
   sidebarCollapsed = true;
   fechaCreacionConversacion: string | null = null;
 
@@ -138,6 +142,7 @@ export class ChatBotComponent implements OnInit {
   readonly API_URL = "http://127.0.0.1:8000/chat";
   readonly CONVERSATIONS_URL = "http://127.0.0.1:8000/conversations";
   readonly MESSAGES_URL = "http://127.0.0.1:8000/conversations";
+  readonly UPDATE_TITLE_URL = "http://127.0.0.1:8000/conversations";
   userId: string | null = localStorage.getItem('userId') || null;
 
   constructor(private router: Router, private avatarService: Avatar, private sanitizer: DomSanitizer, private authService: AuthService) {}
@@ -439,6 +444,65 @@ toggleMenu(event: MouseEvent, conversationId: number) {
   }
 }
 
+async cambiarNombre(conv: Conversacion, event: Event) {
+  event.stopPropagation();
+  event.preventDefault();
+  this.activeMenuId = null;
+
+  const { value: newName } = await Swal.fire({
+    title: 'Cambiar nombre',
+    input: 'text',
+    inputLabel: 'Nuevo nombre',
+    inputValue: conv.titulo || '',
+    showCancelButton: true,
+    confirmButtonText: 'Guardar',
+    cancelButtonText: 'Cancelar',
+    customClass: {
+      container: 'chatbot-swal-container'
+    },
+    inputValidator: (value) => {
+      if (!value || !value.trim()) {
+        return 'Debes ingresar un nombre';
+      }
+      return null;
+    }
+  });
+
+  if (!newName || !newName.trim()) return;
+
+  try {
+    const res = await fetch(`${this.CONVERSATIONS_URL}/${conv.id_conversacion}/title?user_id=${this.userId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        titulo: newName.trim(),
+        manual: true
+      })
+    });
+
+    if (!res.ok) {
+      throw new Error('Error al actualizar');
+    }
+
+    await this.cargarConversaciones();
+
+    Swal.fire({
+      icon: 'success',
+      title: 'Nombre actualizado',
+      timer: 1500,
+      showConfirmButton: false
+    });
+
+  } catch(err) {
+    console.error("Error cambiando nombre", err);
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'No se pudo cambiar el nombre'
+    });
+  }
+}
+
   onDropdownClick(event: MouseEvent) {
     event.stopPropagation();
   }
@@ -478,7 +542,21 @@ onTouchEnd() {
 
     event.stopPropagation();
 
-    if(!confirm("¿Eliminar esta conversación?")) return;
+    const result = await Swal.fire({
+      title: '¿Eliminar esta conversación?',
+      text: 'Esta acción no se puede deshacer.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      customClass: {
+        container: 'chatbot-swal-container'
+      }
+    });
+
+    if (!result.isConfirmed) return;
 
     try{
 
@@ -491,6 +569,13 @@ onTouchEnd() {
 
       await this.cargarConversaciones();
 
+      Swal.fire({
+        icon: 'success',
+        title: 'Conversación eliminada',
+        timer: 1500,
+        showConfirmButton: false
+      });
+
       if(String(id) === this.conversationId){
         this.nuevoChat();
       }
@@ -498,6 +583,7 @@ onTouchEnd() {
     }catch(err){
 
       console.error("Error eliminando conversación", err);
+      Swal.fire('Error', 'No se pudo eliminar la conversación', 'error');
 
     }
 
@@ -602,6 +688,14 @@ onInputFocus() {
     } catch(error) {
       alert('Debes permitir el micrófono 🎙️');
     }
+  }
+
+  // =============================
+  // IR A VOICE CHAT BOT
+  // =============================
+  irAVoiceChat() {
+    this.mostrarChat = false;
+    this.mostrarVoiceChat = true;
   }
 
 
