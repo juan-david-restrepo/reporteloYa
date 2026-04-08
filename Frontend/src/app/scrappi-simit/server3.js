@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const consultaRoutes = require('./routes/consulta');
+const operativoRoutes = require('./routes/operativo');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -15,6 +16,7 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.static(path.join(__dirname, '../frontend')));
 
 app.use('/api', consultaRoutes);
+app.use('/api', operativoRoutes);
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/index.html'));

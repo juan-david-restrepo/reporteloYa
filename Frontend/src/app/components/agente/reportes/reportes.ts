@@ -78,6 +78,10 @@ export class Reportes implements OnChanges, OnDestroy {
   @Output() volver = new EventEmitter<'historial' | 'reportes'>();
   @Input() modoLectura: boolean = false;
   @Input() reporteInicial: Reporte | null = null;
+  
+  // Perfil del agente para el PDF
+  @Input() perfilAgenteNombre: string = '';
+  @Input() perfilAgentePlaca: string = '';
 
   // reportes = reportesEntrantes del padre (fuente de verdad para estados)
   @Input() reportes!: Reporte[];
@@ -895,6 +899,36 @@ export class Reportes implements OnChanges, OnDestroy {
     this.zoomScale += event.deltaY < 0 ? 0.1 : -0.1;
     if (this.zoomScale < 1) this.zoomScale = 1;
     if (this.zoomScale > 3) this.zoomScale = 3;
+  }
+
+  descargarPdf(r: Reporte, event: Event) {
+    if (event) event.stopPropagation();
+    
+    console.log('PDF reportes - perfilAgenteNombre:', this.perfilAgenteNombre);
+    console.log('PDF reportes - perfilAgentePlaca:', this.perfilAgentePlaca);
+    
+    const reporteConPerfil = {
+      ...r,
+      nombreAgente: this.perfilAgenteNombre || r.nombreAgente || '',
+      placaAgente: this.perfilAgentePlaca || r.placaAgente || ''
+    };
+    
+    this.agenteService.generarPdfOperativo(reporteConPerfil).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `operativo_${r.id}_${Date.now()}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => {
+        console.error('Error al generar PDF:', err);
+        this.mostrarAlerta('Error al generar el PDF');
+      }
+    });
   }
 
   // ================================

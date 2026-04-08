@@ -21,6 +21,7 @@
     "axios": "^1.13.2",
     "cheerio": "^1.1.2",
     "cors": "^2.8.5",
+    "dotenv": "^17.4.1",
     "express": "^5.2.1",
     "expresss": "^0.0.0",
     "leaflet": "^1.9.4",

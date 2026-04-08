@@ -210,4 +210,10 @@ export class AgenteServiceTs {
       withCredentials: true
     });
   }
+
+  generarPdfOperativo(reporte: any): Observable<Blob> {
+    return this.http.post('http://localhost:3000/api/operativo-pdf', reporte, {
+      responseType: 'blob'
+    });
+  }
 }

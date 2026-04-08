@@ -67,6 +67,16 @@
           h.estado === EstadoReporte.RECHAZADO  ? 'Rechazado' : '' }}
       </span>
     </div>
+
+    <!-- Botón descargar PDF -->
+    <button 
+      class="btn-pdf" 
+      *ngIf="h.estado === EstadoReporte.FINALIZADO"
+      (click)="descargarPdf(h, $event)"
+      title="Descargar PDF del operativo"
+    >
+      <i class="fa-solid fa-file-pdf"></i> PDF
+    </button>
   </div>
 
 </div>

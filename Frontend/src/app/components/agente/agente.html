@@ -138,6 +138,8 @@
       [modoLectura]="reporteDesdeHistorial !== null"
       [origen]="origenDetalle"
       [puedeAccion]="puedeAceptarReportes"
+      [perfilAgenteNombre]="perfilAgente.nombre"
+      [perfilAgentePlaca]="perfilAgente.placa"
       (volver)="volverDesdeDetalle($event)"
       (aceptar)="aceptarReporte($event)"
       (rechazar)="rechazarReporte($event)"
@@ -149,6 +151,8 @@
       *ngIf="vistaActual === 'historial'"
       [historial]="historialReportes"
       [filtroInicial]="filtroHistorial"
+      [perfilAgenteNombre]="perfilAgente.nombre"
+      [perfilAgentePlaca]="perfilAgente.placa"
       (verDetalle)="verDetalleHist($event)"
     >
     </app-historial>

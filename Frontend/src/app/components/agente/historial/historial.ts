@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
 import { Reporte, EstadoReporte } from '../agente';
 import { CommonModule } from '@angular/common';
+import { AgenteServiceTs } from '../../../service/agente.service';
 
 @Component({
   selector: 'app-historial',
@@ -13,12 +14,50 @@ export class Historial implements OnInit {
   @Input() filtroInicial: 'TODOS' | 'ACEPTADOS' | 'RECHAZADOS' = 'TODOS';
 
   @Input() historial!: Reporte[];
+  @Input() perfilAgenteNombre: string = '';
+  @Input() perfilAgentePlaca: string = '';
   @Output() verDetalle = new EventEmitter<Reporte>();
 
   EstadoReporte = EstadoReporte;
 
+  constructor(private agenteService: AgenteServiceTs) {}
+
   abrir(r: Reporte) {
     this.verDetalle.emit(r);
+  }
+
+  descargarPdf(r: Reporte, event: Event) {
+    event.stopPropagation();
+    
+    console.log('PDF - perfilAgenteNombre:', this.perfilAgenteNombre);
+    console.log('PDF - perfilAgentePlaca:', this.perfilAgentePlaca);
+    console.log('PDF - r.nombreAgente:', r.nombreAgente);
+    console.log('PDF - r.placaAgente:', r.placaAgente);
+    
+    const reporteConPerfil = {
+      ...r,
+      nombreAgente: this.perfilAgenteNombre || r.nombreAgente || '',
+      placaAgente: this.perfilAgentePlaca || r.placaAgente || ''
+    };
+    
+    console.log('PDF - reporteConPerfil:', reporteConPerfil);
+    
+    this.agenteService.generarPdfOperativo(reporteConPerfil).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `operativo_${r.id}_${Date.now()}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => {
+        console.error('Error al generar PDF:', err);
+        alert('Error al generar el PDF');
+      }
+    });
   }
 
   ngOnInit(){
