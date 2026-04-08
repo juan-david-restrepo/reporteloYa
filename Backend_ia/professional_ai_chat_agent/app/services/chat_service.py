@@ -9,6 +9,47 @@ from app.core.navigation import NavigationEngine
 logger = logging.getLogger("robotransit")
 
 
+class IntentClassifier:
+    """
+    Clasificador de intenciones para distingir entre navegación y ejecución de herramientas.
+    """
+    
+    NAVIGATION_INTENTS = [
+        "ir a", "abrir", "volver a", "menu", "home", "inicio",
+        "ver", "consultar", "estado", "historial", "mis", "datos",
+        "perfil", "configurar", "-settings"
+    ]
+    
+    TOOL_ACTION_INTENTS = [
+        "crear", "creame", "hacer", "generar", "registrar",
+        "enviar", "subir", "reportar", "nuevo", "agregar"
+    ]
+    
+    @staticmethod
+    def classify(message: str) -> str:
+        """
+        Retorna 'navigation', 'tool_action', o 'ambiguous'
+        """
+        msg_lower = message.lower().strip()
+        
+        has_nav = any(kw in msg_lower for kw in IntentClassifier.NAVIGATION_INTENTS)
+        has_tool = any(kw in msg_lower for kw in IntentClassifier.TOOL_ACTION_INTENTS)
+        
+        if has_tool and not has_nav:
+            return "tool_action"
+        elif has_nav and not has_tool:
+            return "navigation"
+        elif has_tool and has_nav:
+            if msg_lower.startswith("crear") or msg_lower.startswith("creame") or \
+               msg_lower.startswith("hacer") or msg_lower.startswith("generar") or \
+               msg_lower.startswith("registrar"):
+                return "tool_action"
+            else:
+                return "navigation"
+        else:
+            return "navigation"
+
+
 class ChatService:
     """
     Servicio principal de orquestación del chat.
@@ -214,6 +255,14 @@ class ChatService:
 
             except Exception as nav_error:
                 logger.exception(f"Error detectando navegación: {str(nav_error)}")
+
+            if navigation_data and message.strip():
+                intent = IntentClassifier.classify(message)
+                if intent == "tool_action":
+                    logger.info(f"Intención detectada: tool_action. Ignorando navegación.")
+                    navigation_data = None
+                elif intent == "navigation":
+                    logger.info(f"Intención detectada: navigation. Permitiendo navegación.")
 
             return {
                 "id_conversacion": id_conversacion,

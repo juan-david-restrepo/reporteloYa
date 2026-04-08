@@ -156,3 +156,99 @@ body {
   word-break: break-word;
   overflow-wrap: normal;
 }
+
+/* ============================================
+   TABLETAS RESPONSIVE - Diseño Cards en móvil
+   ============================================ */
+@media (max-width: 768px) {
+  .msg-text .table-wrapper {
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    margin: 8px 0;
+  }
+
+  .msg-text table.data-table {
+    border: none;
+    box-shadow: none;
+    font-size: 13px;
+  }
+
+  .msg-text table.data-table thead {
+    display: none;
+  }
+
+  .msg-text table.data-table,
+  .msg-text table.data-table tbody,
+  .msg-text table.data-table tr,
+  .msg-text table.data-table td {
+    display: block;
+    width: 100%;
+    border: none;
+  }
+
+  .msg-text table.data-table tbody tr {
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    padding: 10px 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+
+  .msg-text table.data-table tbody tr:nth-child(even) {
+    background: #f8f9fa;
+  }
+
+  .msg-text table.data-table tbody tr:hover {
+    background: #e3f2fd;
+  }
+
+  .msg-text table.data-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 8px;
+    border: none;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+    font-size: 13px;
+  }
+
+  .msg-text table.data-table td:last-child {
+    border-bottom: none;
+  }
+
+  .msg-text table.data-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #555;
+    font-size: 11px;
+    text-transform: uppercase;
+    min-width: 80px;
+    margin-right: 8px;
+  }
+
+  .msg-text table.data-table td:nth-child(1)::before {
+    content: none;
+  }
+
+  .msg-text table.data-table td:nth-child(1) {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    color: #fff;
+    font-weight: 600;
+    border-radius: 6px;
+    padding: 8px 10px;
+    margin: -10px -12px 10px -12px;
+    width: calc(100% + 24px);
+    justify-content: center;
+    text-align: center;
+    font-size: 12px;
+  }
+
+  .msg-text table.data-table td:nth-child(1) span {
+    text-align: center;
+    justify-content: center;
+    display: flex;
+  }
+}

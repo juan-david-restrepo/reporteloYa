@@ -110,12 +110,39 @@
       </div>
 
       <div class="chat-footer">
-        <input type="text" 
-              [placeholder]="'Pregunta a Robotransit ...'" 
-              [(ngModel)]="mensaje"
-              (keydown.enter)="enviarMensaje()"
-              (focus)="onInputFocus()"
-              [readonly]="isListening" />
+        <!-- Input oculto para subir imágenes -->
+        <input 
+          type="file" 
+          #fileInput
+          accept="image/*,video/*"
+          (change)="onFileSelected($event)"
+          style="display: none;"
+        />
+        
+        <!-- Botón para subir imagen (solo cuando se pide evidencia) -->
+        <button type="button" class="image-btn" [style.display]="mostrarBotonImagen ? 'flex' : 'none'" (click)="fileInput.click()" title="Adjuntar imagen">
+          <i class="bx bx-image"></i>
+        </button>
+        
+        <textarea 
+          #mensajeTextarea
+          [(ngModel)]="mensaje"
+          (input)="onTextareaInput()"
+          (keydown.enter)="onEnterPressed($event)"
+          (focus)="onInputFocus()"
+          (paste)="onPaste($event)"
+          rows="1"
+          placeholder="Pregunta a Robotransit ..."
+          class="chat-input-textarea"
+        ></textarea>
+        
+        <!-- Preview de imagen adjunta -->
+        <div class="image-preview" *ngIf="imagenPreview">
+          <img [src]="imagenPreview" alt="Imagen adjunta" class="preview-img" />
+          <button type="button" class="remove-image" (click)="eliminarImagen()">
+            <i class="bx bx-x"></i>
+          </button>
+        </div>
 
         <button class="voice-btn" (click)="irAVoiceChat()" title="Abrir Robotransit por voz">
           <span class="bars" *ngIf="!mensaje">
@@ -124,22 +151,9 @@
           <i class="bx bx-up-arrow-alt send-icon" *ngIf="mensaje"></i>
         </button>
 
-        <!-- BOTÓN DE VOZ / ENVÍO -->
+        <!-- BOTÓN DE VOZ / DICTADO -->
         <button class="send-btn" (click)="onMainAction()">
-          <!-- Microphone mientras escucha -->
-          <i class="bx" [ngClass]="
-              isListening 
-                ? 'bx-stopwatch' 
-                : mensaje.trim() 
-                  ? 'bx-check-circle' 
-                  : 'bx-microphone'
-            " [title]="
-              isListening 
-                ? 'Grabando...' 
-                : mensaje.trim() 
-                  ? 'Enviar mensaje' 
-                  : 'Dictar'
-            ">
+          <i class="bx" [ngClass]="isListening ? 'bx-stopwatch' : 'bx-microphone'" [title]="isListening ? 'Detener dictate' : 'Dictar'">
           </i>
         </button>
 
