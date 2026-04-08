@@ -32,6 +32,48 @@ interface Conversacion {
 export class ChatBotComponent implements OnInit {
 
   // -----------------------------
+  // TEXTAREA AUTO-RESIZE - AUTO-GROWING BEHAVIOR
+  // -----------------------------
+  @ViewChild('mensajeTextarea') mensajeTextarea!: ElementRef<HTMLTextAreaElement>;
+
+  private readonly MIN_HEIGHT = 44;
+  private readonly MAX_HEIGHT = 150;
+
+  // Auto-growing textarea - se ajusta automáticamente al contenido
+  onTextareaInput() {
+    const textarea = this.mensajeTextarea?.nativeElement as HTMLTextAreaElement;
+    if (!textarea) return;
+    
+    // Resetear para recalcular el tamaño natural
+    textarea.style.height = 'auto';
+    
+    // Calcular nueva altura basada en el contenido (scrollHeight)
+    const newHeight = Math.min(Math.max(textarea.scrollHeight, this.MIN_HEIGHT), this.MAX_HEIGHT);
+    textarea.style.height = newHeight + 'px';
+    
+    // Scroll interno cuando llegue al máximo
+    textarea.style.overflowY = textarea.scrollHeight > this.MAX_HEIGHT ? 'auto' : 'hidden';
+  }
+
+  // Manejar Enter para enviar (Shift+Enter = nueva línea sin enviar)
+  onEnterPressed(event: any) {
+    const keyEvent = event as KeyboardEvent;
+    if (!keyEvent.shiftKey) {
+      event.preventDefault();
+      this.enviarMensaje();
+    }
+  }
+
+  // Resetear textarea después de enviar mensaje
+  private resetTextarea() {
+    const textarea = this.mensajeTextarea?.nativeElement as HTMLTextAreaElement;
+    if (textarea) {
+      textarea.style.height = this.MIN_HEIGHT + 'px';
+      textarea.style.overflowY = 'hidden';
+    }
+  }
+
+  // -----------------------------
   // DRAG HANDLE - Bottom Sheet
   // -----------------------------
   isDragging = false;
@@ -130,6 +172,66 @@ export class ChatBotComponent implements OnInit {
   mensajes: Mensaje[] = [];
   conversaciones: Conversacion[] = [];
   conversationId: string | null = localStorage.getItem('conversationId');
+  
+  // -----------------------------
+  // IMÁGENES Y EVIDENCIA
+  // -----------------------------
+  imagenAdjunta: string | null = null;
+  imagenPreview: string | null = null;
+  mostrarBotonImagen: boolean = false;
+  
+  // -----------------------------
+  // MANEJO DE IMÁGENES
+  // -----------------------------
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+  
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      this.procesarArchivo(file);
+    }
+  }
+  
+  onPaste(event: ClipboardEvent) {
+    const items = event.clipboardData?.items;
+    if (items) {
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf('image') !== -1) {
+          const file = items[i].getAsFile();
+          if (file) {
+            this.procesarArchivo(file);
+            event.preventDefault();
+            return;
+          }
+        }
+      }
+    }
+  }
+  
+  private procesarArchivo(file: File) {
+    if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
+      alert('Por favor selecciona una imagen o video');
+      return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      this.imagenPreview = e.target?.result as string;
+      this.imagenAdjunta = file.name;
+    };
+    reader.readAsDataURL(file);
+  }
+  
+  eliminarImagen() {
+    this.imagenAdjunta = null;
+    this.imagenPreview = null;
+    // Mostrar botón de nuevo en caso de que necesite re-subir
+    this.mostrarBotonImagen = true;
+    if (this.fileInput) {
+      this.fileInput.nativeElement.value = '';
+    }
+  }
 
   // -----------------------------
   // MEJORA: CACHE LOCAL DE CONVERSACIONES
@@ -148,6 +250,31 @@ export class ChatBotComponent implements OnInit {
   constructor(private router: Router, private avatarService: Avatar, private sanitizer: DomSanitizer, private authService: AuthService) {}
 
   // =============================
+  // HELPERS DE VALIDACIÓN
+  // =============================
+  private isValidUserId(): boolean {
+    if (!this.userId || this.userId === 'null' || this.userId === 'undefined') {
+      return false;
+    }
+    const parsed = parseInt(this.userId, 10);
+    return !isNaN(parsed) && parsed > 0;
+  }
+
+  private async fetchJson<T>(url: string): Promise<T | null> {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) {
+        console.error(`Error ${res.status}: ${res.statusText}`);
+        return null;
+      }
+      return res.json();
+    } catch (err) {
+      console.error("Fetch error:", err);
+      return null;
+    }
+  }
+
+  // =============================
   // ABRIR / CERRAR CHAT Y SIDEBAR
   // =============================
   toggleChat() {
@@ -160,6 +287,11 @@ export class ChatBotComponent implements OnInit {
   }
 
 async nuevoChat() {
+  if (!this.isValidUserId()) {
+    console.warn("userId no válido para nuevo chat");
+    return;
+  }
+
   // 🔹 Limpiar frontend
   this.conversationId = null;
   localStorage.removeItem("conversationId");
@@ -177,6 +309,11 @@ async nuevoChat() {
         conversation_id: null
       })
     });
+
+    if (!res.ok) {
+      console.error("Error creando conversación:", res.status);
+      return;
+    }
 
     const data = await res.json();
 
@@ -242,15 +379,28 @@ async nuevoChat() {
   // CARGAR CONVERSACIONES
   // =============================
   async cargarConversaciones() {
+    if (!this.isValidUserId()) {
+      console.warn("userId no válido, saltando carga de conversaciones");
+      this.conversaciones = [];
+      this.conversacionesCache = [];
+      return;
+    }
+
     try {
-      const res = await fetch(`${this.CONVERSATIONS_URL}?user_id=${this.userId}`);
-      this.conversaciones = await res.json();
-
-      // 🔹 guardar cache local
-      this.conversacionesCache = [...this.conversaciones];
-
+      const data = await this.fetchJson<Conversacion[]>(`${this.CONVERSATIONS_URL}?user_id=${this.userId}`);
+      
+      if (data && Array.isArray(data)) {
+        this.conversaciones = data;
+        this.conversacionesCache = [...this.conversaciones];
+      } else {
+        console.warn("Respuesta inválida al cargar conversaciones");
+        this.conversaciones = [];
+        this.conversacionesCache = [];
+      }
     } catch(err) {
       console.error("Error cargando conversaciones", err);
+      this.conversaciones = [];
+      this.conversacionesCache = [];
     }
   }
 
@@ -262,8 +412,11 @@ async nuevoChat() {
     localStorage.setItem("conversationId", this.conversationId);
 
     try {
-
       const convRes = await fetch(`${this.CONVERSATIONS_URL}/${id}`);
+      if (!convRes.ok) {
+        console.error("Error cargando conversación:", convRes.status);
+        return;
+      }
       const convData = await convRes.json();
 
       if (convData && convData.created_at) {
@@ -281,15 +434,23 @@ async nuevoChat() {
       }
 
       const res = await fetch(`${this.MESSAGES_URL}/${id}/messages`);
+      if (!res.ok) {
+        console.error("Error cargando mensajes:", res.status);
+        return;
+      }
       const data = await res.json();
 
-      this.mensajes = data.map((msg: any) => ({
-        tipo: msg.emisor === "ia" ? "bot" : "user",
-        texto: this.sanitizer.bypassSecurityTrustHtml(msg.contenido),
-        hora: msg.created_at
-          ? new Date(msg.created_at).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: true })
-          : new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: true })
-      }));
+      if (Array.isArray(data)) {
+        this.mensajes = data.map((msg: any) => ({
+          tipo: msg.emisor === "ia" ? "bot" : "user",
+          texto: this.sanitizer.bypassSecurityTrustHtml(msg.contenido),
+          hora: msg.created_at
+            ? new Date(msg.created_at).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: true })
+            : new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: true })
+        }));
+      } else {
+        this.mensajes = [];
+      }
 
       this.autoScrollIfNeeded();
 
@@ -327,16 +488,19 @@ async nuevoChat() {
       return;
     }
 
-    try{
+    if (!this.isValidUserId()) {
+      console.warn("userId no válido para búsqueda");
+      return;
+    }
 
-      const res = await fetch(
+    try{
+      const data = await this.fetchJson<Conversacion[]>(
         `${this.CONVERSATIONS_URL}/search?user_id=${this.userId}&query=${query}`
       );
 
-      const data = await res.json();
-
-      this.conversaciones = data;
-
+      if (data && Array.isArray(data)) {
+        this.conversaciones = data;
+      }
     }catch(err){
       console.error("Error buscando chats", err);
     }
@@ -360,8 +524,17 @@ async nuevoChat() {
 
     this.agregarMensaje("user", this.mensaje);
 
+    // Limpiar imagen si el usuario envía texto (la imagen no se envío)
+    const imagenEnviada = this.imagenAdjunta;
+    this.imagenAdjunta = null;
+    this.imagenPreview = null;
+    this.mostrarBotonImagen = false;
+
     const texto = this.mensaje;
     this.mensaje = '';
+    
+    // Resetear textarea después de enviar
+    this.resetTextarea();
 
     const thinkingMsgIndex = this.mensajes.push({
       tipo: 'bot',
@@ -413,6 +586,17 @@ async nuevoChat() {
         })
       };
 
+      // DETECTAR SI EL BOT PIDE EVIDENCIA
+      const respuestaBot = data.response?.toString().toLowerCase() || '';
+      if (respuestaBot.includes('evidencia') || respuestaBot.includes('foto del incidente') || respuestaBot.includes('imagen')) {
+        this.mostrarBotonImagen = true;
+      }
+      
+      // Ocultar botón si ya hay imagen adjunta
+      if (this.imagenAdjunta) {
+        this.mostrarBotonImagen = false;
+      }
+
       this.mensajes = [...this.mensajes];
 
       this.scrollToBottom();
@@ -448,6 +632,11 @@ async cambiarNombre(conv: Conversacion, event: Event) {
   event.stopPropagation();
   event.preventDefault();
   this.activeMenuId = null;
+
+  if (!this.isValidUserId()) {
+    Swal.fire('Error', 'Usuario no válido', 'error');
+    return;
+  }
 
   const { value: newName } = await Swal.fire({
     title: 'Cambiar nombre',
@@ -558,14 +747,22 @@ onTouchEnd() {
 
     if (!result.isConfirmed) return;
 
-    try{
+    if (!this.isValidUserId()) {
+      Swal.fire('Error', 'Usuario no válido', 'error');
+      return;
+    }
 
+    try{
       const res = await fetch(
         `${this.CONVERSATIONS_URL}/${id}?user_id=${this.userId}`,
         { method: "DELETE" }
       );
 
-      const data = await res.json();
+      if (!res.ok) {
+        console.error("Error eliminando conversación:", res.status);
+        Swal.fire('Error', 'No se pudo eliminar la conversación', 'error');
+        return;
+      }
 
       await this.cargarConversaciones();
 
@@ -594,6 +791,7 @@ onTouchEnd() {
 // -----------------------------
 isListening = false;
 recognition: any;
+lastTranscript = '';
 
 // -----------------------------
 // INICIAR DICTADO DE VOZ
@@ -608,20 +806,20 @@ async startVoiceDictation() {
   const SpeechRecognitionClass = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
   this.recognition = new SpeechRecognitionClass();
   this.recognition.lang = 'es-CO';
-  this.recognition.interimResults = true;
-  this.recognition.continuous = true;
+  this.recognition.interimResults = false;
+  this.recognition.continuous = false;
   this.isListening = true;
-
-  this.mensaje = '';
+  this.lastTranscript = '';
 
   this.recognition.onresult = (event: any) => {
-    let currentTranscript = '';
-
-    for (let i = event.resultIndex; i < event.results.length; i++) {
-      currentTranscript += event.results[i][0].transcript;
+    const result = event.results[event.results.length - 1];
+    if (result.isFinal) {
+      const transcript = result[0].transcript.trim();
+      if (transcript && transcript !== this.lastTranscript) {
+        this.lastTranscript = transcript;
+        this.mensaje = (this.mensaje + ' ' + transcript).trim();
+      }
     }
-
-    this.mensaje = currentTranscript.trim();
   };
 
   this.recognition.onerror = (event: any) => {
@@ -646,25 +844,16 @@ async startVoiceDictation() {
 stopVoiceDictation() {
   if (this.recognition) {
     this.isListening = false;
+    this.lastTranscript = '';
     this.recognition.stop();
   }
 }
 
 // -----------------------------
-// BOTÓN PRINCIPAL: ENVIAR O DICTADO
+// BOTÓN PRINCIPAL: SOLO DICTADO
 // -----------------------------
-async onMainAction() {
-  if (this.mensaje.trim()) {
-    // Aumentar altura cuando usuario escribe/envía
-    if (this.currentChatHeight < 85) {
-      this.currentChatHeight = 85;
-      this.updateChatHeight(85);
-      localStorage.setItem('chatHeight', '85');
-    }
-    await this.enviarMensaje();
-  } else {
-    this.isListening ? this.stopVoiceDictation() : await this.startVoiceDictation();
-  }
+onMainAction() {
+  this.isListening ? this.stopVoiceDictation() : this.startVoiceDictation();
 }
 
 onInputFocus() {

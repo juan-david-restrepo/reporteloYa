@@ -169,10 +169,18 @@ export class VoiceChatBotComponent implements AfterViewInit, OnDestroy {
     }
   }
 
+  private isMobile(): boolean {
+    return window.innerWidth <= 599;
+  }
+
+  private getHostWidth(): number {
+    return this.isMobile() ? window.innerWidth : window.innerWidth * 0.75;
+  }
+
   private init(): void {
     const canvas = this.canvasRef.nativeElement;
     
-    const hostWidth = window.innerWidth * 0.75;
+    const hostWidth = this.getHostWidth();
     const hostHeight = window.innerHeight;
     
     this.scene = new THREE.Scene();
@@ -241,7 +249,7 @@ export class VoiceChatBotComponent implements AfterViewInit, OnDestroy {
   }
 
   private onWindowResize(): void {
-    const hostWidth = window.innerWidth * 0.75;
+    const hostWidth = this.getHostWidth();
     this.camera.aspect = hostWidth / window.innerHeight;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(hostWidth, window.innerHeight);
@@ -456,9 +464,7 @@ export class VoiceChatBotComponent implements AfterViewInit, OnDestroy {
   private reconnectAttempts = 0;
 
   private connectWebSocket(): void {
-    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsHost = window.location.hostname + (window.location.port ? ':' + window.location.port : '');
-    const wsUrl = `${wsProtocol}//${wsHost}:8000/ws/${this.CLIENT_ID}`;
+    const wsUrl = `ws://127.0.0.1:8000/ws/${this.CLIENT_ID}`;
     console.log('[WS] Connecting to:', wsUrl);
 
     if (this.ws) {

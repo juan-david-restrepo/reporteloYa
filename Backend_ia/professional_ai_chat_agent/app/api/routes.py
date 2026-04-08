@@ -60,11 +60,18 @@ async def chat(
 
         user = UserService(db).get_user(request.user_id)
 
+        # 🔄 FALLBACK: Si usuario no existe, crearlo automáticamente
         if user is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Usuario no encontrado."
+            logger.warning(f"Usuario {request.user_id} no encontrado. Creándolo automáticamente.")
+            user = UserService(db).create_or_update_user(
+                user_id=request.user_id,
+                email=f"user_{request.user_id}@local.com",
+                nombre_completo=f"Usuario {request.user_id}",
+                role="CIUDADANO",
+                tipo_documento=None,
+                numero_documento=None
             )
+            logger.info(f"Usuario {request.user_id} creado automáticamente")
 
         agent = Agent(db)
 
@@ -107,16 +114,24 @@ def get_user_conversations(
 ):
     """
     Devuelve todas las conversaciones activas del usuario.
+    Si el usuario no existe, se crea automáticamente (fallback).
     """
 
     try:
         user = UserService(db).get_user(user_id)
 
+        # 🔄 FALLBACK: Si usuario no existe, crearlo automáticamente
         if user is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Usuario no encontrado."
+            logger.warning(f"Usuario {user_id} no encontrado. Creándolo automáticamente.")
+            user = UserService(db).create_or_update_user(
+                user_id=user_id,
+                email=f"user_{user_id}@local.com",
+                nombre_completo=f"Usuario {user_id}",
+                role="CIUDADANO",
+                tipo_documento=None,
+                numero_documento=None
             )
+            logger.info(f"Usuario {user_id} creado automáticamente")
 
         conversations = (
             db.query(Conversation)
@@ -267,10 +282,16 @@ def delete_conversation(
     try:
         user = UserService(db).get_user(user_id)
 
+        # 🔄 FALLBACK: Si usuario no existe, crearlo automáticamente
         if user is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Usuario no encontrado."
+            logger.warning(f"Usuario {user_id} no encontrado. Creándolo automáticamente.")
+            user = UserService(db).create_or_update_user(
+                user_id=user_id,
+                email=f"user_{user_id}@local.com",
+                nombre_completo=f"Usuario {user_id}",
+                role="CIUDADANO",
+                tipo_documento=None,
+                numero_documento=None
             )
 
         conversation = (
@@ -364,4 +385,59 @@ def update_conversation_title(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Error actualizando el título."
+        )
+
+
+# ======================================================
+# 🔄 SINCRONIZAR USUARIO DESDE AUTH SERVICE
+# ======================================================
+
+class SyncUserRequest(BaseModel):
+    user_id: int = Field(..., gt=0)
+    email: str = Field(..., max_length=255)
+    nombre_completo: str = Field(..., max_length=255)
+    role: str = Field(..., max_length=50)
+    tipo_documento: str = Field(default=None, max_length=50)
+    numero_documento: str = Field(default=None, max_length=50)
+
+
+@router.post("/sync-user", status_code=status.HTTP_200_OK)
+def sync_user(
+    request: SyncUserRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Endpoint para sincronizar un usuario desde el auth service.
+    Este endpoint debe ser llamado por el auth service cuando el usuario hace login.
+    """
+    try:
+        user_service = UserService(db)
+        
+        user = user_service.create_or_update_user(
+            user_id=request.user_id,
+            email=request.email,
+            nombre_completo=request.nombre_completo,
+            role=request.role,
+            tipo_documento=request.tipo_documento,
+            numero_documento=request.numero_documento
+        )
+
+        logger.info(f"Usuario sincronizado: ID={request.user_id}, email={request.email}")
+
+        return {
+            "success": True,
+            "message": "Usuario sincronizado correctamente",
+            "user": {
+                "id": user.id,
+                "name": user.name,
+                "role": user.role
+            }
+        }
+
+    except Exception as e:
+        logger.exception(f"Error sincronizando usuario: {str(e)}")
+
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error sincronizando usuario: {str(e)}"
         )

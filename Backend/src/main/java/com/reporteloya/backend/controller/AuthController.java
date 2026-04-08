@@ -7,6 +7,7 @@ import com.reporteloya.backend.entity.Usuario;
 import com.reporteloya.backend.entity.Role;
 import com.reporteloya.backend.service.AuthResult;
 import com.reporteloya.backend.service.AuthService;
+import com.reporteloya.backend.service.ChatAISyncService;
 import com.reporteloya.backend.service.JwtService;
 import jakarta.servlet.http.Cookie;
 
@@ -30,12 +31,30 @@ public class AuthController {
 
     private final AuthService authService;
     private final JwtService jwtService;
+    private final ChatAISyncService chatAISyncService;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request,
                                       HttpServletResponse response) {
         try {
             Map<String, Object> result = authService.register(request);
+
+            // 🔄 Sincronizar nuevo usuario con Chat AI
+            if (result.containsKey("user")) {
+                Map<String, Object> userData = (Map<String, Object>) result.get("user");
+                Long userId = ((Number) userData.get("id")).longValue();
+                String email = (String) userData.get("email");
+                String nombreCompleto = (String) userData.get("nombreCompleto");
+                
+                chatAISyncService.syncUser(
+                    userId,
+                    email,
+                    nombreCompleto,
+                    "CIUDADANO",
+                    (String) userData.get("tipoDocumento"),
+                    (String) userData.get("numeroDocumento")
+                );
+            }
 
             return ResponseEntity.status(HttpStatus.CREATED).body(result);
 
@@ -57,6 +76,16 @@ public class AuthController {
             Role role = usuario.getRole();
             long maxAgeSeconds = jwtService.getExpirationSecondsByRole(role);
             setJwtCookie(response, result.token(), maxAgeSeconds);
+
+            // 🔄 Sincronizar usuario con Chat AI tras verificar email
+            chatAISyncService.syncUser(
+                usuario.getId(),
+                usuario.getEmail(),
+                usuario.getNombreCompleto(),
+                role.name(),
+                usuario.getTipoDocumento(),
+                usuario.getNumeroDocumento()
+            );
 
             return ResponseEntity.ok(Map.of(
                     "message", "Correo electrónico verificado exitosamente.",
@@ -99,6 +128,16 @@ public class AuthController {
             Role role = usuario.getRole();
             long maxAgeSeconds = jwtService.getExpirationSecondsByRole(role);
             setJwtCookie(response, result.token(), maxAgeSeconds);
+
+            // 🔄 Sincronizar usuario con Chat AI
+            chatAISyncService.syncUser(
+                usuario.getId(),
+                usuario.getEmail(),
+                usuario.getNombreCompleto(),
+                role.name(),
+                usuario.getTipoDocumento(),
+                usuario.getNumeroDocumento()
+            );
 
             return ResponseEntity.ok(
                     AuthResponse.builder()
@@ -145,6 +184,16 @@ public class AuthController {
         }
 
         Usuario usuario = (Usuario) authentication.getPrincipal();
+
+        // 🔄 Sincronizar usuario con Chat AI si no existe
+        chatAISyncService.syncUser(
+            usuario.getId(),
+            usuario.getEmail(),
+            usuario.getNombreCompleto(),
+            usuario.getRole().name(),
+            usuario.getTipoDocumento(),
+            usuario.getNumeroDocumento()
+        );
 
         return ResponseEntity.ok(
                 AuthResponse.builder()

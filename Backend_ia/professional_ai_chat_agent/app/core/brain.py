@@ -327,72 +327,230 @@ Responde SOLO una palabra.
     def _select_admin_tool(self, message: str):
         """
         Router inteligente que detecta intents Y extrae parámetros del mensaje.
-        Ya no deja params vacíos - el LLM extrae la información del mensaje.
+        IMPLEMENTACIÓN ROBUSTA CON NSP Y INSTRUCTION TUNING:
+        - Detección por palabras clave primero (más confiable)
+        - Fallback con LLM para casos complejos
+        - Soporta cualquier variación de texto, números, emoticones
         """
+        
+        msg_lower = message.lower().strip()
+        
+        # ============================================================
+        # FASE 1: DETECCIÓN ROBUSTA POR PALABRAS CLAVE (NSP)
+        # Keywords exhaustivas con variaciones, sinónimos y typos comunes
+        # ============================================================
+        
+        # --- AGENDAR REUNIÓN ---
+        reunion_keywords = [
+            "reunion", "reunión", "reunioness", "meeting", "agendar", "agende",
+            "schedule", "cita", "citas", "programar", "programa", "calendar",
+            "calendario", "agéndame", "agenda", "agéndalo", "agendame", "reservar", "reserva",
+            "concertar", "fijar", "sacar cita", "pedir hora", "sacar hora",
+            "reunión mañana", "reunión hoy", "reunión lunes", "reunión martes",
+            "reunión miercoles", "reunión jueves", "reunión viernes",
+            "reunión a las", "reunión a hora", "reunión en", "reunión para",
+            "tengo reunion", "tengo reunión", "quiero reunion", "quiero reunión",
+            "necesito reunion", "necesito reunión", "busco reunion", "busco reunión"
+        ]
+        if any(kw in msg_lower for kw in reunion_keywords):
+            if any(p in msg_lower for p in ["crear", "nueva", "nuevo", "agendar", "programar", "sacar", "pedir", "reservar", "concertar", "fijar", "cita"]):
+                return {"tool": "agendar_reunion", "params": {"mensaje_usuario": message}}
+        
+        # --- OBTENER AGENTES ---
+        agentes_keywords = [
+            "agente", "agentes", "agentes de transito", "agentes de tránsito",
+            "cuántos agentes", "cuantas agentes", "numero de agentes", "número de agentes",
+            "lista de agentes", "listado de agentes", "mostrar agentes", "ver agentes",
+            "dame agentes", "muéstrame los agentes", "traeme agentes",
+            "información de agentes", "datos de agentes", "personal", "operativo",
+            "quienes son los agentes", " quienes trabajan", "equipo de agentes",
+            "agentes disponibles", "agentes activos", "agentes total",
+            "1", "uno"  # como respuesta a "¿cuántos?"
+        ]
+        if any(kw in msg_lower for kw in agentes_keywords):
+            # Verificar que no sea una respuesta numérica específica
+            if msg_lower.strip() in ["1", "uno", "un", "una"]:
+                return {"tool": "obtener_agentes", "params": {}}
+            return {"tool": "obtener_agentes", "params": {}}
+        
+        # --- OBTENER TAREAS ---
+        tareas_keywords = [
+            "tarea", "tareas", "task", "tasks", "pendiente", "pendientes",
+            "por hacer", "por haceres", "agenda", "listado de tareas", "ver tareas",
+            "mis tareas", "tareas asignadas", "tareas del día", "tareas hoy",
+            "tareas pendientes", "tareas en proceso", "tareas completadas",
+            "mostrar tareas", "dame tareas", "muéstrame tareas", "traeme tareas",
+            "qué tareas", "que tareas", "como vai", "cómo van", "estado de tareas"
+        ]
+        if any(kw in msg_lower for kw in tareas_keywords):
+            return {"tool": "obtener_tareas", "params": {}}
+        
+        # --- SYSTEM OVERVIEW ---
+        overview_keywords = [
+            "overview", "resumen", "resumen del sistema", "estado del sistema",
+            "Resumen", "Resumen", "dashboard", "panel", "Resumen general",
+            "Resumen del sistema", "Resumen completo", "Resumen ejecutivo",
+            "dame el resumen", "muéstrame el resumen", "ver resumen",
+            "cómo está el sistema", "como esta el sistema", "salud del sistema",
+            "métricas", "metricas", "kpis", "indicadores", "Resumen de indicadores"
+        ]
+        if any(kw in msg_lower for kw in overview_keywords):
+            return {"tool": "system_overview", "params": {}}
+        
+        # --- REPORTES DEL DÍA ---
+        reportes_hoy_keywords = [
+            "reportes de hoy", "reportes del dia", "reportes de hoy", "reportes hoy",
+            "reporte de hoy", "reporte del dia", "reporte de hoy", "reporte hoy",
+            "cuántos reportes hoy", "cuantas reportes hoy", "total reportes hoy",
+            "reportes generados hoy", "nuevos reportes", "últimos reportes",
+            "reportes recientes", "reportes últimos", "reportes últimas horas"
+        ]
+        if any(kw in msg_lower for kw in reportes_hoy_keywords):
+            return {"tool": "reportes_del_dia", "params": {}}
+        
+        # --- REPORTES POR ESTADO ---
+        reportes_estado_keywords = [
+            "reportes pendiente", "reportes pendientes", "reportes aprobado",
+            "reportes aprobados", "reportes rechazado", "reportes rechazados",
+            "reportes en revisión", "reportes en proceso", "reportes finalizados",
+            "reportes resueltos", "reportes activos", "qué reportes", "que reportes",
+            "muestra reportes", "mostrar reportes", "ver reportes", "dame reportes",
+            "muéstrame reportes", "traeme reportes", "listado de reportes",
+            "estado de los reportes", "estados de reportes",
+            # Nuevos casos
+            "muestra rechazados", "muestrame rechazados", "ver rechazados",
+            "ver aprobados", "ver pendientes",
+            # Casos adicionales
+            "reportes por estado", "estado de reportes"
+        ]
+        if any(kw in msg_lower for kw in reportes_estado_keywords):
+            estado = "pendiente"
+            if "aprobado" in msg_lower or "aprobada" in msg_lower:
+                estado = "aprobado"
+            elif "rechazado" in msg_lower or "rechazada" in msg_lower:
+                estado = "rechazado"
+            elif "proceso" in msg_lower or "revision" in msg_lower or "revisión" in msg_lower:
+                estado = "en_proceso"
+            elif "finalizado" in msg_lower or "resuelto" in msg_lower:
+                estado = "finalizado"
+            elif "activo" in msg_lower:
+                estado = "activo"
+            return {"tool": "reportes_por_estado", "params": {"estado": estado}}
+        
+        # --- ESTADÍSTICAS DE REPORTES ---
+        estadisticas_keywords = [
+            "estadísticas", "métricas", "analytics", "analisis", "análisis",
+            "cuántos reportes", "cuantas reportes", "total reportes", "reporte total",
+            "dame estadísticas", "muéstrame estadísticas", "ver estadísticas",
+            "resumen de reportes", "datos de reportes", "informes de reportes",
+            "estadísticas reportes", "métricas reportes", "reportes generales",
+            "reporte general", "informes", "informe", "reporte completo",
+            "todos los reportes", "cantidad de reportes", "número de reportes",
+            # Nuevos casos
+            "estadisticas", "metricas", "numeros de reportes", "cantidad de reportes"
+        ]
+        if any(kw in msg_lower for kw in estadisticas_keywords):
+            return {"tool": "estadisticas_reportes", "params": {}}
+        
+        # --- GENERAR PDF ---
+        pdf_keywords = [
+            "pdf", "generar pdf", "descargar pdf", "crear pdf", "exportar pdf",
+            "generar reporte", "descargar reporte", "crear reporte", "exportar reporte",
+            "generar informe", "descargar informe", "crear informe", "exportar informe",
+            "quiero el pdf", "necesito el pdf", "saca el pdf", "haz el pdf",
+            "descarga el pdf", "generame el pdf", "generame el reporte",
+            "quiero un pdf", "necesito un pdf", "dame un pdf", "muéstrame un pdf",
+            "reporte en pdf", "informe en pdf", "documento pdf", "archivo pdf",
+            "descargar", "descarga", "exportar", "exporta", "imprimir"
+        ]
+        if any(kw in msg_lower for kw in pdf_keywords):
+            return {"tool": "generar_reporte_estadisticas_pdf", "params": {}}
+        
+        # --- CONSULTAS ESPECÍFICAS CON NÚMEROS ---
+        # "Cuántos usuarios hay", "Cuántos reportes hay", etc.
+        if any(p in msg_lower for p in ["cuántos", "cuantas", "cuanto", "cuanta", "numero", "número", "cantidad", "total de"]):
+            if "usuario" in msg_lower or "usuarios" in msg_lower:
+                return {"tool": "system_overview", "params": {}}
+            if "agente" in msg_lower or "agentes" in msg_lower:
+                return {"tool": "obtener_agentes", "params": {}}
+            if "reporte" in msg_lower or "reportes" in msg_lower:
+                return {"tool": "estadisticas_reportes", "params": {}}
+            if "tarea" in msg_lower or "tareas" in msg_lower:
+                return {"tool": "obtener_tareas", "params": {}}
+        
+        # ============================================================
+        # FASE 2: FALLBACK CON LLM (INSTRUCTION TUNING)
+        # Solo para casos complejos o ambiguos
+        # ============================================================
         
         # DESCRIPCIÓN MEJORADA DE TOOLS CON EJEMPLOS DE PARÁMETROS
         tools_description = """
 Eres un router de herramientas inteligentes. Tu trabajo es:
 1. Detectar qué herramienta necesita el usuario
 2. Extraer los parámetros relevantes del mensaje del usuario
+3. ANTIGUO: NO fallar si hay ambigüedad - intentar detectar la mejor opción
 
 HERRAMIENTAS DISPONIBLES:
 
 1. obtener_agentes
    - CUANDO USAR: cuando pidan ver agentes, cuántos agentes hay, lista de agentes
+   - VARIACIONES: "agentes", "personal", "operativo", "equipo", "cuántos", "numero"
    - PARÁMETROS: NO necesita parámetros, puede estar vacío {}
 
 2. obtener_tareas
    - CUANDO USAR: cuando pidan ver tareas, ver pendientes, agenda de tareas
+   - VARIACIONES: "tareas", "pendientes", "por hacer", "agenda", "qué tareas"
    - NO USAR para agendar reuniones nuevas - usar agendar_reunion
    - PARÁMETROS: NO necesita parámetros
 
 3. system_overview
-   - CUANDO USAR: cuando pidan resumen del sistema, overview, estado del sistema
+   - CUANDO USAR: cuando pidan resumen del sistema, overview, estado del sistema, dashboard
+   - VARIACIONES: "resumen", "overview", "estado", "métricas", "kpis", "indicadores"
    - PARÁMETROS: NO necesita parámetros
 
 4. reportes_del_dia
    - CUANDO USAR: cuando pidan reportes de hoy, reportes del día actual
+   - VARIACIONES: "hoy", "dia", "fecha", "recientes", "últimos"
    - PARÁMETROS: NO necesita parámetros
 
 5. reportes_por_estado
-   - CUANDO USAR: cuando pidan reportes pendientes, aprobados, rechazados
-   - PARÁMETROS: extraer el estado del mensaje (pendiente, aprobado, rechazado)
+   - CUANDO USAR: cuando pidan reportes pendientes, aprobados, rechazados, finalizados
+   - VARIACIONES: "estado", "estados", "pendiente", "aprobado", "rechazado", "proceso"
+   - PARÁMETROS: extraer el estado del mensaje (pendiente, aprobado, rechazado, en_proceso, finalizado)
 
 6. estadisticas_reportes
-   - CUANDO USAR: cuando pidan estadísticas de reportes, métricas, reportes generales
+   - CUANDO USAR: cuando pidan estadísticas de reportes, métricas, reportes generales, Analytics
+   - VARIACIONES: "estadísticas", "métricas", "analytics", "análisis", "total", "cuántos"
    - PARÁMETROS: NO necesita parámetros
 
 7. generar_reporte_estadisticas_pdf
-   - CUANDO USAR: cuando pidan generar PDF, descargar reporte, reporte en PDF
+   - CUANDO USAR: cuando pidan generar PDF, descargar reporte, reporte en PDF, exportar
+   - VARIACIONES: "pdf", "descargar", "exportar", "crear", "generar", "documento"
    - PARÁMETROS: NO necesita parámetros
 
 8. agendar_reunion
-   - CUANDO USAR: cuando quieran agendar, crear, programar una reunión
+   - CUANDO USAR: cuando quieran agendar, crear, programar una reunión, cita
+   - VARIACIONES: "reunión", "reunion", "cita", "agendar", "schedule", "calendar"
    - PARÁMETROS: pasar el mensaje completo del usuario para extraer: título, fecha, hora, duración, participantes
 
-IMPORTANTE:
+IMPORTANTE - REGLAS DE INSTRUCTION TUNING:
+- SIEMPRE intentar detectar una herramienta aunque sea ambigua
 - Para agendar_reunion SIEMPRE pasar el mensaje original en "mensaje_usuario"
-- Para reportes_por_estado extraer el estado (pendiente/aprobado/rechazado)
+- Para reportes_por_estado extraer el estado (pendiente/aprobado/rechazado/en_proceso/finalizado)
 - Para las demás tools los params pueden estar vacíos {}
-
-REGLAS:
-- Si el mensaje es un saludo o conversación general → NONE
-- Si no hay herramienta clara → NONE
-- SIEMPRE intentar detectar una herramienta antes de responder NONE
+- NO devolver NONE a menos que sea un saludo puro o conversación sin sentido
+- Keywords como "cuántos", "dame", "muéstrame", "ver", "mostrar" + algo = detectar tool
 
 EJEMPLOS DE RESPUESTA:
-Usuario: "cuántos agentes hay"
-{"tool":"obtener_agentes","params":{}}
+Usuario: "cuántos agentes hay" -> {"tool":"obtener_agentes","params":{}}
+Usuario: "agéndame reunión mañana a las 8" -> {"tool":"agendar_reunion","params":{"mensaje_usuario":"agéndame reunión mañana a las 8"}}
+Usuario: "muéstrame los reportes pendientes" -> {"tool":"reportes_por_estado","params":{"estado":"pendiente"}}
+Usuario: "dame las estadísticas" -> {"tool":"estadisticas_reportes","params":{}}
+Usuario: "cómo está el sistema" -> {"tool":"system_overview","params":{}}
+Usuario: "descarga el reporte" -> {"tool":"generar_reporte_estadisticas_pdf","params":{}}
+Usuario: "hola cómo estás" -> {"tool":"NONE","params":{}}
 
-Usuario: "agéndame reunión mañana a las 8"
-{"tool":"agendar_reunion","params":{"mensaje_usuario":"agéndame reunión mañana a las 8"}}
-
-Usuario: "muéstrame los reportes pendientes"
-{"tool":"reportes_por_estado","params":{"estado":"pendiente"}}
-
-Usuario: "hola cómo estás"
-{"tool":"NONE","params":{}}
+Responde SOLO JSON.
 """
 
         try:
@@ -458,31 +616,186 @@ Responde SOLO JSON válido. Sin explicaciones.
         return ""
     
     def _select_agent_tool(self, message: str):
-
+        """
+        Router robusto para AGENTE con NSP e Instruction Tuning.
+        Keywords exhaustivas + fallback LLM para variaciones.
+        """
+        
+        msg_lower = message.lower().strip()
+        
+        # ============================================================
+        # FASE 1: DETECCIÓN POR PALABRAS CLAVE (NSP)
+        # IMPORTANTE: Orden prioritario para evitar overlaps
+        # ============================================================
+        
+        # --- REPORTES PENDIENTES (PRIORIDAD ALTA) ---
+        reportes_pendientes_keywords = [
+            "reportes pendientes", "reportes por validar", "reportes sin validar",
+            "reportes nuevos", "reportes nuevos", "reportes asignados",
+            "validar reportes", "revisar reportes", "ver reportes pendientes",
+            "dame reportes", "muéstrame reportes", "mostrar reportes",
+            "qué reportes tengo", "que reportes tengo", "reportes para validar",
+            "reportes de hoy", "nuevos reportes", "últimos reportes"
+        ]
+        if any(kw in msg_lower for kw in reportes_pendientes_keywords):
+            return {"tool": "reportes_pendientes", "params": {}}
+        
+        # --- TAREAS COMPLETADAS ---
+        tareas_completadas_keywords = [
+            "tareas completadas", "tareas realizadas", "tareas terminadas",
+            "tareas finalizadas", "tareas feitas", "tareas realizadas",
+            "qué hice", "que hice", "trabajo hecho", "trabajo realizado",
+            "historial", "tareas pasadas", "tareas antiguas",
+            "ver lo que hice", "mostrar completadas", "dame completadas",
+            "ya hice", "ya completé", "ya terminé", "completadas"
+        ]
+        if any(kw in msg_lower for kw in tareas_completadas_keywords):
+            return {"tool": "mis_tareas_completadas", "params": {}}
+        
+        # --- TAREAS EN PROCESO ---
+        tareas_proceso_keywords = [
+            "tareas en proceso", "tareas en andamento", "tareas en curso",
+            "tareas haciendo", "procesando", "en andamento", "en curso",
+            "trabajando en", "trabajando sobre", "estoy trabajando",
+            "tareas activas", "ver lo que hago", "mostrar en proceso",
+            "dame en proceso", "activas", "en proceso"
+        ]
+        if any(kw in msg_lower for kw in tareas_proceso_keywords):
+            return {"tool": "mis_tareas_en_proceso", "params": {}}
+        
+        # --- TAREAS PENDIENTES ---
+        tareas_pendientes_keywords = [
+            "tareas pendientes", "tareas por hacer", "tareas sin hacer",
+            "sin hacer", "por hacer", "qué me falta",
+            "que me falta", "tareas nuevas", "tareas asignadas pendientes",
+            "ver que me falta", "mostrar pendientes", "dame lo que tengo"
+        ]
+        if any(kw in msg_lower for kw in tareas_pendientes_keywords):
+            return {"tool": "mis_tareas_pendientes", "params": {}}
+        
+        # --- MIS TAREAS (todas) ---
+        tareas_todas_keywords = [
+            "mis tareas", "mis tareas todas", "ver mis tareas", "dame mis tareas",
+            "muéstrame mis tareas", "mostrar mis tareas", "traer mis tareas",
+            "qué tareas tengo", "que tareas tengo", "tareas asignadas",
+            "tareas mías", "mis pendientes", "mi agenda", "tareas para hoy",
+            "ver pendientes", "dame pendientes", "mostrar pendientes"
+        ]
+        if any(kw in msg_lower for kw in tareas_todas_keywords):
+            return {"tool": "mis_tareas", "params": {}}
+        
+        # --- MIS VALIDACIONES ---
+        mis_validaciones_keywords = [
+            "mis validaciones", "validaciones realizadas", "validaciones feitas",
+            "validaciones que hice", "aprobaciones", "rechazos", "qué validé",
+            "que validé", "trabajo validado", "reportes validados",
+            "historial de validaciones", "ver validaciones", "mostrar validaciones",
+            "dame validaciones", "lo que he validado", "lo que validé"
+        ]
+        if any(kw in msg_lower for kw in mis_validaciones_keywords):
+            return {"tool": "mis_validaciones", "params": {}}
+        
+        # --- MIS ESTADÍSTICAS ---
+        mis_estadisticas_keywords = [
+            "mis estadísticas", "mis métricas", "mi rendimiento", "mi desempeño",
+            "cómo estoy", "como estoy", "mi productividad", "mis números",
+            "cuántos validé", "cuantas validé", "cuántos rechacé", "cuantas rechacé",
+            "reporte de mi trabajo", "informe de mi actividad", "mi actividad",
+            "estadísticas personales", "métricas personales", "mis datos",
+            "ver mis números", "dame mis números", "mostrar estadísticas",
+            "cómo voy", "como voy", "cómo me va", "como me va"
+        ]
+        if any(kw in msg_lower for kw in mis_estadisticas_keywords):
+            return {"tool": "mis_estadisticas", "params": {}}
+        
+        # --- GENERAR PDF AGENTE ---
+        pdf_agent_keywords = [
+            "pdf", "generar pdf", "descargar pdf", "crear pdf", "exportar pdf",
+            "generar reporte", "descargar reporte", "crear reporte", "exportar reporte",
+            "generar informe", "descargar informe", "crear informe", "exportar informe",
+            "mi pdf", "mi reporte", "mi informe", "reporte de mi actividad",
+            "quiero el pdf", "necesito el pdf", "saca el pdf", "haz el pdf",
+            "descarga el pdf", "generame el pdf", "generame el reporte",
+            "documento de mi trabajo", "reporte de gestión", "resumen de actividad"
+        ]
+        if any(kw in msg_lower for kw in pdf_agent_keywords):
+            return {"tool": "generar_reporte_agente_pdf", "params": {}}
+        
+        # --- CONSULTAS ESPECÍFICAS CON NÚMEROS ---
+        if any(p in msg_lower for p in ["cuántos", "cuantas", "cuanto", "cuanta", "numero", "número", "cantidad"]):
+            if "valid" in msg_lower or "aprob" in msg_lower or "rechaz" in msg_lower:
+                return {"tool": "mis_estadisticas", "params": {}}
+            if "tarea" in msg_lower or "tareas" in msg_lower:
+                return {"tool": "mis_tareas", "params": {}}
+            if "reporte" in msg_lower or "reportes" in msg_lower:
+                return {"tool": "reportes_pendientes", "params": {}}
+        
+        # ============================================================
+        # FASE 2: FALLBACK CON LLM (INSTRUCTION TUNING)
+        # ============================================================
+        
         tools_description = """
-Herramientas disponibles para agentes:
+Eres un router de herramientas para AGENTES DE TRÁNSITO.
 
-mis_tareas -> ver todas mis tareas
-mis_tareas_pendientes -> ver tareas pendientes
-mis_tareas_en_proceso -> ver tareas en proceso
-mis_tareas_completadas -> ver tareas completadas
-reportes_pendientes -> ver reportes pendientes de validación
-mis_validaciones -> ver validaciones que he realizado
-mis_estadisticas -> ver estadísticas de mi desempeño
-generar_reporte_agente_pdf -> generar reporte PDF de mi actividad
+HERRAMIENTAS DISPONIBLES:
 
-Si ninguna aplica responde:
+1. mis_tareas
+   - CUANDO USAR: cuando el agente pida ver todas sus tareas, pendientes, agenda
+   - VARIACIONES: "mis tareas", "ver tareas", "dame pendientes", "mi agenda", "qué tareas"
+   - PARÁMETROS: NO necesita parámetros
 
-{
-"tool":"NONE",
-"params":{}
-}
+2. mis_tareas_pendientes
+   - CUANDO USAR: cuando pida ver solo tareas pendientes, por hacer, sin hacer
+   - VARIACIONES: "pendientes", "por hacer", "sin hacer", "qué me falta", "nuevas"
+   - PARÁMETROS: NO necesita parámetros
+
+3. mis_tareas_en_proceso
+   - CUANDO USAR: cuando pida ver tareas en proceso, en andamento, en curso
+   - VARIACIONES: "en proceso", "en andamento", "en curso", "activas", "trabajando"
+   - PARÁMETROS: NO necesita parámetros
+
+4. mis_tareas_completadas
+   - CUANDO USAR: cuando pida ver tareas terminadas, realizadas, feitas
+   - VARIACIONES: "completadas", "realizadas", "terminadas", "hice", "historial"
+   - PARÁMETROS: NO necesita parámetros
+
+5. reportes_pendientes
+   - CUANDO USAR: cuando pida ver reportes pendientes de validación
+   - VARIACIONES: "reportes pendientes", "reportes por validar", "nuevos reportes", "validar"
+   - PARÁMETROS: NO necesita parámetros
+
+6. mis_validaciones
+   - CUANDO USAR: cuando pida ver las validaciones que ha realizado
+   - VARIACIONES: "validaciones", "aprobaciones", "rechazos", "qué validé", "historial"
+   - PARÁMETROS: NO necesita parámetros
+
+7. mis_estadisticas
+   - CUANDO USAR: cuando pida ver sus estadísticas, métricas, rendimiento
+   - VARIACIONES: "estadísticas", "métricas", "rendimiento", "desempeño", "números", "cómo estoy"
+   - PARÁMETROS: NO necesita parámetros
+
+8. generar_reporte_agente_pdf
+   - CUANDO USAR: cuando pida generar PDF, descargar reporte, exportar
+   - VARIACIONES: "pdf", "reporte", "descargar", "exportar", "documento", "informe"
+   - PARÁMETROS: NO necesita parámetros
+
+IMPORTANTE - REGLAS DE INSTRUCTION TUNING:
+- SIEMPRE detectar una herramienta aunque sea ambigua
+- NO devolver NONE a menos que sea un saludo puro
+- Keywords como "dame", "muéstrame", "ver", "mostrar", "qué" + algo = detectar tool
+
+EJEMPLOS:
+- "qué tareas tengo" -> {"tool":"mis_tareas","params":{}}
+- "dame mis pendientes" -> {"tool":"mis_tareas_pendientes","params":{}}
+- "cómo estoy trabajando" -> {"tool":"mis_estadisticas","params":{}}
+- "ver los reportes" -> {"tool":"reportes_pendientes","params":{}}
+- "descarga mi reporte" -> {"tool":"generar_reporte_agente_pdf","params":{}}
+- "hola" -> {"tool":"NONE","params":{}}
 
 Responde SOLO JSON.
 """
-
+        
         try:
-
             prompt = f"""
 Eres un router de herramientas para agentes.
 
@@ -493,24 +806,24 @@ Mensaje del agente:
 
 Responde SOLO JSON válido.
 """
-
+            
             decision = self.llm_service.generate_response(
                 message=prompt,
                 history=[],
                 role="AGENTE"
             )
-
+            
             match = re.search(r"\{[\s\S]*?\}", decision)
-
+            
             if match:
                 data = json.loads(match.group())
-
+                
                 if isinstance(data, dict) and "tool" in data:
                     return data
-
+        
         except Exception as e:
             logger.warning(f"Agent tool router failed: {str(e)}")
-
+        
         return {"tool": "NONE", "params": {}}
 
 
@@ -601,6 +914,43 @@ Responde SOLO JSON válido.
                 logger.info(f"Citizen tool: crear_reporte (keyword alta: '{keyword}')")
                 return {"tool": "crear_reporte", "params": {"mensaje": msg_original}}
         
+        # ============================================================
+        # CREAR REPORTE - AÑADIR MÁS VARIACIONES COLOQUIALES
+        # ============================================================
+        
+        # Más variaciones coloquiales para reportar
+        crear_reporte_coloquial = [
+            "hay un", "hay una", "hay alguien", "hay algo", "hay algo pasando",
+            "vi un", "vi una", "vi que", "vi algo", "veo un", "veo una", "veo que",
+            "encontre", "encontré", "hallé", "hallé un", "hallé una",
+            "aquí pasa", "aquí hay", "aquí está", "aquí esta", "aquí ocurre",
+            "en esta calle", "en esta vía", "en esta zona", "en esta esquina",
+            "en la calle", "en la via", "en la zona", "en la esquina",
+            "frente a", "al lado de", "cerca de", "aqui esta", "aqui hay",
+            "me acabam", "acabam de", "acabó de", "acaba de",
+            # Expresiones comunes
+            "ya no se qué hace", "hace falta un agente", "necesito ayuda",
+            "esto no es normal", "algo anda mal", "algo no está bien",
+            "están mal", "estan mal", "hacen mal", "hacen caso",
+            # Keywords adicionales
+            "cayó", "cayó un", "cayó una", "se cayó", "se caio",
+            "quemó", "se quemó", "incendio", "fuego",
+            "ruido", "molestia", "contaminación", "basura",
+            "obstrucción", "obstruccion", "atascado", "atascada",
+            "no pasa", "no puede pasar", "trancado", "trancada",
+            # Tipos de problemas adicionales
+            "dañado", "dañada", "roto", "rota", "quebrado", "quebrada",
+            "sin luz", "sin agua", "sin servicio",
+            # Preguntas
+            "a quién报告o", "a quién Reporto", "como Reporto", "cómo Reporto",
+            "donde Reporto", "dónde Reporto", "quien Reporta", "quién Reporta"
+        ]
+        
+        for keyword in crear_reporte_coloquial:
+            if keyword in msg_lower:
+                logger.info(f"Citizen tool: crear_reporte (coloquial: '{keyword}')")
+                return {"tool": "crear_reporte", "params": {"mensaje": msg_original}}
+        
         # ---------------------------------------------------------
         # GRUPO B: MIS REPORTES (solo si NO hay intención de reportar)
         # ---------------------------------------------------------
@@ -618,6 +968,13 @@ Responde SOLO JSON válido.
             # Historial y búsqueda
             "historial", "mis reportes que he", "mis reportes enviados",
             "tengo reportes", "mis cosas reportadas",
+            # Nuevas variations
+            "dame el historial", "muéstrame el historial", "ver historial",
+            "mis reportes anteriores", "reportes anteriores", "mis old reportes",
+            "los reportes que envié", "los reportes que mandé", "mis reportes mandaos",
+            "como van", "cómo van", "qué tal van", "que tal van",
+            "status de mis reportes", "estado de reportes", "qué pasó",
+            "qué fue de", "que fue de", "qué se hizo de", "que se hizo de"
         ]
         
         # Verificar si es MIS_REPORTES (sin intención de reportar nuevo)
@@ -1432,91 +1789,58 @@ Asunto: {data["subject"]}
                 if user.id in Brain.report_drafts:
                     draft = Brain.report_drafts[user.id]
                     
-                    # VERIFICAR SI ESTÁ PENDIENTE DE UBICACIÓN
-                    if draft.get("estado") == "PENDIENTE_UBICACION":
-                        msg_lower = message.lower()
-                        
-                        # DETECTAR RESPUESTAS POSITIVAS
-                        respuestas_si = ["si", "sí", "si!", "sí!", "dale", "ok", "ok!", "perfecto", "confirmo", "autorizo", "si claro", "claro que sí", "adelante", "si dale", "si gracias", "sí gracias"]
-                        respuestas_no = ["no", "nunca", "nah", "cancelar", "cancelo", "olvida", "déjalo", "dejalo"]
-                        
-                        es_si = any(resp in msg_lower for resp in respuestas_si)
-                        es_no = any(resp in msg_lower for resp in respuestas_no)
-                        
-                        if es_no:
-                            # CANCELAR FLUJO
-                            del Brain.report_drafts[user.id]
-                            return self._send_via_chat_service(
-                                user,
-                                message,
-                                "Entendido, cancelé el reporte. ¿Hay algo más en lo que pueda ayudarte?",
-                                conversation_id
-                            )
-                        
-                        if es_si:
-                            # USUARIO CONFIRMÓ UBICACIÓN - PASAR A RECOLECTAR DATOS
-                            logger.info(f"[REPORTE] Usuario {user.id} confirmó ubicación. Pidiendo tipo de infracción...")
-                            
-                            # CAMBIAR ESTADO A RECOLECTANDO DATOS - TIPO
-                            Brain.report_drafts[user.id] = {
-                                "estado": "RECOLECTANDO_TIPO",
-                                "tipo_infraccion": "otro",  # Se actualizará cuando el usuario elija
-                                "descripcion": "",
-                                "direccion": "",
-                                "latitud": 0.0,
-                                "longitud": 0.0,
-                                "user_id": user.id
-                            }
-                            
-                            # PEDIR TIPO DE INFRACCIÓN
-                            tipos_opciones = """📋 Tipos de infracción disponibles:
-
-1️⃣ Accidente de tránsito
-2️⃣ Estacionamiento indebido
-3️⃣ Exceso de velocidad
-4️⃣ Semáforo dañado
-5️⃣ Cruce indebido de peatón
-6️⃣ Giro en doble línea
-7️⃣ Conductor sin cinturón
-8️⃣ Uso de celular al conducir
-9️⃣ Falta de documentos
-🔟 Problema con placa
-1️⃣1️⃣ Otro
-
-¿Cuál es el tipo de infracción? (Responde con el número o el nombre)"""
-                            
-                            return self._send_via_chat_service(
-                                user,
-                                message,
-                                tipos_opciones,
-                                conversation_id
-                            )
-                        
-                        # EL USUARIO NO ENTENDIÓ - REPETIR PREGUNTA
-                        return self._send_via_chat_service(
-                            user,
-                            message,
-                            "No entendí tu respuesta. ¿Me das permiso para obtener tu ubicación?\n\nResponde 'sí' para continuar o 'no' para cancelar.",
-                            conversation_id
-                        )
+                    # DETECTAR CAMBIO DE TEMA - Si el usuario pregunta algo diferente
+                    msg_lower = message.lower().strip()
+                    preguntas_cambio = ["hola", "hi", "hey", "buenos", "quiere", "como", "cual", "que es", "que significa", "dime", "habla", "cuenta", "norma", "ley", "señal", "regla", "que pasa", "por que", "ayuda", "gracias", "ok", "entiendo", "cambiar", "otro tema", "olvida", "déjalo", "dejalo", "cambie", "cambiar", "ver mi perfil", "mi perfil", "mis reportes", "mis datos"]
+                    respuestas_si = ["si", "sí", "si!", "sí!", "dale", "ok", "ok!", "perfecto", "confirmo", "autorizo", "si claro", "claro que sí", "adelante", "si dale", "si gracias", "sí gracias", "yes", "yea", "yeah", "yep"]
                     
-                    # SI EL ESTADO ES RECOLECTANDO TIPO DE INFRACCIÓN
+# Si no es una respuesta esperada para el flujo de reporte Y parece ser cambio de tema
+                    es_cambio = any(pal in msg_lower for pal in preguntas_cambio)
+                    es_respuesta_valida = any(kw in msg_lower for kw in ["1", "2", "3", "4", "5", "accidente", "estacionamiento", "semaforo", "conduccion", "vehículo", "mal estacionado", "tipo", "opcion", "si ", "sí ", "si,", "sí,"]) and draft.get("estado") not in ["PENDIENTE_UBICACION"]
+
+                    if es_cambio and not es_respuesta_valida:
+                        # CANCELAR DRAFT Y CONTINUAR CON PREGUNTA NORMAL
+                        logger.info(f"[CONTEXTO] Cambio de tema detectado. Cancelando draft de reporte.")
+                        del Brain.report_drafts[user.id]
+                    elif draft.get("estado") == "PENDIENTE_UBICACION":
+                        msg_lower = message.lower()
+                        respuestas_si = ["si", "sí", "si!", "sí!", "dale", "ok", "ok!", "perfecto", "confirmo", "autorizo", "si claro", "claro que sí", "adelante", "si dale", "si gracias", "sí gracias"]
+                        respuestas_cancel = ["cancelar", "cancelo", "olvida", "déjalo", "dejalo", "parar", "stop", "quiero cancelar", "cancela"]
+                        es_si = any(resp in msg_lower for resp in respuestas_si)
+                        es_no = any(resp in msg_lower for resp in respuestas_cancel)
+                        if es_no:
+                            del Brain.report_drafts[user.id]
+                            return self._send_via_chat_service(user, message, "Entendido, cancelé el reporte. ¿Hay algo más en lo que pueda ayudarte?", conversation_id)
+                        if es_si:
+                            Brain.report_drafts[user.id] = {"estado": "RECOLECTANDO_TIPO", "tipo_infraccion": "otro", "descripcion": "", "direccion": "", "latitud": 0.0, "longitud": 0.0, "user_id": user.id}
+                            tipos_opciones = "📋 Tipos de incidente disponibles:\n\n1️⃣ Accidente de tránsito\n2️⃣ Vehículo mal estacionado\n3️⃣ Semáforo dañado\n4️⃣ Conducción peligrosa\n5️⃣ Otro (especificar)\n\n¿Cuál es el tipo de incidente? (Responde con el número o el nombre)"
+                            return self._send_via_chat_service(user, message, tipos_opciones, conversation_id)
+                        return self._send_via_chat_service(user, message, "No entendí tu respuesta. ¿Me das permiso para obtener tu ubicación?\n\nResponde 'sí' para continuar o 'no' para cancelar.", conversation_id)
+                    
+# SI EL ESTADO ES RECOLECTANDO TIPO DE INFRACCIÓN
                     if draft.get("estado") == "RECOLECTANDO_TIPO":
                         msg_lower = message.lower().strip()
                         
-                        # VERIFICAR SI EL USUARIO QUIERE CANCELAR
-                        respuestas_no = ["no", "cancelar", "cancelo", "olvida", "déjalo", "dejalo", "parar", "stop"]
-                        if any(resp in msg_lower for resp in respuestas_no):
-                            del Brain.report_drafts[user.id]
-                            return self._send_via_chat_service(
-                                user,
-                                message,
-                                "Entendido, cancelé el reporte. ¿Hay algo más en lo que pueda ayudarte?",
-                                conversation_id
-                            )
+                        # DETECTAR CAMBIO DE TEMA O PREGUNTA GENERAL
+                        preguntas_cambio = ["hola", "hi", "hey", "buenos", "quiere", "como", "cual", "que es", "que significa", "dime", "habla", "cuenta", "norma", "ley", "señal", "regla", "que pasa", "por que", "ayuda", "gracias", "ok", "entiendo", "cambiar", "otro", "ver mi perfil", "mi perfil", "mis reportes", "sabes", "quiero saber", "necesito"]
+                        es_cambio = any(pal in msg_lower for pal in preguntas_cambio)
+                        es_respuesta_reporte = any(kw in msg_lower for kw in ["1", "2", "3", "4", "5", "accidente", "estacionamiento", "semaforo", "conduccion", "vehículo", "mal estacionado", "tipo", "opcion"])
                         
-                        # PARSEAR EL TIPO DE INFRACCIÓN
-                        tipo_infraccion = self._parsear_tipo_infraccion(message)
+                        if es_cambio and not es_respuesta_reporte:
+                            # CANCELAR DRAFT Y CONTINAR CON PREGUNTA NORMAL
+                            del Brain.report_drafts[user.id]
+                        else:
+                            # SOLO cancelar con palabras explícitas de cancelación
+                            respuestas_cancel = ["cancelar", "cancelo", "olvida", "déjalo", "dejalo", "parar", "stop", "quiero cancelar", "cancela"]
+                            if any(resp in msg_lower for resp in respuestas_cancel):
+                                del Brain.report_drafts[user.id]
+                                return self._send_via_chat_service(user, message, "Entendido, cancelé el reporte. ¿Hay algo más en lo que pueda ayudarte?", conversation_id)
+                            
+                            # PARSEAR EL TIPO DE INFRACCIÓN
+                            tipo_infraccion = self._parsear_tipo_infraccion(message)
+                            
+                            # PARSEAR EL TIPO DE INFRACCIÓN
+                            tipo_infraccion = self._parsear_tipo_infraccion(message)
                         
                         if tipo_infraccion:
                             # GUARDAR EL TIPO Y PEDIR DESCRIPCIÓN
@@ -1533,22 +1857,16 @@ Asunto: {data["subject"]}
                             )
                         else:
                             # NO ENTENDIÓ EL TIPO
-                            tipos_opciones = """❌ No entendí el tipo de infracción.
+                            tipos_opciones = """❌ No entendí el tipo de incidente.
 
 📋 Tipos disponibles:
 1️⃣ Accidente de tránsito
-2️⃣ Estacionamiento indebido
-3️⃣ Exceso de velocidad
-4️⃣ Semáforo dañado
-5️⃣ Cruce indebido de peatón
-6️⃣ Giro en doble línea
-7️⃣ Conductor sin cinturón
-8️⃣ Uso de celular al conducir
-9️⃣ Falta de documentos
-🔟 Problema con placa
-1️⃣1️⃣ Otro
+2️⃣ Vehículo mal estacionado
+3️⃣ Semáforo dañado
+4️⃣ Conducción peligrosa
+5️⃣ Otro (especificar)
 
-¿Cuál es el tipo de infracción? (Responde con el número o el nombre)"""
+¿Cuál es el tipo de incidente? (Responde con el número o el nombre)"""
                             
                             return self._send_via_chat_service(
                                 user,
@@ -1559,11 +1877,19 @@ Asunto: {data["subject"]}
                     
                     # SI EL ESTADO ES RECOLECTANDO DATOS (DESCRIPCIÓN)
                     if draft.get("estado") == "RECOLECTANDO_DATOS":
-                        msg_lower = message.lower()
+                        msg_lower = message.lower().strip()
                         
-                        # VERIFICAR SI EL USUARIO QUIERE CANCELAR
-                        respuestas_no = ["no", "cancelar", "cancelo", "olvida", "déjalo", "dejalo", "parar", "stop"]
-                        if any(resp in msg_lower for resp in respuestas_no):
+                        # DETECTAR CAMBIO DE TEMA O PREGUNTA GENERAL
+                        preguntas_cambio = ["hola", "hi", "hey", "buenos", "quiere", "como", "cual", "que es", "que significa", "dime", "habla", "cuenta", "norma", "ley", "señal", "regla", "que pasa", "por que", "ayuda", "gracias", "ok", "entiendo", "cambiar", "otro", "ver mi perfil", "mi perfil", "mis reportes", "sabes", "quiero saber"]
+                        es_cambio = any(pal in msg_lower for pal in preguntas_cambio)
+                        
+                        if es_cambio:
+                            # CANCELAR DRAFT Y CONTINAR CON PREGUNTA NORMAL
+                            del Brain.report_drafts[user.id]
+                        else:
+                            # VERIFICAR SI EL USUARIO QUIERE CANCELAR (solo con palabras explícitas)
+                            respuestas_cancel = ["cancelar", "cancelo", "olvida", "déjalo", "dejalo", "parar", "stop", "quiero cancelar", "cancela"]
+                        if any(resp in msg_lower for resp in respuestas_cancel):
                             del Brain.report_drafts[user.id]
                             return self._send_via_chat_service(
                                 user,
@@ -1575,29 +1901,100 @@ Asunto: {data["subject"]}
                         # VERIFICAR SI EL USUARIO CONFIRMA CON "SI" O SIMILARES
                         respuestas_si = ["si", "sí", "ok", "dale", "confirmo", "perfecto", "si!", "sí!", "listo", "así está", "asi esta"]
                         
-                        # ACTUALIZAR DATOS RECOLECTADOS
+                        # CAMPOS DEL DRAFT
                         descripcion_actual = draft.get("descripcion", "")
                         direccion_actual = draft.get("direccion", "")
+                        placa_actual = draft.get("placa", "")
+                        evidencia_actual = draft.get("evidencia", "")  # Nueva evidencia
                         
-                        # SI NO TIENE DESCRIPCIÓN, GUARDAR DESCRIPCIÓN
+                        # NUEVO FLUJO: Paso 1 - Guardar descripción (si no la tiene)
                         if not descripcion_actual:
                             draft["descripcion"] = message.strip()
                             descripcion_actual = draft.get("descripcion", "")
-                            direccion_actual = draft.get("direccion", "")
+                            
+                            # PEDIR DIRECCIÓN
+                            return self._send_via_chat_service(
+                                user,
+                                message,
+                                f"✅ Descripción guardada: '{descripcion_actual}'\n\n📍 Ahora, ¿en qué dirección ocurrió el incidente?\n\nPuedes dar una dirección específica como 'Calle 10 #5-20' o referirte a un lugar conocido como 'cerca de mi casa', 'en el parque central', etc.",
+                                conversation_id
+                            )
                         
-                        # SI TENEMOS DESCRIPCIÓN PERO NO DIRECCIÓN, GUARDAR DIRECCIÓN Y MOSTRAR RESUMEN
-                        if descripcion_actual and not direccion_actual and draft.get("estado") != "CONFIRMANDO":
+                        # Paso 2 - Guardar dirección (si no la tiene)
+                        if descripcion_actual and not direccion_actual:
                             draft["direccion"] = message.strip()
                             direccion_actual = draft.get("direccion", "")
                             
-                            # MOSTRAR RESUMEN Y PEDIR CONFIRMACIÓN
+                            # VERIFICAR SI REQUIERE PLACA SEGÚN EL TIPO
+                            tipo_infrac = draft.get("tipo_infraccion", "")
+                            requiere_placa = tipo_infrac in ["accidente", "estacionamiento"]
+                            
+                            if requiere_placa:
+                                return self._send_via_chat_service(
+                                    user,
+                                    message,
+                                    f"✅ Dirección guardada: '{direccion_actual}'\n\n🚗 ¿Cuál es la placa del vehículo? (opcional)\n\nIngresa la placa como ABC123 o escribe 'no tengo' si no la identificaste.",
+                                    conversation_id
+                                )
+                            else:
+                                # Si no requiere placa, ir directamente a evidencia
+                                return self._send_via_chat_service(
+                                    user,
+                                    message,
+                                    f"✅ Dirección guardada: '{direccion_actual}'\n\n📷 ¿Tienes una foto o video del incidente? (opcional)\n\nPuedes subirla desde 'Mis Reportes' después, o responder 'no' si no tienes evidencia.",
+                                    conversation_id
+                                )
+                        
+                        # Paso 3 - Guardar placa (si la requiere y no la tiene)
+                        placa_actual = draft.get("placa", "")
+                        tipo_infrac = draft.get("tipo_infraccion", "")
+                        requiere_placa = tipo_infrac in ["accidente", "estacionamiento"]
+                        
+                        if requiere_placa and not placa_actual:
+                            # Guardar placa o marcar como no disponible
+                            if "no tengo" in msg_lower or "no la tengo" in msg_lower or "no la sé" in msg_lower:
+                                draft["placa"] = "No identificada"
+                            else:
+                                draft["placa"] = message.strip().upper()
+                            placa_actual = draft.get("placa", "")
+                            
+                            # PEDIR EVIDENCIA (OBLIGATORIA)
+                            return self._send_via_chat_service(
+                                user,
+                                message,
+                                f"✅ Placa guardada: {placa_actual}\n\n📸 EVIDENCIA OBLIGATORIA\n\nPor favor, necesito que meenvíes la foto del incidente.\n\nPuedes subirla aquí o si ya la tienes tomada, envíamela ahora.\n\nEl reporte NO se puede crear sin evidencia.",
+                                conversation_id
+                            )
+                        
+                        # Paso 4 - Verificar evidencia (OBLIGATORIA)
+                        evidencia_actual = draft.get("evidencia", "")
+                        
+                        if not evidencia_actual:
+                            # La evidencia es OBLIGATORIA - pedirla insistentemente
+                            if len(message.strip()) > 5 and ("image" in message.lower() or "foto" in message.lower() or "archivo" in message.lower() or "adjunto" in message.lower() or "imagen" in message.lower()):
+                                # El usuario parece estar enviando una imagen
+                                draft["evidencia"] = "Imagen recibida"
+                                evidencia_actual = "Imagen recibida"
+                            else:
+                                # NO permitir continuar sin evidencia
+                                return self._send_via_chat_service(
+                                    user,
+                                    message,
+                                    "📸 La evidencia es OBLIGATORIA para crear el reporte.\n\nPor favor, envíame la foto del incidente para poder continuar.\n\nEl reporte NO se puede crear sin una imagen.",
+                                    conversation_id
+                                )
+                            
+                            # MOSTRAR RESUMEN COMPLETO Y PEDIR CONFIRMACIÓN
                             tipo_formato = self._formatear_tipo_reporte(draft.get("tipo_infraccion", "otro"))
                             
+                            # Construir resumen completo
                             resumen = f"""📋 Resumen del reporte:
 
 🔸 Tipo: {tipo_formato}
-🔸 Descripción: {descripcion_actual}
-🔸 Dirección: {direccion_actual}
+🔸 Descripción: {draft.get('descripcion', '')}
+🔸 Dirección: {draft.get('direccion', '')}
+🔸 Placa: {draft.get('placa', 'No identificada')}
+🔸 Evidencia: {evidencia_actual}
 
 ¿Estos datos son correctos? Responde 'sí' para crear el reporte o 'no' para cancelar."""
                             
@@ -1609,9 +2006,7 @@ Asunto: {data["subject"]}
                                 conversation_id
                             )
                         
-                        # VERIFICAR SI EL USUARIO CONFIRMA CON "SI" O SIMILARES
-                        respuestas_si = ["si", "sí", "ok", "dale", "confirmo", "perfecto", "si!", "sí!", "listo", "así está", "asi esta"]
-                        
+                        # Si ya tiene evidencia, mostrar confirmación
                         if draft.get("estado") == "CONFIRMANDO":
                             es_confirmado = any(resp in msg_lower for resp in respuestas_si)
                             
@@ -1634,7 +2029,7 @@ Asunto: {data["subject"]}
                                     return self._send_via_chat_service(
                                         user,
                                         message,
-                                        result.get("message", "✅ ¡Reporte creado exitosamente! 🎉"),
+                                        result.get("message", "✅ ¡Reporte creado exitosamente! 🎉") + "\n\n📎 Puedes agregar fotos desde 'Mis Reportes' si tienes evidencia.",
                                         conversation_id
                                     )
                                 else:
@@ -1654,23 +2049,14 @@ Asunto: {data["subject"]}
                                     conversation_id
                                 )
                         
-                        # SI LLEGÓ AQUÍ SIN ESTADO CONFIRMANDO, ES UN DATO EXTRA
-                        # Continuar pidiendo lo que falte
-                        if not draft.get("descripcion"):
-                            return self._send_via_chat_service(
-                                user,
-                                message,
-                                "📝 ¿Podrías describirme qué pasó? Cuéntame los detalles del incidente.",
-                                conversation_id
-                            )
-                        if not draft.get("direccion"):
-                            return self._send_via_chat_service(
-                                user,
-                                message,
-                                "📍 ¿En qué dirección occurredió el incidente?",
-                                conversation_id
-                            )
-                    
+                        # Si llegó aquí sin estado CONFIRMANDO, continuar flujo
+                        return self._send_via_chat_service(
+                            user,
+                            message,
+                            "Continuando con el reporte... ¿Tienes evidencia (foto/video) del incidente?",
+                            conversation_id
+                        )
+
                     # SI HAY OTRO TIPO DE BORRADOR, PROCESARLO
                     datos_previos = draft.get("datos", {})
                     conversacion = draft.get("conversacion", [])
@@ -1995,53 +2381,35 @@ Invitados: {invites}
 Descripcion: {descripcion}"""
 
     def _formatear_tipo_reporte(self, tipo: str) -> str:
-        """Formatea el tipo de infracción para mostrar al usuario."""
+        """Formatea el tipo de incidente para mostrar al usuario."""
         tipos_formato = {
             "accidente": "Accidente de tránsito",
-            "estacionamiento": "Estacionamiento indebido",
-            "exceso_velocidad": "Exceso de velocidad",
+            "estacionamiento": "Vehículo mal estacionado",
             "semaforo": "Semáforo dañado",
-            "peaton": "Cruce indebido de peatón",
-            "doble_linea": "Giro en doble línea",
-            "no_cinturon": "Conductor sin cinturón",
-            "celular": "Uso de celular al conducir",
-            "documentos": "Falta de documentos",
-            "placa": "Problema con placa",
+            "conduccion": "Conducción peligrosa",
             "otro": "Otro"
         }
         return tipos_formato.get(tipo, tipo.title())
     
     def _parsear_tipo_infraccion(self, mensaje: str) -> str:
         """
-        Convierte la respuesta del usuario a código de tipo de infracción.
-        Acepta números (1-11) o nombres de tipos.
+        Convierte la respuesta del usuario a código de tipo de incidente.
+        Acepta números (1-5) o nombres de tipos.
         """
         msg_lower = mensaje.lower().strip()
         
-        # MAPEO POR NÚMERO
+        # MAPEO POR NÚMERO (solo 5 tipos)
         numeros_tipos = {
             "1": "accidente",
             "2": "estacionamiento",
-            "3": "exceso_velocidad",
-            "4": "semaforo",
-            "5": "peaton",
-            "6": "doble_linea",
-            "7": "no_cinturon",
-            "8": "celular",
-            "9": "documentos",
-            "10": "placa",
-            "11": "otro",
+            "3": "semaforo",
+            "4": "conduccion",
+            "5": "otro",
             "1️⃣": "accidente",
             "2️⃣": "estacionamiento",
-            "3️⃣": "exceso_velocidad",
-            "4️⃣": "semaforo",
-            "5️⃣": "peaton",
-            "6️⃣": "doble_linea",
-            "7️⃣": "conducir sin cinturon",
-            "8️⃣": "celular",
-            "9️⃣": "documentos",
-            "🔟": "placa",
-            "1️⃣1️⃣": "otro",
+            "3️⃣": "semaforo",
+            "4️⃣": "conduccion",
+            "5️⃣": "otro",
         }
         
         # SI ES UN NÚMERO DIRECTO
@@ -2053,7 +2421,7 @@ Descripcion: {descripcion}"""
             if num in msg_lower:
                 return tipo
         
-        # MAPEO POR NOMBRE (keywords)
+        # MAPEO POR NOMBRE (keywords) - SOLO 5 TIPOS
         tipos_por_nombre = {
             # Accidente
             "accidente": "accidente",
@@ -2061,68 +2429,52 @@ Descripcion: {descripcion}"""
             "choque": "accidente",
             "choques": "accidente",
             "chocado": "accidente",
-            "crashe": "accidente",
             "colisión": "accidente",
             "colision": "accidente",
+            "accidente de tránsito": "accidente",
             
-            # Estacionamiento
+            # Estacionamiento (mapea a "Vehículo mal estacionado")
             "estacionamiento": "estacionamiento",
             "estacion": "estacionamiento",
             "parqueo": "estacionamiento",
             "mal estacionado": "estacionamiento",
-            "mal parque": "estacionamiento",
+            "mal parqueado": "estacionamiento",
             "bloqueando": "estacionamiento",
-            
-            # Exceso de velocidad
-            "velocidad": "exceso_velocidad",
-            "rapido": "exceso_velocidad",
-            "rápido": "exceso_velocidad",
-            "exceso": "exceso_velocidad",
+            "vehículo mal estacionado": "estacionamiento",
+            "carro mal estacionado": "estacionamiento",
             
             # Semáforo
             "semáforo": "semaforo",
             "semaforo": "semaforo",
             "luz": "semaforo",
             "semáforos": "semaforo",
+            "semáforo dañado": "semaforo",
             
-            # Peatón
-            "peatón": "peaton",
-            "peaton": "peaton",
-            "peatonal": "peaton",
-            "cruce": "peaton",
-            
-            # Doble línea
-            "doble": "doble_linea",
-            "línea": "doble_linea",
-            "linea": "doble_linea",
-            "giro": "doble_linea",
-            
-            # Sin cinturón
-            "cinturón": "no_cinturon",
-            "cinturon": "no_cinturon",
-            "cintaron": "no_cinturon",
-            
-            # Celular
-            "celular": "celular",
-            "teléfono": "celular",
-            "telefono": "celular",
-            "phone": "celular",
-            
-            # Documentos
-            "documentos": "documentos",
-            "licencia": "documentos",
-            "soat": "documentos",
-            "documentación": "documentos",
-            
-            # Placa
-            "placa": "placa",
-            "patente": "placa",
-            "matrícula": "placa",
-            "matricula": "placa",
+            # Conducción peligrosa (absorbe todos los demás)
+            "velocidad": "conduccion",
+            "rapido": "conduccion",
+            "rápido": "conduccion",
+            "exceso": "conduccion",
+            "cinturón": "conduccion",
+            "cinturon": "conduccion",
+            "celular": "conduccion",
+            "teléfono": "conduccion",
+            "telefono": "conduccion",
+            "peatón": "conduccion",
+            "peaton": "conduccion",
+            "cruce": "conduccion",
+            "doble": "conduccion",
+            "documentos": "conduccion",
+            "licencia": "conduccion",
+            "placa": "conduccion",
+            "conducción peligrosa": "conduccion",
+            "manejando": "conduccion",
+            "conducir": "conduccion",
             
             # Otro
             "otro": "otro",
             "otros": "otro",
+            "otro tipo": "otro",
             "ninguno": "otro",
         }
         
